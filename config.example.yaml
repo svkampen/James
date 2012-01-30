@@ -1,0 +1,14 @@
+# CONFIG FILE FOR RUINBOT
+
+servers:
+    aperture.mangeh.net:
+        port: 6667
+        nick: RUINBot
+        name: RUINBot
+        channels:
+            - '#RUINBot'
+        auth:
+            to: NickServ
+            msg: 'identify <your pass>'
+
+cmdchar: '@' # Command character.
