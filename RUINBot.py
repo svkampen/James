@@ -12,16 +12,32 @@ from oyoyo.client import IRCClient, IRCApp
 from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
 
+import functools # Again, yay Amber.
+
 import logging
 import re
 import yaml # You need PyYAML for this.
+import sys
 
 import traceback
 
 logging.basicConfig(level=logging.INFO)
 config = None
+app = None
+
+def admin_only(f):
+        @functools.wraps(f)
+        def wrapper(self, nick, chan, arg):
+                if nick == 'svkampen!svkampen@Srs.Face':
+                        return f(self, nick, chan, arg)
+                elif nick == 'Nagah!max@Acael.us':
+                	return self._msg(chan, "NO JOIN FOR YU!")
+                else:
+                        return self._msg(chan, "Permission Denied.")
+        return wrapper
 
 class RUINHandler(DefaultCommandHandler):
+
 
     def welcome(self, nick, chan, msg):
         # I had a lot of trouble doing this, so most of the code is copied from Amber (as this seems a great way)
@@ -74,9 +90,35 @@ class RUINHandler(DefaultCommandHandler):
         self._msg(chan, "Ohai! I am RUINBot. Some/Most of my code is forked off Aiiane (Amber Yust)'s Kitn, but we shall be using own code soon =)")
         self._msg(chan, "My owner is svkampen. For more info, go to https://github.com/svkampen/RUINBot/wiki/About")
 
+    @admin_only
+    def cmd_JOIN(self, nick, chan, arg):
+        """Join - Join channels (admin-only)"""
+        self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
+        helpers.join(self.client, arg)
+        logging.info("[JOIN] %s by %s" % (arg, nick))
+    @admin_only
+    def cmd_PART(self, nick, chan, arg):
+        """Part - Part channels (admin-only)"""
+        self._msg(chan, "Parting channel %s on request of %s." % (arg, nick))
+        helpers.part(self.client, arg)
+        logging.info("[PART] %s by %s" % (arg, nick))
+
+    def cmd_TEEHEE(self, nick, chan, arg):
+        """@Haha ported."""
+	self._msg(chan, "Ha. Ha. Ha. Ha. Stayin' Alive!")
+        logging.info("[CMDS] Executed.")
+
+    def cmd_RUINSITE(self, nick, chan, arg):
+	self._msg(chan, "Our site: http://ruincommunity.net/")
+        self._msg(chan, "Donate: http://ruincommunity.net/donate")
+
+    def cmd_CMDS(self, nick, chan, arg):
+	"""CMDS - Commands"""
+	self._msg(chan, "Commands: [@join]*, [@part]*, [@about], [@teehee], [@ruinsite]")
+        self._msg(chan, "* = Owner Only")
+
     def _msg(self, chan, msg):
         helpers.msg(self.client, chan, msg)
-
 if __name__ == '__main__':
 	
         with open('config.yaml') as f:
