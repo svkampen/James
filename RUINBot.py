@@ -118,7 +118,7 @@ class RUINHandler(DefaultCommandHandler):
 	    factoid = ' '.join(args[2:])
 
 
-            db.execute("INSERT INTO mediarefs VALUES('%s', '%s', '%s')"" % (id, word, factoid)
+            db.execute("INSERT INTO mediarefs VALUES('%s', '%s', '%s')"" % (id, word, factoid))
 	    self._msg(chan, "%s: MediaReference Added =) (ID: %s)" % (nick, id))
 
 	    logging.info("[MediaRefs] ADDED REFERENCE %s | %s (Nick: %s)" % (word, factoid, nick))
