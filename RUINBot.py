@@ -16,7 +16,7 @@ import functools # Again, yay Amber.
 
 from urlparse import urlparse
 
-from BeautifulSoup inport BeautifulSoup as soup
+from BeautifulSoup import BeautifulSoup as soup
 
 import logging
 import re
