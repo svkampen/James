@@ -104,7 +104,7 @@ class RUINHandler(DefaultCommandHandler):
         helpers.part(self.client, arg)
         logging.info("[PART] %s by %s" % (arg, nick))
 
-    def cmd_FACT
+    def cmd_FACT(self, nick, chan, arg):
 	usage = lambda: self._msg(chan, "Usage: fact <operation> <trigger> <factoid> | Adds factoids =)")	
 
 	args = arg.split()
