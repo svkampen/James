@@ -51,29 +51,29 @@ class RUINHandler(DefaultCommandHandler):
 
 		# URLs
 
-		self.URL_RE = re.compile(r"""
-				\b
+	self.URL_RE = re.compile(r"""
+			\b
+			(
+				(https?://|www\.)    
+				([a-zA-Z0-9-]+\.)+   # domain segments
+				[a-zA-Z]{2,4}        # TLD
+				
+				# We don't require 'nice' URLs to have a path (/ can be implied)
+			|
+				# URLs that don't start with a 'nice' prefix
+				([a-zA-Z0-9-]+\.)+   # domain segments
+				[a-zA-Z]{2,4}        # TLD
+				(?=/)                # These URLs are required to at least have a /
+			)
+			(
+				/
 				(
-					(https?://|www\.)    
-					([a-zA-Z0-9-]+\.)+   # domain segments
-					[a-zA-Z]{2,4}        # TLD
-					
-					# We don't require 'nice' URLs to have a path (/ can be implied)
+					\([^\s()]+\)     # Allow paired parens
 				|
-					# URLs that don't start with a 'nice' prefix
-  					([a-zA-Z0-9-]+\.)+   # domain segments
-					[a-zA-Z]{2,4}        # TLD
-					(?=/)                # These URLs are required to at least have a /
-				)
-				(
-					/
-					(
-						\([^\s()]+\)     # Allow paired parens
-					|
-						[^\s()]+         # Normal URL content (no parens)
-					)*
-				)?
-			""", re.X)
+					[^\s()]+         # Normal URL content (no parens)
+				)*
+			)?
+		""", re.X)
 
 
     def welcome(self, nick, chan, msg):
