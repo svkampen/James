@@ -18,6 +18,7 @@ import logging
 import re
 import yaml # You need PyYAML for this.
 import sys
+import sqlite3
 
 import traceback
 
@@ -80,7 +81,7 @@ class RUINHandler(DefaultCommandHandler):
                 try:
                     getattr(self, cmd_func)(nick, chan, arg)
                 except:
-                    logging.error("Exception while processing command '%s' D=") % (cmd)
+                    logging.error("Exception while processing command '%s' D=" % (cmd))
             else:
                 logging.warning('Unknown command "%s".' % (cmd))
 
@@ -91,22 +92,17 @@ class RUINHandler(DefaultCommandHandler):
 
     @admin_only
     def cmd_JOIN(self, nick, chan, arg):
-	usage = lambda: self._msg(chan, "Usage: join <chan>")
-        
         self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
         helpers.join(self.client, arg)
         logging.info("[JOIN] %s by %s" % (arg, nick))
 
     @admin_only
     def cmd_PART(self, nick, chan, arg):
-        usage = lambda: self._msg(chan, "Usage: part <chan>")
         self._msg(chan, "Parting channel %s on request of %s." % (arg, nick))
         helpers.part(self.client, arg)
         logging.info("[PART] %s by %s" % (arg, nick))
 
-    def cmd_FACT(self, nick, chan, arg):
-	usage = lambda: self._msg(chan, "Usage: fact <operation> <trigger> <factoid> | Adds factoids =)")	
-
+    def cmd_FACT(self, nick, chan, arg):	
 	args = arg.split()
         
 	global id
@@ -118,7 +114,7 @@ class RUINHandler(DefaultCommandHandler):
 	    factoid = ' '.join(args[2:])
 
 
-            db.execute("INSERT INTO mediarefs VALUES('%s', '%s', '%s')"" % (id, word, factoid))
+            db.execute("INSERT INTO mediarefs VALUES('%s', '%s', '%s')" % (id, word, factoid))
 	    self._msg(chan, "%s: MediaReference Added =) (ID: %s)" % (nick, id))
 
 	    logging.info("[MediaRefs] ADDED REFERENCE %s | %s (Nick: %s)" % (word, factoid, nick))
@@ -132,10 +128,13 @@ class RUINHandler(DefaultCommandHandler):
 
 	if args[0] == "listnr":
 	    
-	    db.execute("SELECT * FROM mediarefs WHERE ID ='%s'"" % (id))
+	    db.execute("SELECT * FROM mediarefs WHERE ID ='%s'" % (id))
 	    self._msg(chan, db.fetchall())
 	    
-	    logging.info("[MediaRefs] Listed %s" %s id)
+	    logging.info("[MediaRefs] Listed %s" % id)
+
+	else:
+	    return
 
     def cmd_TEEHEE(self, nick, chan, arg):
 	self._msg(chan, "Ha. Ha. Ha. Ha. Stayin' Alive!")
