@@ -113,7 +113,7 @@ class RUINHandler(DefaultCommandHandler):
 
 	if args[0] == "add":
 
-            id = id++
+            id += 1
 	    word = args[1]
 	    factoid = ' '.join(args[2:])
 
