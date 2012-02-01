@@ -13,7 +13,7 @@ from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
 
 import functools # Again, yay Amber.
-
+import urllib2
 from urlparse import urlparse
 
 from BeautifulSoup import BeautifulSoup as soup
@@ -110,7 +110,7 @@ class RUINHandler(DefaultCommandHandler):
         if m:
             cmd = m.group(1)
 	    arg = m.group(2)
-	    cmd_func = '_cmd_%s' % cmd.upper()
+	    cmd_func = 'cmd_%s' % cmd.upper()
 	    if hasattr(self, cmd_func):
 	        try:
 		    getattr(self, cmd_func)(nick, chan, arg)
@@ -130,51 +130,50 @@ class RUINHandler(DefaultCommandHandler):
 
     # Commandohs.
 
-	def _url_announce(self, chan, url):
-		# Amber.
-		"""Announce the info for a detected URL in the channel it was detected in."""
-		try:
-			if not url.startswith("http"):
-				url = "http://%s" % url
-			orig_domain = urlparse(url).netloc
-			result = urllib2.urlopen(url, timeout=5)
-			final_url = result.geturl()
-			final_domain = urlparse(final_url).netloc
-			report_components = []
-			if orig_domain != final_domain:
-				report_components.append("[%s]" % final_domain)
-			if result.info().getmaintype() == 'text':
-				# Try parsing it with BeautifulSoup
-				parsed = soup(result.read())
-				title_tag = parsed.find('title')
-				if title_tag:
-					title_segments = re.split(r'[^a-z]+', title_tag.string[:100].lower())
-					title_segment_letters = (
-							''.join(L for L in segment.lower() if L in string.lowercase)
-							for segment in title_segments
-						)
-					title_segment_letters = [s for s in title_segment_letters if s]
-					f = final_url.lower()
-					title_segments_found = [s for s in title_segment_letters if s in f]
-					found_len = len(''.join(title_segments_found))
-					total_len = len(''.join(title_segment_letters))
-
-					if found_len < 0.6 * total_len:
-						logging.info("Reporting title '%s' (found: %s, total: %s)" % (
-							title_tag.string[:100], found_len, total_len))
-						report_components.append('"%s"' % title_tag.string[:100])
-					else:
-						logging.info("Not reporting title '%s' (found: %s, total: %s)" % (
-							title_tag.string[:100], found_len, total_len))
+    def _url_announce(self, chan, url):
+	# Amber.
+	"""Announce the info for a detected URL in the channel it was detected in."""
+	try:
+		if not url.startswith("http"):
+			url = "http://%s" % url
+		orig_domain = urlparse(url).netloc
+		result = urllib2.urlopen(url, timeout=5)
+		final_url = result.geturl()
+		final_domain = urlparse(final_url).netloc
+		report_components = []
+		if orig_domain != final_domain:
+			report_components.append("[%s]" % final_domain)
+		if result.info().getmaintype() == 'text':
+			# Try parsing it with BeautifulSoup
+			parsed = soup(result.read())
+			title_tag = parsed.find('title')
+			if title_tag:
+				title_segments = re.split(r'[^a-z]+', title_tag.string[:100].lower())
+				title_segment_letters = (
+						''.join(L for L in segment.lower() if L in string.lowercase)
+						for segment in title_segments
+					)
+				title_segment_letters = [s for s in title_segment_letters if s]
+				f = final_url.lower()
+				title_segments_found = [s for s in title_segment_letters if s in f]
+				found_len = len(''.join(title_segments_found))
+				total_len = len(''.join(title_segment_letters))
+				if found_len < 0.6 * total_len:
+					logging.info("Reporting title '%s' (found: %s, total: %s)" % (
+						title_tag.string[:100], found_len, total_len))
+					report_components.append('"%s"' % title_tag.string[:100])
+				else:
+					logging.info("Not reporting title '%s' (found: %s, total: %s)" % (
+						title_tag.string[:100], found_len, total_len))
 						
 			# Only announce the url if something caught our attention
 			if report_components:
 				self._msg(chan, "Link points to %s" % ' - '.join(report_components))
 
-		except urllib2.URLError:
-			logging.info("URLError while retrieving %s" % url, exc_info=True)
-		except ValueError:
-			logging.warning("Unable to examine URL %s" % url, exc_info=True)
+                        except urllib2.URLError as e:
+		                logging.info("URLError while retrieving %s" % url, exc_info=True)
+		        except ValueError as e:
+			        logging.warning("Unable to examine URL %s" % url, exc_info=True)
 
 
     def cmd_ABOUT(self, nick, chan, arg):
