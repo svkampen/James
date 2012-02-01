@@ -109,7 +109,7 @@ class RUINHandler(DefaultCommandHandler):
 
 	args = arg.split()
         
-	global id = 0
+	global id
 
 	if args[0] == "add":
 
