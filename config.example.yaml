@@ -11,4 +11,7 @@ servers:
             to: NickServ
             msg: 'identify <your pass>'
 
+db:
+    path: '/path/to/database'
+
 cmdchar: '@' # Command character.
