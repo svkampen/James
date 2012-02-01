@@ -47,7 +47,7 @@ class RUINHandler(DefaultCommandHandler):
     def __init__(self, *args, **kwargs):
 	super(RUINHandler, self).__init__(*args, **kwargs)
 	
-	self.COMMAND_RE = re.compile(r"^(?:%s:\s+|%s)(\w+)(?:\s+(.*))?$" % (self.client.nick, re.escape(config['sigil'])))
+	self.COMMAND_RE = re.compile(r"^(?:%s:\s+|%s)(\w+)(?:\s+(.*))?$" % (self.client.nick, re.escape(config['cmdchar'])))
 
 		# URLs
 
@@ -107,19 +107,19 @@ class RUINHandler(DefaultCommandHandler):
 
         # Match the cmdchar or RUINBot's nick (@Amber I love you. This is epic. I love your code 
         m = self.COMMAND_RE.match(msg)
-	    if m:
-	        cmd = m.group(1)
-		arg = m.group(2)
-		cmd_func = '_cmd_%s' % cmd.upper()
-		if hasattr(self, cmd_func):
-		    try:
-			getattr(self, cmd_func)(nick, chan, arg)
-		    except:
-		        logging.error("Exception while attempting to process command '%s'" % cmd, exc_info=True)
-			# Don't try to parse a URL in a recognized command
-	            return
-		else:
-		    logging.warning('Unknown command "%s".' % cmd)
+        if m:
+            cmd = m.group(1)
+	    arg = m.group(2)
+	    cmd_func = '_cmd_%s' % cmd.upper()
+	    if hasattr(self, cmd_func):
+	        try:
+		    getattr(self, cmd_func)(nick, chan, arg)
+	        except:
+	            logging.error("Exception while attempting to process command '%s'" % cmd, exc_info=True)
+		    # Don't try to parse a URL in a recognized command
+        	return
+	    else:
+		logging.warning('Unknown command "%s".' % cmd)
 
 	m = self.URL_RE.search(msg)
 	if m:
