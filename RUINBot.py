@@ -14,6 +14,7 @@ from oyoyo import helpers
 
 import functools # Again, yay Amber.
 import urllib2
+
 from urlparse import urlparse
 
 from BeautifulSoup import BeautifulSoup as soup
@@ -170,10 +171,10 @@ class RUINHandler(DefaultCommandHandler):
 			if report_components:
 				self._msg(chan, "Link points to %s" % ' - '.join(report_components))
 
-                        except urllib2.URLError as e:
-		                logging.info("URLError while retrieving %s" % url, exc_info=True)
-		        except ValueError as e:
-			        logging.warning("Unable to examine URL %s" % url, exc_info=True)
+        except urllib2.URLError as e:
+	        logging.info("URLError while retrieving %s" % url, exc_info=True)
+	except ValueError as e:
+	        logging.warning("Unable to examine URL %s" % url, exc_info=True)
 
 
     def cmd_ABOUT(self, nick, chan, arg):
@@ -219,18 +220,20 @@ class RUINHandler(DefaultCommandHandler):
 	if args[0] == "list":
 	    
 	    db.execute("SELECT * FROM factoids")
-	    self._msg(chan, db.fetchall())
+	    
+	    result = db.fetchall()
+
+	    self._msg(chan, result)
 	    
 	    logging.info("[FACTOIDS] Factoids listed.!")
 
 	if args[0] == "listnr":
-	    
-	    factoidID = args[1]
+		factoidID = args[1]
+		db.execute("SELECT * FROM factoids WHERE ID = %s" % (factoidID)
+		result = db.fetchall()
+		self._msg(chan, result)
 
-	    db.execute("SELECT * FROM factoids WHERE ID = '%s'" % factoidID)
-	    self._msg(chan, db.fetchall())
-	    
-	    logging.info("[FACTOIDS] Listed %s" % id)
+		logging.info("[FACTOIDS] Listed %s" % id)
 
 	def _cmd_XKCD(self, nick, chan, arg):
 		# My code, even though amber's is almost the same.
@@ -269,9 +272,10 @@ if __name__ == '__main__':
         with open('config.yaml') as f:
 		config = yaml.safe_load(f)
 	
-	db = sqlite3.connect(config['db']['path'])
+	database = sqlite3.connect(config['db']['path'])
+	db = database.cursor()
         db.execute("""CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT, trigger TEXT, factoid TEXT)""")
-	db.commit()
+	database.commit()
 	
 	
 
