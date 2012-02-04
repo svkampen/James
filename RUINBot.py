@@ -14,7 +14,7 @@ from oyoyo import helpers
 
 import functools # Again, yay Amber.
 import urllib2
-
+import json
 from urlparse import urlparse
 
 from BeautifulSoup import BeautifulSoup as soup
@@ -181,7 +181,7 @@ class RUINHandler(DefaultCommandHandler):
         self._msg(chan, "Ohai! I am RUINBot. Some/Most of my code is forked off Aiiane (Amber Yust)'s Kitn, but we shall be using own code soon =)")
         self._msg(chan, "My owner is svkampen. For more info, go to https://github.com/svkampen/RUINBot/wiki/About")
 
-    def _cmd_CHOOSE(self, nick, chan, arg):
+    def cmd_CHOOSE(self, nick, chan, arg):
 	"""choose - Given a set of items, pick one randomly."""
 	usage = lambda: self._msg(chan, "Usage: choose <item> <item> ...")
 	items = arg.split()
@@ -203,39 +203,25 @@ class RUINHandler(DefaultCommandHandler):
         logging.info("[PART] %s by %s" % (arg, nick))
 
 
-    def cmd_FACTOID(self, nick, chan, arg):	
-	args = arg.split()
+    def cmd_VOTE(self, nick, chan, arg):
+		args = arg.split()
+		db.execute("CREATE TABLE IF NOT EXISTS sqlvote (bool TEXT, nick TEXT)")
+		if args[0] == "yes":
+			db.execute("INSERT INTO sqlvote (bool, nick) VALUES ('yes', '%s')" % args[1])
+			self._msg(chan, "%s voted yes!" % nick)
+			database.commit()
+		if args[0] == "no":
+			db.execute("INSERT INTO sqlvote (bool, nick) VALUES ('no', '%s')" % args[1])
+			self._msg(chan, "%s voted no!" % nick)
+			database.commit()
+		if args[0] == "list":
+			nickname = args[1]
+			nick = db.execute("SELECT nick FROM sqlvote WHERE nick = ?", (nickname,)).fetchone()
+			chose = db.execute("SELECT bool FROM sqlvote WHERE nick = ?", (nickname,)).fetchone()
+			self._msg(chan, "Nick: %s" % nick)
+			self._msg(chan, "Chose: %s" % chose)
 
-	if args[0] == "add":
-	    word = args[1]
-	    factoid = ' '.join(args[2:])
-
-
-            db.execute("INSERT INTO factoids (trigger, factoid) VALUES('%s', '%s')" % (word, factoid))
-	    r_id = result.lastrowid
-	    self._msg(chan, "%s: Factoid Added =) (ID: %s)" % (nick, r_id))
-
-	    logging.info("[FACTOIDS] ADDED REFERENCE %s | %s (Nick: %s)" % (word, factoid, nick))
-
-	if args[0] == "list":
-	    
-	    db.execute("SELECT * FROM factoids")
-	    
-	    result = db.fetchall()
-
-	    self._msg(chan, result)
-	    
-	    logging.info("[FACTOIDS] Factoids listed.!")
-
-	if args[0] == "listnr":
-		factoidID = args[1]
-		db.execute("SELECT * FROM factoids WHERE ID = %s" % (factoidID)
-		result = db.fetchall()
-		self._msg(chan, result)
-
-		logging.info("[FACTOIDS] Listed %s" % id)
-
-	def _cmd_XKCD(self, nick, chan, arg):
+    def cmd_XKCD(self, nick, chan, arg):
 		# My code, even though amber's is almost the same.
 		try:
 			comic = int(arg)
