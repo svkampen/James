@@ -35,7 +35,7 @@ app = None
 def admin_only(f):
         @functools.wraps(f)
         def wrapper(self, nick, chan, arg):
-                if nick == 'svkampen!svkampen@Srs.Face':
+                if nick == 'svkampen!svkampen@Srs.Face' or nick == 'neoinr!robin@flp.st':
                         return f(self, nick, chan, arg)
                 elif nick == 'Nagah!max@Acael.us':
                 	return self._msg(chan, "NO ADMEEN FOR YU!")
@@ -241,13 +241,15 @@ class RUINHandler(DefaultCommandHandler):
     def cmd_TEEHEE(self, nick, chan, arg):
 	self._msg(chan, "Ha. Ha. Ha. Ha. Stayin' Alive!")
         logging.info("[CMDS] Executed.")
-
+    def cmd_SPACE(self, nick, chan, arg:
+	self._msg(chan, "%s%s%s" % ("Sp","a"*arg,"ce")
+	logging.info("[CMDS] Executed.")
     def cmd_RUINSITE(self, nick, chan, arg):
 	self._msg(chan, "Our site: http://ruincommunity.net/")
         self._msg(chan, "Donate: http://ruincommunity.net/donate")
 
     def cmd_CMDS(self, nick, chan, arg):
-	self._msg(chan, "Commands: [@join]*, [@part]*, [@about], [@teehee], [@ruinsite]")
+	self._msg(chan, "Commands: [@join]*, [@part]*, [@about], [@teehee], [@ruinsite], [@space]")
         self._msg(chan, "* = Owner Only")
 
     def _msg(self, chan, msg):
