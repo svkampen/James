@@ -242,8 +242,11 @@ class RUINHandler(DefaultCommandHandler):
 	self._msg(chan, "Ha. Ha. Ha. Ha. Stayin' Alive!")
         logging.info("[CMDS] Executed.")
     def cmd_SPACE(self, nick, chan, arg):
-	self._msg(chan, "%s%s%s" % ("Sp","a"*int(arg),"ce"))
-	logging.info("[CMDS] Executed.")
+        if int(arg) >= len(self.client.nick) + 490:
+            arg = 450
+        print self.client.nick
+        self._msg(chan, "%s%s%s" % ("Sp","a"*int(arg),"ce"))
+        logging.info("[CMDS] Executed.")
     def cmd_RUINSITE(self, nick, chan, arg):
 	self._msg(chan, "Our site: http://ruincommunity.net/")
         self._msg(chan, "Donate: http://ruincommunity.net/donate")
