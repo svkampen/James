@@ -241,7 +241,7 @@ class RUINHandler(DefaultCommandHandler):
     def cmd_TEEHEE(self, nick, chan, arg):
 	self._msg(chan, "Ha. Ha. Ha. Ha. Stayin' Alive!")
         logging.info("[CMDS] Executed.")
-    def cmd_SPACE(self, nick, chan, arg:
+    def cmd_SPACE(self, nick, chan, arg):
 	self._msg(chan, "%s%s%s" % ("Sp","a"*arg,"ce")
 	logging.info("[CMDS] Executed.")
     def cmd_RUINSITE(self, nick, chan, arg):
