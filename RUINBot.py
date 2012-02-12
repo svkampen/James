@@ -48,7 +48,6 @@ class RUINHandler(DefaultCommandHandler):
 
     def __init__(self, *args, **kwargs):
         super(RUINHandler, self).__init__(*args, **kwargs)
-    
         self.COMMAND_RE = re.compile(r"^(?:%s:\s+|%s)(\w+)(?:\s+(.*))?$" % (self.client.nick, re.escape(config['cmdchar'])))
 
         # URLs
@@ -122,10 +121,10 @@ class RUINHandler(DefaultCommandHandler):
         else:
             logging.warning('Unknown command "%s".' % cmd)
 
-    m = self.URL_RE.search(msg)
-    if m:
-        logging.info("Found URL in %s: %s" % (chan, m.group()))
-        self._url_announce(chan, m.group())
+        m = self.URL_RE.search(msg)
+        if m:
+            logging.info("Found URL in %s: %s" % (chan, m.group()))
+            self._url_announce(chan, m.group())
 
 
 
