@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# RUINBot, Codename Panthera. 
+# RUINBot, Codename Twitacious 
 # (C) 2012 Sam van Kampen
 #
 # Some of the main code copied from Kitn (as there is no Oyoyo documentation)
@@ -13,9 +13,7 @@ from oyoyo.client import IRCClient, IRCApp
 from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
 
-import functools # Again, yay Amber.
-import urllib2
-import json
+import json, urllib2, functools, tweepy
 from urlparse import urlparse
 
 from BeautifulSoup import BeautifulSoup as soup
@@ -44,6 +42,16 @@ def admin_only(f):
                         return self._msg(chan, "Permission Denied.")
         return wrapper
 
+def tweeters_only(f):
+    @functools.wraps(f)
+    def wrapper(self, nick, chan, arg):
+        if nick == 'svkampen!svkampen@Srs.Face':
+            return f(self, nick, chan, arg)
+        elif nick == 'Nagah!max@Acael.us':
+            return self._msg(chan, "NO TWEET FOR YU!")
+        else:
+            return self._msg(chan, "Permission to tweet denied.")
+    
 class RUINHandler(DefaultCommandHandler):
 
     def __init__(self, *args, **kwargs):
@@ -177,8 +185,8 @@ class RUINHandler(DefaultCommandHandler):
 
 
     def cmd_ABOUT(self, nick, chan, arg):
-        self._msg(chan, "Ohai! I am RUINBot. Some/Most of my code is forked off Aiiane (Amber Yust)'s Kitn, but we shall be using own code soon =)")
-        self._msg(chan, "My owner is svkampen. For more info, go to https://github.com/svkampen/RUINBot/wiki/About")
+        self._msg(chan, "Hi! I'm RUINBot. I am the bot created by Sam van Kampen (with some help from Aiiane/Aeriele/Amber).")
+        self._msg(chan, "My code is hosted at GitHub.")
 
     def cmd_CHOOSE(self, nick, chan, arg):
         """choose - Given a set of items, pick one randomly."""
@@ -201,7 +209,30 @@ class RUINHandler(DefaultCommandHandler):
         helpers.part(self.client, arg)
         logging.info("[PART] %s by %s" % (arg, nick))
 
+    @tweeters_only
+    def cmd_TWEET(self, nick, arg):
+        usage = lambda: self._msg(chan, "Usage: tweet <tweet>")
+        
+        if not arg:
+            return usage()
+        
+        consumer_key=config['twitter']['consumerkey']
+        consumer_secret=config['twitter']['consumersecret']
+        
+        access_token=config['twitter']['accesstoken']
+        access_secret=config['twitter']['accesssecret']
+        
+        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+        auth.set_access_token(access_token, access_secret)
+        
+        api = tweepy.API(auth)
+        username = api.me().name
+        logging.info("[TWEEPY] Successfully authenticated via OAuth! Yay! (Uname: '%s')" % username)
 
+        logging.info("[TWEEPY] Updating status...")
+        api.update_status('%s' % arg)
+        logging.info("[TWEEPY] Updated.")
+        
     def cmd_REMEMBER(self, nick, chan, arg):
         args = arg.split()
         usage = lambda: self._msg(chan, "Usage: remember <trigger> <factoid>")
