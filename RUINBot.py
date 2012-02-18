@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# RUINBot, Codename Twitacious 
+# RUINBot, Codename Pastalicious.
 # (C) 2012 Sam van Kampen
 #
 # Some of the main code copied from Kitn (as there is no Oyoyo documentation)
@@ -13,7 +13,7 @@ from oyoyo.client import IRCClient, IRCApp
 from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
 
-import json, urllib2, functools, tweepy
+import json, urllib2, functools, tweepy, urllib
 from urlparse import urlparse
 
 from BeautifulSoup import BeautifulSoup as soup
@@ -209,7 +209,6 @@ class RUINHandler(DefaultCommandHandler):
         helpers.part(self.client, arg)
         logging.info("[PART] %s by %s" % (arg, nick))
 
-    @tweeters_only
     def cmd_TWEET(self, nick, arg):
         usage = lambda: self._msg(chan, "Usage: tweet <tweet>")
         
@@ -233,6 +232,29 @@ class RUINHandler(DefaultCommandHandler):
         api.update_status('%s' % arg)
         logging.info("[TWEEPY] Updated.")
         
+    def cmd_PASTEBIN(self, nick, chan, arg):
+        usage = lambda: self._msg(chan, "pastebin <stuffstuff>")
+        
+        if not arg:
+            return usage()
+        
+        url = 'http://pastebin.com/api/api_post.php'
+        
+        values = {'api_dev_key' : '120c7c03f4960b390931ee922605c0f0',
+                  'api_paste_code' : '%s',
+                  'api_option' : 'paste' % arg,
+                  }
+        
+        try:
+            data = urllib.urlencode(values)
+            req = urllib2.Request(url, data)
+            response = urllib2.urlopen(req)
+            
+            pasteurl = response.read()
+            print("Paste URL: %s" % pasteurl)
+        except Exception, detail:
+            print "Error: ", detail
+
     def cmd_REMEMBER(self, nick, chan, arg):
         args = arg.split()
         usage = lambda: self._msg(chan, "Usage: remember <trigger> <factoid>")
