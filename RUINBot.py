@@ -106,8 +106,8 @@ class RUINHandler(DefaultCommandHandler):
         nick = nick.split('!')
         if nick == "RUINBot":
             return
-        seennick(nick, chan)
-        setnickmodes(nick, chan)
+        self.seennick(nick, chan)
+        self.setnickmodes(nick, chan)
 
     def seennick(self, nick, chan):
         seen = db.execute("SELECT seen FROM nickrecall WHERE nick = ?", (nick,)).fetchone()
