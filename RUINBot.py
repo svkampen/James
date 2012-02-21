@@ -99,11 +99,13 @@ class RUINHandler(DefaultCommandHandler):
 
     def privmsg(self, nick, chan, msg):
         nick = nick.split('!')
+	nick = nick[0]
         logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))     
         self.parser(nick, chan, msg)
 
     def join(self, nick, chan):
         nick = nick.split('!')
+	nick = nick[0]
         if nick == "RUINBot":
             return
         self.seennick(nick, chan)
@@ -128,17 +130,17 @@ class RUINHandler(DefaultCommandHandler):
         m = self.COMMAND_RE.match(msg)
         if m:
             cmd = m.group(1)
-        arg = m.group(2)
-        cmd_func = 'cmd_%s' % cmd.upper()
-        if hasattr(self, cmd_func):
-            try:
-                getattr(self, cmd_func)(nick, chan, arg)
-            except:
-                logging.error("Exception while attempting to process command '%s'" % cmd, exc_info=True)
-            # Don't try to parse a URL in a recognized command
-            return
-        else:
-            logging.warning('Unknown command "%s".' % cmd)
+            arg = m.group(2)
+            cmd_func = 'cmd_%s' % cmd.upper()
+            if hasattr(self, cmd_func):
+                try:
+                    getattr(self, cmd_func)(nick, chan, arg)
+                except:
+                    logging.error("Exception while attempting to process command '%s'" % cmd, exc_info=True)
+                # Don't try to parse a URL in a recognized command
+                return
+            else:
+                logging.warning('Unknown command "%s".' % cmd)
 
         m = self.URL_RE.search(msg)
         if m:
