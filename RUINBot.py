@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# RUINBot, Codename Pastalicious.
+# RUINBot, Codename NickyMinaj.
 # (C) 2012 Sam van Kampen
 #
 # Some of the main code copied from Kitn (as there is no Oyoyo documentation)
@@ -41,16 +41,6 @@ def admin_only(f):
                 else:
                         return self._msg(chan, "Permission Denied.")
         return wrapper
-
-def tweeters_only(f):
-    @functools.wraps(f)
-    def wrapper(self, nick, chan, arg):
-        if nick == 'svkampen!svkampen@Srs.Face':
-            return f(self, nick, chan, arg)
-        elif nick == 'Nagah!max@Acael.us':
-            return self._msg(chan, "NO TWEET FOR YU!")
-        else:
-            return self._msg(chan, "Permission to tweet denied.")
     
 class RUINHandler(DefaultCommandHandler):
 
@@ -108,12 +98,33 @@ class RUINHandler(DefaultCommandHandler):
 
 
     def privmsg(self, nick, chan, msg):
+        nick = nick.split('!')
         logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))     
         self.parser(nick, chan, msg)
 
+    def join(self, nick, chan):
+        nick = nick.split('!')
+        if nick == "RUINBot":
+            return
+        seennick(nick, chan)
+        setnickmodes(nick, chan)
+
+    def seennick(self, nick, chan):
+        seen = db.execute("SELECT seen FROM nickrecall WHERE nick = ?", (nick,)).fetchone()
+        if not seen:
+            self._msg(chan, "Welcome to %s, %s! Join #minecraft for server chat." % (nick, chan))
+            db.execute("INSERT INTO nickrecall (seen) VALUES ('TRUE')")
+            return
+        self._msg("Welcome back, %s!" % nick)
+                
+    def setnickmodes(self, nick, chan):
+        modes = db.execute("SELECT modes FROM nickrecall WHERE nick = ?", (nick,)).fetchone()
+        if not modes:
+            return
+        client.send('MODE', '%s', modes, '%s' % (chan, nick))
+        
     def parser(self, nick, chan, msg):
 
-        # Match the cmdchar or RUINBot's nick (@Amber I love you. This is epic. I love your code 
         m = self.COMMAND_RE.match(msg)
         if m:
             cmd = m.group(1)
@@ -302,12 +313,13 @@ class RUINHandler(DefaultCommandHandler):
     def cmd_SPACE(self, nick, chan, arg):
         self._msg(chan, "%s%s%s" % ("Sp","a"*int(arg),"ce"))
         logging.info("[CMDS] Executed.")
+
     def cmd_RUINSITE(self, nick, chan, arg):
         self._msg(chan, "Our site: http://ruincommunity.net/")
         self._msg(chan, "Donate: http://ruincommunity.net/donate")
 
     def cmd_CMDS(self, nick, chan, arg):
-        self._msg(chan, "Commands: [@join]*, [@part]*, [@xkcd], [@about], [@teehee], [@ruinsite], [@space], [@choose]")
+        self._msg(chan, "Commands: [@join]*, [@part]*, [@xkcd], [@about], [@teehee], [@ruinsite], [@space], [@choose], [@tweet], [@remember], [@recall]")
         self._msg(chan, "* = Owner Only")
 
     def _msg(self, chan, msg):
@@ -320,6 +332,7 @@ if __name__ == '__main__':
     
         database = sqlite3.connect(config['db']['path'])
         db = database.cursor()
+        db.execute("""CREATE TABLE IF NOT EXISTS nickrecall (nick TEXT, modes TEXT, seen TEXT)""")
         db.execute("""CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT, trigger TEXT, factoid TEXT)""")
         database.commit()
     
