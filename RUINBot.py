@@ -116,7 +116,7 @@ class RUINHandler(DefaultCommandHandler):
     def seennick(self, nick, chan):
         seen = db.execute("SELECT seen FROM nickrecall WHERE nick = ?", (nick,)).fetchone()
         if not seen:
-            self._msg(chan, "Welcome to %s, %s! Join #minecraft for server chat." % (nick, chan))
+            self._msg(chan, "Welcome to %s, %s! Join #minecraft for server chat." % (chan, nick))
             db.execute("INSERT INTO nickrecall (seen) VALUES ('TRUE')")
             return
         self._msg("Welcome back, %s!" % nick)
@@ -282,6 +282,9 @@ class RUINHandler(DefaultCommandHandler):
             db.execute("UPDATE factoids SET factoid = ? WHERE trigger = ?", (factoid, existing[0]))
         else:
             db.execute("INSERT INTO factoids (trigger, factoid) VALUES ('%s', '%s')" % (trigger, factoid))
+
+    def cmd_FORGET(self, nick, chan, arg):
+        
 
     @admin_only
     def cmd_SETAUTOMODES(self, nick, chan, arg):
