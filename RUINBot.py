@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# RUINBot, Codename NickyMinaj.
+# RUINBot 0.33 (Morrizv2)
 # (C) 2012 Sam van Kampen
 #
 # Some of the main code copied from Kitn (as there is no Oyoyo documentation)
@@ -34,7 +34,7 @@ app = None
 def admin_only(f):
         @functools.wraps(f)
         def wrapper(self, nick, chan, arg):
-                if nick == 'svkampen!svkampen@Srs.Face' or nick == 'neoinr!robin@flp.st':
+                if nick == 'svkampen!svkampen@tehsvk.net' or nick == 'neoinr!robin@flp.st':
                         return f(self, nick, chan, arg)
                 elif nick == 'Nagah!max@Acael.us':
                     return self._msg(chan, "NO ADMEEN FOR YU!")
@@ -105,14 +105,14 @@ class RUINHandler(DefaultCommandHandler):
 
     def join(self, nick, chan):
         nick = nick.split('!')
-	nick = nick[0]
+        justnick = nick[0]
         if nick == "RUINBot":
             return
         self.seennick(nick, chan)
         self.setnickmodes(nick, chan)
 
     def seennick(self, nick, chan):
-        seen = db.execute("SELECT seen FROM nickrecall WHERE nick = %s" % nick).fetchone()
+        seen = db.execute("SELECT seen FROM nickrecall WHERE nick = ?", (nick,)).fetchone()
         if not seen:
             self._msg(chan, "Welcome to %s, %s! Join #minecraft for server chat." % (nick, chan))
             db.execute("INSERT INTO nickrecall (seen) VALUES ('TRUE')")
@@ -120,7 +120,7 @@ class RUINHandler(DefaultCommandHandler):
         self._msg("Welcome back, %s!" % nick)
                 
     def setnickmodes(self, nick, chan):
-        modes = db.execute("SELECT modes FROM nickrecall WHERE nick = %s" % nick).fetchone()
+        modes = db.execute("SELECT modes FROM nickrecall WHERE nick = ? AND chan = ?", (nick, chan)).fetchone()
         if not modes:
             return
         client.send('MODE', '%s', modes, '%s' % (chan, nick))
@@ -281,6 +281,37 @@ class RUINHandler(DefaultCommandHandler):
         else:
             db.execute("INSERT INTO factoids (trigger, factoid) VALUES ('%s', '%s')" % (trigger, factoid))
 
+    @admin_only
+    def cmd_SETAUTOMODES(self, nick, chan, arg):
+        usage = lambda: self._msg(chan, "Usage: setautomodes <nick> <modes> <chan>")
+        notopered = lambda: self._msg(chan, "[ERR] Not opered up!")
+        if not arg:
+            return usage()
+        if not operedup:
+            return notopered()
+        
+        args = arg.split()
+        nick = args[0]
+        modes = args[1]
+        chan = args[2]
+        
+        existing = db.execute("SELECT modes FROM nickrecall WHERE nick = ? AND chan = ?", (nick, chan)).fetchone()
+        if existing:
+            db.execute("UPDATE nickrecall SET modes = ? WHERE nick = ? AND chan = ?", (modes, nick, chan))
+            database.commit()
+        else:
+            db.execute("INSERT INTO nickrecall (modes, nick, chan) VALUES (?,?,?)", (modes, nick, chan))
+            database.commit()
+            
+    @admin_only
+    def cmd_OPERUP(self, nick, chan, arg):
+        usage = lambda: self._msg(chan, "Usage: operup (duh)")
+        opernick = config['oper']['nick']
+        operpass = config['oper']['pass']
+        client.send('OPER', opernick, operpass)
+        logging.info("[INFO] Opered up!")
+        operedup = True
+        
     def cmd_RECALL(self, nick, chan, arg):
         args = arg.split()
         usage = lambda: self._msg(chan, "Usage: recall <trigger>")
@@ -334,7 +365,7 @@ if __name__ == '__main__':
     
         database = sqlite3.connect(config['db']['path'])
         db = database.cursor()
-        db.execute("""CREATE TABLE IF NOT EXISTS nickrecall (nick TEXT, modes TEXT, seen TEXT)""")
+        db.execute("""CREATE TABLE IF NOT EXISTS nickrecall (nick TEXT, chan TEXT, modes TEXT, seen TEXT)""")
         db.execute("""CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT, trigger TEXT, factoid TEXT)""")
         database.commit()
     
