@@ -259,7 +259,7 @@ class RUINHandler(DefaultCommandHandler):
                   'api_paste_code' : '%s',
                   'api_option' : 'paste' % arg,
                   }
-        
+
         try:
             data = urllib.urlencode(values)
             req = urllib2.Request(url, data)
@@ -283,13 +283,6 @@ class RUINHandler(DefaultCommandHandler):
         else:
             db.execute("INSERT INTO factoids (trigger, factoid) VALUES ('%s', '%s')" % (trigger, factoid))
 
-    def cmd_FORGET(self, nick, chan, arg):
-        usage = lambda: self._msg(chan, "Usage: forget <trigger>")
-        if not arg:
-            return usage
-        existing = db.execute("SELECT factoid FROM factoids WHERE trigger = ?", (arg,)).fetchone()
-        if existing:
-            db.execute("DELETE FROM")
 
     @admin_only
     def cmd_SETAUTOMODES(self, nick, chan, arg):
