@@ -110,6 +110,8 @@ class RUINHandler(DefaultCommandHandler):
             return
         self.seennick(nick, chan)
         self.setnickmodes(nick, chan)
+        
+    
 
     def seennick(self, nick, chan):
         seen = db.execute("SELECT seen FROM nickrecall WHERE nick = ?", (nick,)).fetchone()
@@ -269,10 +271,10 @@ class RUINHandler(DefaultCommandHandler):
             print "Error: ", detail
 
     def cmd_REMEMBER(self, nick, chan, arg):
-        args = arg.split()
         usage = lambda: self._msg(chan, "Usage: remember <trigger> <factoid>")
-        if not args:
+        if not arg:
             return usage()
+        args = arg.split()
         trigger = args[0]
         factoid = args[1]
         existing = db.execute("SELECT id FROM factoids WHERE trigger = ?", (trigger,)).fetchone()
@@ -313,10 +315,10 @@ class RUINHandler(DefaultCommandHandler):
         operedup = True
         
     def cmd_RECALL(self, nick, chan, arg):
-        args = arg.split()
         usage = lambda: self._msg(chan, "Usage: recall <trigger>")
-        if not args:
+        if not arg:
             return usage()
+        args = arg.split()
         trigger = args[0]
         factoid = db.execute("SELECT factoid FROM factoids WHERE trigger = ?", (trigger,)).fetchone()
         self._msg(chan, "%s: %s" % (trigger, factoid))
