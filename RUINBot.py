@@ -106,10 +106,10 @@ class RUINHandler(DefaultCommandHandler):
     def join(self, nick, chan):
         nick = nick.split('!')
         justnick = nick[0]
-        if nick == "RUINBot":
+        if justnick == "RUINBot":
             return
-        self.seennick(nick, chan)
-        self.setnickmodes(nick, chan)
+        self.seennick(justnick, chan)
+        self.setnickmodes(justnick, chan)
         
     
 
