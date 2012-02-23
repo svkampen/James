@@ -223,6 +223,14 @@ class RUINHandler(DefaultCommandHandler):
         helpers.part(self.client, arg)
         logging.info("[PART] %s by %s" % (arg, nick))
 
+    def cmd_SETNICK(self, nick, chan, arg):
+        usage = lambda: self._msg(chan, "Usage: setnick <nick>")
+        if not arg:
+            return usage()
+        self._msg(chan, "Changing nick to %s!" % arg)
+        client.send('NICK', '%s' % arg)
+        logging.info("[NICKCHANGE] -> %s" % arg)
+
     # SORTA SPECIAL COMMANDS
 
     def cmd_TWEET(self, nick, chan, arg):
@@ -270,6 +278,8 @@ class RUINHandler(DefaultCommandHandler):
             print("Paste URL: %s" % pasteurl)
         except Exception, detail:
             print "Error: ", detail
+
+    # MAINLY FACTOID COMMANDS
 
     def cmd_REMEMBER(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: remember <trigger> <factoid>")
