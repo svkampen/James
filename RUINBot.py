@@ -223,6 +223,7 @@ class RUINHandler(DefaultCommandHandler):
         helpers.part(self.client, arg)
         logging.info("[PART] %s by %s" % (arg, nick))
 
+    @admin_only
     def cmd_SETNICK(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: setnick <nick>")
         if not arg:
