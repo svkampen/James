@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# RUINBot 0.33 (Morrizv2)
+# RUINBot version 23022012
 # (C) 2012 Sam van Kampen
 #
 # Some of the main code copied from Kitn (as there is no Oyoyo documentation)
@@ -108,8 +108,13 @@ class RUINHandler(DefaultCommandHandler):
             return
         self.seennick(justnick, chan)
         self.setnickmodes(justnick, chan)
+        self.news("JOINNEWS", chan)
         
     
+    def news(self, newstype, chan):
+        news = db.execute("SELECT news FROM news WHERE newstype = ? AND chan = ?", (newstype, chan))
+        rawnews = news[0]
+        self._msg(chan, "Join News for %s: %s" % (chan, rawnews))
 
     def seennick(self, nick, chan):
         seen = db.execute("SELECT seen FROM nickrecall WHERE nick = ?", (nick,)).fetchone()
@@ -327,7 +332,7 @@ class RUINHandler(DefaultCommandHandler):
         self._msg(chan, 'Forgot %s!' % trigger)
         logging.info("Forgot '%s' (%s)" % (trigger, factoid))
         
-    # SOME COMIC COMMANDS
+    # SOME COMIC AND FUN COMMANDS
     
     def cmd_XKCD(self, nick, chan, arg):
         # My code, even though amber's is almost the same.
@@ -355,12 +360,6 @@ class RUINHandler(DefaultCommandHandler):
         self._msg(chan, "%s%s%s" % ("Sp","a"*int(arg),"ce"))
         logging.info("[CMDS] Executed.")
 
-    # GENERAL RUIN COMMANDS
-
-    def cmd_RUINSITE(self, nick, chan, arg):
-        self._msg(chan, "Our site: http://ruincommunity.net/")
-        self._msg(chan, "Donate: http://ruincommunity.net/donate")
-
     def cmd_CMDS(self, nick, chan, arg):
         self._msg(chan, "Commands: [@join]*, [@part]*, [@xkcd], [@about], [@teehee], [@ruinsite], [@space], [@choose], [@tweet], [@remember], [@recall]")
         self._msg(chan, "* = Owner Only")
@@ -370,7 +369,7 @@ class RUINHandler(DefaultCommandHandler):
     @admin_only
     def cmd_SETAUTOMODES(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: setautomodes <nick> <modes> <chan>")
-        notopered = lambda: self._msg(chan, "[ERR] Not opered up!")
+        notopered = lambda: self._msg(chan, "[ERR]Not opered up!")
         if not arg:
             return usage()
         if not self.operedup:
@@ -412,6 +411,7 @@ if __name__ == '__main__':
         db = database.cursor()
         db.execute("""CREATE TABLE IF NOT EXISTS nickrecall (nick TEXT, chan TEXT, modes TEXT, seen TEXT)""")
         db.execute("""CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT, trigger TEXT, factoid TEXT)""")
+        db.execute("""CREATE TABLE IF NOT EXISTS news (news TEXT, newstype TEXT, setby TEXT, chan TEXT""")
         database.commit()
     
     
