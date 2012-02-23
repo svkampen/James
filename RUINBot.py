@@ -291,7 +291,7 @@ class RUINHandler(DefaultCommandHandler):
         notopered = lambda: self._msg(chan, "[ERR] Not opered up!")
         if not arg:
             return usage()
-        if not operedup:
+        if not self.operedup:
             return notopered()
         
         args = arg.split()
@@ -316,7 +316,7 @@ class RUINHandler(DefaultCommandHandler):
         operpass = config['oper']['pass']
         client.send('OPER', opernick, operpass)
         logging.info("[INFO] Opered up!")
-        operedup = True
+        self.operedup = True
         
     def cmd_RECALL(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: recall <trigger>")
