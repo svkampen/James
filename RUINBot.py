@@ -328,7 +328,17 @@ class RUINHandler(DefaultCommandHandler):
             return nonexistant()
         factoid = factoid[0]
         self._msg(chan, "%s: %s" % (trigger, factoid))
-
+        
+    def cmd_FORGET(self, nick, chan, arg):
+        usage = lambda: self._msg(chan, "Usage: forget <trigger>")
+        nonexistant = lambda: self._msg(chan, "Unable to forger '%s'. Nonexistant?" % arg)
+        if not arg:
+            return usage()
+        trigger = arg
+        result = db.execute("DELETE FROM factoids WHERE trigger = ?", (trigger,))
+        if not result:
+            return nonexistant()
+        
     def cmd_XKCD(self, nick, chan, arg):
         # My code, even though amber's is almost the same.
         try:
