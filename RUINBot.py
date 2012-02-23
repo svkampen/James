@@ -34,7 +34,7 @@ app = None
 def admin_only(f):
         @functools.wraps(f)
         def wrapper(self, nick, chan, arg):
-                if nick == 'svkampen!svkampen@RUIN-AA7A230B.cm-12-4b.dynamic.ziggo.nl' or nick == 'neoinr!robin@flp.st':
+                if nick == 'svkampen!svkampen@Srs.Face' or nick == 'neoinr!robin@flp.st':
                         return f(self, nick, chan, arg)
                 elif nick == 'Nagah!max@Acael.us':
                     return self._msg(chan, "NO ADMEEN FOR YU!")
