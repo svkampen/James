@@ -280,9 +280,10 @@ class RUINHandler(DefaultCommandHandler):
         existing = db.execute("SELECT id FROM factoids WHERE trigger = ?", (trigger,)).fetchone()
         if existing:
             db.execute("UPDATE factoids SET factoid = ? WHERE trigger = ?", (factoid, existing[0]))
+            database.commit()
         else:
             db.execute("INSERT INTO factoids (trigger, factoid) VALUES ('%s', '%s')" % (trigger, factoid))
-
+            database.commit()
 
     @admin_only
     def cmd_SETAUTOMODES(self, nick, chan, arg):
