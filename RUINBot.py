@@ -117,7 +117,7 @@ class RUINHandler(DefaultCommandHandler):
             self._msg(chan, "Welcome to %s, %s! Join #minecraft for server chat." % (chan, nick))
             db.execute("INSERT INTO nickrecall (seen) VALUES ('TRUE')")
             return
-        self._msg("Welcome back, %s!" % nick)
+        self._msg(chan, "Welcome back, %s!" % nick)
                 
     def setnickmodes(self, nick, chan):
         modes = db.execute("SELECT modes FROM nickrecall WHERE nick = ? AND chan = ?", (nick, chan)).fetchone()
