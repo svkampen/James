@@ -284,6 +284,8 @@ class RUINHandler(DefaultCommandHandler):
         else:
             db.execute("INSERT INTO factoids (trigger, factoid) VALUES ('%s', '%s')" % (trigger, factoid))
             database.commit()
+        self._msg(chan, "%s now points to %s." % (trigger, factoid))
+        logging.info("[INFO] Remembered '%s' (%s)" % (trigger, factoid))
 
     @admin_only
     def cmd_SETAUTOMODES(self, nick, chan, arg):
@@ -307,6 +309,8 @@ class RUINHandler(DefaultCommandHandler):
             db.execute("INSERT INTO nickrecall (modes, nick, chan) VALUES (?,?,?)", (modes, nick, chan))
             database.commit()
             
+        logging.info("[INFO] Auto modes set for nick %s: %s in chan %s" % (nick, modes, chan))
+            
     @admin_only
     def cmd_OPERUP(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: operup (duh)")
@@ -328,16 +332,20 @@ class RUINHandler(DefaultCommandHandler):
             return nonexistant()
         factoid = factoid[0]
         self._msg(chan, "%s: %s" % (trigger, factoid))
+        logging.info("[INFO] Recalled '%s'" % trigger)
         
     def cmd_FORGET(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: forget <trigger>")
-        nonexistant = lambda: self._msg(chan, "Unable to forger '%s'. Nonexistant?" % arg)
+        nonexistant = lambda: self._msg(chan, "Unable to forget '%s'. Nonexistant?" % arg)
         if not arg:
             return usage()
         trigger = arg
+        factoid = db.execute("SELECT factoid FROM factoids WHERE trigger = ?", (trigger,))
         result = db.execute("DELETE FROM factoids WHERE trigger = ?", (trigger,))
         if not result:
             return nonexistant()
+        self._msg(chan, 'Forgot %s!' % trigger)
+        logging.info("Forgot '%s' (%s)" % (trigger, factoid))
         
     def cmd_XKCD(self, nick, chan, arg):
         # My code, even though amber's is almost the same.
