@@ -98,8 +98,6 @@ class RUINHandler(DefaultCommandHandler):
 
 
     def privmsg(self, nick, chan, msg):
-        nick = nick.split('!')
-	nick = nick[0]
         logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))     
         self.parser(nick, chan, msg)
 
