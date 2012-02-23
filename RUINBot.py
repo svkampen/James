@@ -196,6 +196,7 @@ class RUINHandler(DefaultCommandHandler):
         except ValueError as e:
             logging.warning("Unable to examine URL %s" % url, exc_info=True)
 
+    # STANDARD COMMANDS
 
     def cmd_ABOUT(self, nick, chan, arg):
         self._msg(chan, "Hi! I'm RUINBot. I am the bot created by Sam van Kampen (with some help from Aiiane/Aeriele/Amber).")
@@ -221,6 +222,8 @@ class RUINHandler(DefaultCommandHandler):
         self._msg(chan, "Parting channel %s on request of %s." % (arg, nick))
         helpers.part(self.client, arg)
         logging.info("[PART] %s by %s" % (arg, nick))
+
+    # SORTA SPECIAL COMMANDS
 
     def cmd_TWEET(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: tweet <tweet>")
@@ -285,6 +288,74 @@ class RUINHandler(DefaultCommandHandler):
         self._msg(chan, "%s now points to %s." % (trigger, factoid))
         logging.info("[INFO] Remembered '%s' (%s)" % (trigger, factoid))
 
+        
+    def cmd_RECALL(self, nick, chan, arg):
+        usage = lambda: self._msg(chan, "Usage: recall <trigger>")
+        nonexistant = lambda: self._msg(chan, "Unable to recall '%s'. Nonexistant?" % arg)
+        if not arg:
+            return usage()
+        args = arg.split()
+        trigger = args[0]
+        factoid = db.execute("SELECT factoid FROM factoids WHERE trigger = ?", (trigger,)).fetchone()
+        if not factoid:
+            return nonexistant()
+        factoid = factoid[0]
+        self._msg(chan, "%s: %s" % (trigger, factoid))
+        logging.info("[INFO] Recalled '%s'" % trigger)
+        
+    def cmd_FORGET(self, nick, chan, arg):
+        usage = lambda: self._msg(chan, "Usage: forget <trigger>")
+        nonexistant = lambda: self._msg(chan, "Unable to forget '%s'. Nonexistant?" % arg)
+        if not arg:
+            return usage()
+        trigger = arg
+        factoid = db.execute("SELECT factoid FROM factoids WHERE trigger = ?", (trigger,))
+        result = db.execute("DELETE FROM factoids WHERE trigger = ?", (trigger,))
+        if not result:
+            return nonexistant()
+        self._msg(chan, 'Forgot %s!' % trigger)
+        logging.info("Forgot '%s' (%s)" % (trigger, factoid))
+        
+    # SOME COMIC COMMANDS
+    
+    def cmd_XKCD(self, nick, chan, arg):
+        # My code, even though amber's is almost the same.
+        try:
+            comic = int(arg)
+            comic_json_uri = "http://xkcd.com/%d/info.0.json" % comic
+        except (TypeError, ValueError):
+            comic_json_uri = "http://xkcd.com/info.0.json"
+        try:
+            data = urllib2.urlopen(comic_json_uri, timeout=3)
+            xkcd_json = json.load(data)
+            self._msg(chan, "xkcd #%d: %s <http://xkcd.com/%d/>" % (
+                xkcd_json['num'], xkcd_json['title'], xkcd_json['num'],
+            ))
+        except urllib2.URLError:
+            self._msg(chan, "Comic lookup failed (Comic #%s)" % comic)
+
+
+    def cmd_TEEHEE(self, nick, chan, arg):
+        self._msg(chan, "Ha. Ha. Ha. Ha. Stayin' Alive!")
+        logging.info("[CMDS] Executed.")
+        
+
+    def cmd_SPACE(self, nick, chan, arg):
+        self._msg(chan, "%s%s%s" % ("Sp","a"*int(arg),"ce"))
+        logging.info("[CMDS] Executed.")
+
+    # GENERAL RUIN COMMANDS
+
+    def cmd_RUINSITE(self, nick, chan, arg):
+        self._msg(chan, "Our site: http://ruincommunity.net/")
+        self._msg(chan, "Donate: http://ruincommunity.net/donate")
+
+    def cmd_CMDS(self, nick, chan, arg):
+        self._msg(chan, "Commands: [@join]*, [@part]*, [@xkcd], [@about], [@teehee], [@ruinsite], [@space], [@choose], [@tweet], [@remember], [@recall]")
+        self._msg(chan, "* = Owner Only")
+
+    # SPECIAL MODE COMMANDS
+    
     @admin_only
     def cmd_SETAUTOMODES(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: setautomodes <nick> <modes> <chan>")
@@ -317,67 +388,6 @@ class RUINHandler(DefaultCommandHandler):
         client.send('OPER', opernick, operpass)
         logging.info("[INFO] Opered up!")
         self.operedup = True
-        
-    def cmd_RECALL(self, nick, chan, arg):
-        usage = lambda: self._msg(chan, "Usage: recall <trigger>")
-        nonexistant = lambda: self._msg(chan, "Unable to recall '%s'. Nonexistant?" % arg)
-        if not arg:
-            return usage()
-        args = arg.split()
-        trigger = args[0]
-        factoid = db.execute("SELECT factoid FROM factoids WHERE trigger = ?", (trigger,)).fetchone()
-        if not factoid:
-            return nonexistant()
-        factoid = factoid[0]
-        self._msg(chan, "%s: %s" % (trigger, factoid))
-        logging.info("[INFO] Recalled '%s'" % trigger)
-        
-    def cmd_FORGET(self, nick, chan, arg):
-        usage = lambda: self._msg(chan, "Usage: forget <trigger>")
-        nonexistant = lambda: self._msg(chan, "Unable to forget '%s'. Nonexistant?" % arg)
-        if not arg:
-            return usage()
-        trigger = arg
-        factoid = db.execute("SELECT factoid FROM factoids WHERE trigger = ?", (trigger,))
-        result = db.execute("DELETE FROM factoids WHERE trigger = ?", (trigger,))
-        if not result:
-            return nonexistant()
-        self._msg(chan, 'Forgot %s!' % trigger)
-        logging.info("Forgot '%s' (%s)" % (trigger, factoid))
-        
-    def cmd_XKCD(self, nick, chan, arg):
-        # My code, even though amber's is almost the same.
-        try:
-            comic = int(arg)
-            comic_json_uri = "http://xkcd.com/%d/info.0.json" % comic
-        except (TypeError, ValueError):
-            comic_json_uri = "http://xkcd.com/info.0.json"
-        try:
-            data = urllib2.urlopen(comic_json_uri, timeout=3)
-            xkcd_json = json.load(data)
-            self._msg(chan, "xkcd #%d: %s <http://xkcd.com/%d/>" % (
-                xkcd_json['num'], xkcd_json['title'], xkcd_json['num'],
-            ))
-        except urllib2.URLError:
-            self._msg(chan, "Comic lookup failed (Comic #%s)" % comic)
-
-
-    def cmd_TEEHEE(self, nick, chan, arg):
-        self._msg(chan, "Ha. Ha. Ha. Ha. Stayin' Alive!")
-        logging.info("[CMDS] Executed.")
-        
-
-    def cmd_SPACE(self, nick, chan, arg):
-        self._msg(chan, "%s%s%s" % ("Sp","a"*int(arg),"ce"))
-        logging.info("[CMDS] Executed.")
-
-    def cmd_RUINSITE(self, nick, chan, arg):
-        self._msg(chan, "Our site: http://ruincommunity.net/")
-        self._msg(chan, "Donate: http://ruincommunity.net/donate")
-
-    def cmd_CMDS(self, nick, chan, arg):
-        self._msg(chan, "Commands: [@join]*, [@part]*, [@xkcd], [@about], [@teehee], [@ruinsite], [@space], [@choose], [@tweet], [@remember], [@recall]")
-        self._msg(chan, "* = Owner Only")
 
     def _msg(self, chan, msg):
         helpers.msg(self.client, chan, msg)
