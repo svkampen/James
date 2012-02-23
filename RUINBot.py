@@ -317,11 +317,14 @@ class RUINHandler(DefaultCommandHandler):
         
     def cmd_RECALL(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: recall <trigger>")
+        nonexistant = lambda: self._msg(chan, "Unable to recall '%s'. Nonexistant?" % arg)
         if not arg:
             return usage()
         args = arg.split()
         trigger = args[0]
         factoid = db.execute("SELECT factoid FROM factoids WHERE trigger = ?", (trigger,)).fetchone()
+        if not factoid:
+            return nonexistant()
         factoid = factoid[0]
         self._msg(chan, "%s: %s" % (trigger, factoid))
 
