@@ -1,7 +1,17 @@
 # CONFIG FILE FOR RUINBOT
 
+oper:
+    nick: '<your oper nick (if exists)>'
+    pass: '<your oper pass> (same here)'
+    
+twitter:
+    consumersecret: '<insert here>'
+    consumerkey: '<insert here>'
+    accesstoken: '<insert here>'
+    accesssecret: '<insert here>'
+
 servers:
-    aperture.mangeh.net:
+    tehsvk.net:
         port: 6667
         nick: RUINBot
         name: RUINBot
