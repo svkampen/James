@@ -222,7 +222,7 @@ class RUINHandler(DefaultCommandHandler):
         helpers.part(self.client, arg)
         logging.info("[PART] %s by %s" % (arg, nick))
 
-    def cmd_TWEET(self, nick, arg):
+    def cmd_TWEET(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: tweet <tweet>")
         
         if not arg:
