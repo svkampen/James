@@ -411,7 +411,7 @@ if __name__ == '__main__':
         db = database.cursor()
         db.execute("""CREATE TABLE IF NOT EXISTS nickrecall (nick TEXT, chan TEXT, modes TEXT, seen TEXT)""")
         db.execute("""CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT, trigger TEXT, factoid TEXT)""")
-        db.execute("""CREATE TABLE IF NOT EXISTS news (news TEXT, newstype TEXT, setby TEXT, chan TEXT""")
+        db.execute("""CREATE TABLE IF NOT EXISTS news (news TEXT, newstype TEXT, setby TEXT, chan TEXT)""")
         database.commit()
     
     
