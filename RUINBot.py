@@ -120,7 +120,7 @@ class RUINHandler(DefaultCommandHandler):
         seen = db.execute("SELECT seen FROM nickrecall WHERE nick = ?", (nick,)).fetchone()
         if not seen:
             self._msg(chan, "Welcome to %s, %s! Join #minecraft for server chat." % (chan, nick))
-            db.execute("INSERT INTO nickrecall (seen) VALUES ('TRUE')")
+            db.execute("INSERT INTO nickrecall (seen, chan) VALUES ('TRUE', '%s')" % chan)
             return
         self._msg(chan, "Welcome back, %s!" % nick)
                 
