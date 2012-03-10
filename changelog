@@ -1,0 +1,13 @@
+== RUINBot Changelog! ==
+
+Legend:
+  * Changed
+  + Added
+  - Removed
+
+
+Version 10032012:
+  New stable.
+  + login command
+  * the way that being a bot admin works
+  - the admin_only decorator.

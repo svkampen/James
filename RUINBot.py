@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# RUINBot version 23022012
+# RUINBot version 10032012
 # (C) 2012 Sam van Kampen
 #
 # Some of the main code copied from Kitn (as there is no Oyoyo documentation)
@@ -13,7 +13,7 @@ from oyoyo.client import IRCClient, IRCApp
 from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
 
-import json, urllib2, functools, tweepy, urllib
+import json, urllib2, tweepy, urllib
 from urlparse import urlparse
 
 from BeautifulSoup import BeautifulSoup as soup
@@ -30,17 +30,6 @@ import random
 logging.basicConfig(level=logging.INFO)
 config = None
 app = None
-
-def admin_only(f):
-        @functools.wraps(f)
-        def wrapper(self, nick, chan, arg):
-                if nick == 'svkampen!svkampen@Srs.Face' or nick == 'neoinr!robin@flp.st':
-                        return f(self, nick, chan, arg)
-                elif nick == 'Nagah!max@Acael.us':
-                    return self._msg(chan, "NO ADMEEN FOR YU!")
-                else:
-                        return self._msg(chan, "Permission Denied.")
-        return wrapper
     
 class RUINHandler(DefaultCommandHandler):
 
@@ -48,6 +37,9 @@ class RUINHandler(DefaultCommandHandler):
         super(RUINHandler, self).__init__(*args, **kwargs)
         self.COMMAND_RE = re.compile(r"^(?:%s:\s+|%s)(\w+)(?:\s+(.*))?$" % (self.client.nick, re.escape(config['cmdchar'])))
         self.operedup = None
+        self.lm = None
+        self.slm = None
+        self.admins = dict()
         # URLs
         self.URL_RE = re.compile(r"""
             \b
@@ -98,13 +90,19 @@ class RUINHandler(DefaultCommandHandler):
 
 
     def privmsg(self, nick, chan, msg):
-        logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))     
+        logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))
+        if chan == self.client.nick:
+            self.pm = 1
+        else:
+            self.pm = 0
+        self.slm = self.lm
+        self.lm = msg     
         self.parser(nick, chan, msg)
 
     def join(self, nick, chan):
         nick = nick.split('!')
         justnick = nick[0]
-        if justnick == "RUINBot":
+        if justnick == self.client.nick:
             return
         self.seennick(justnick, chan)
         self.setnickmodes(justnick, chan)
@@ -216,26 +214,37 @@ class RUINHandler(DefaultCommandHandler):
         else:
                 self._msg(chan, "%s: %s" % (nick.split('!')[0], random.choice(items)))
 
-    @admin_only
     def cmd_JOIN(self, nick, chan, arg):
         self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
         helpers.join(self.client, arg)
         logging.info("[JOIN] %s by %s" % (arg, nick))
 
-    @admin_only
     def cmd_PART(self, nick, chan, arg):
         self._msg(chan, "Parting channel %s on request of %s." % (arg, nick))
         helpers.part(self.client, arg)
         logging.info("[PART] %s by %s" % (arg, nick))
 
-    @admin_only
     def cmd_SETNICK(self, nick, chan, arg):
-        usage = lambda: self._msg(chan, "Usage: setnick <nick>")
+        if self.admins[nick].find('true') != -1:
+            usage = lambda: self._msg(chan, "Usage: setnick <nick>")
+            if not arg:
+                return usage()
+            self._msg(chan, "Changing nick to %s!" % arg)
+            client.send('NICK', '%s' % arg)
+            logging.info("[NICKCHANGE] -> %s" % arg)
+        else:
+            self._msg(chan, "Erm, you aren't an admin?")
+            
+    def cmd_LOGIN(self, nick, chan, arg):
+        usage = lambda: self._msg(chan, "Usage: login <password>. Only usable in PM's!")
         if not arg:
             return usage()
-        self._msg(chan, "Changing nick to %s!" % arg)
-        client.send('NICK', '%s' % arg)
-        logging.info("[NICKCHANGE] -> %s" % arg)
+        if self.pm == 1:
+            if arg == config['adminpwd']:
+                self.admins[nick] = 'true'
+                self.msg(nick, "You are now logged in as rank 'admin'.")
+        else:
+            self._msg(chan, "This command is only usable in a PM.")
 
     # SORTA SPECIAL COMMANDS
 
@@ -244,6 +253,9 @@ class RUINHandler(DefaultCommandHandler):
         
         if not arg:
             return usage()
+        
+        if arg.lower() == "that":
+            arg = self.slm
         
         consumer_key=config['twitter']['consumerkey']
         consumer_secret=config['twitter']['consumersecret']
@@ -361,8 +373,8 @@ class RUINHandler(DefaultCommandHandler):
         logging.info("[CMDS] Executed.")
 
     def cmd_CMDS(self, nick, chan, arg):
-        self._msg(chan, "Commands: [@join]*, [@part]*, [@xkcd], [@about], [@teehee], [@ruinsite], [@space], [@choose], [@tweet], [@remember], [@recall]")
-        self._msg(chan, "* = Owner Only")
+        self._msg(chan, "Commands: [@join]*, [@part]*, [@setnick]*, [@login]**, [@xkcd], [@about], [@teehee], [@ruinsite], [@space], [@choose], [@tweet], [@remember], [@recall]")
+        self._msg(chan, "* = Owner Only ** = PM only.")
 
     # SPECIAL MODE COMMANDS
     

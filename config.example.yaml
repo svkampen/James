@@ -24,4 +24,5 @@ servers:
 db:
     path: '/path/to/database'
 
-cmdchar: '@' # Command character.
+cmdchar: '.' # Command character.
+adminpwd: '<your admin password>'
