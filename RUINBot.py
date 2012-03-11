@@ -197,6 +197,8 @@ class RUINHandler(DefaultCommandHandler):
         else:
                 self._msg(chan, "%s: %s" % (nick.split('!')[0], random.choice(items)))
 
+    # ADMIN COMMANDS
+
     def cmd_JOIN(self, nick, chan, arg):
         nick = nick.split('!')
         nick = nick[0]
@@ -210,7 +212,6 @@ class RUINHandler(DefaultCommandHandler):
             logging.info("[JOIN] %s by %s" % (arg, nick))
         else:
             self._msg(chan, "Erm, you aren't an admin...")
-        
 
     def cmd_PART(self, nick, chan, arg):
         nick = nick.split('!')
@@ -251,6 +252,18 @@ class RUINHandler(DefaultCommandHandler):
                 self._msg(nick, "You are now logged in as rank 'admin'.")
         else:
             self._msg(chan, "This command is only usable in a PM.")
+
+    def cmd_DIE(self, nick, chan, arg):
+        nick = nick.split('!')
+        nick = nick[0]
+        try:
+            getAdmin = self.admins[nick].find('true')
+        except KeyError:
+            getAdmin = -1
+        if getAdmin != -1:
+            self._msg(nick, "Dying.")
+            logging.info("Dying. Issued by %s." % (nick))
+            raise SystemExit
 
     # SORTA SPECIAL COMMANDS
 
@@ -322,7 +335,6 @@ class RUINHandler(DefaultCommandHandler):
         self._msg(chan, "%s now points to %s." % (trigger, factoid))
         logging.info("[INFO] Remembered '%s' (%s)" % (trigger, factoid))
 
-        
     def cmd_RECALL(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: recall <trigger>")
         nonexistant = lambda: self._msg(chan, "Unable to recall '%s'. Nonexistant?" % arg)
@@ -389,12 +401,8 @@ class RUINHandler(DefaultCommandHandler):
         else:
             self._msg(chan, "Unknown quote operation %s." % args[0])
 
-    def cmd_SPACE(self, nick, chan, arg):
-        self._msg(chan, "%s%s%s" % ("Sp","a"*int(arg),"ce"))
-        logging.info("[CMDS] Executed.")
-
     def cmd_CMDS(self, nick, chan, arg):
-        self._msg(chan, "Commands: [@join]*, [@part]*, [@setnick]*, [@login]**, [@xkcd], [@about], [@teehee], [@ruinsite], [@space], [@choose], [@tweet], [@remember], [@recall]")
+        self._msg(chan, "Commands: join*, part*, setnick*, login**, about, space, choose, tweet, remember, recall, forget")
         self._msg(chan, "* = Owner Only ** = PM only.")
 
     # SPECIAL MODE COMMANDS
