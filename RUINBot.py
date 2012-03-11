@@ -93,7 +93,9 @@ class RUINHandler(DefaultCommandHandler):
 
     def privmsg(self, nick, chan, msg):
         logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))
-        if chan == self.client.nick:
+        botnick = self.client.nick
+        botnick = botnick.upper()
+        if chan.upper() == botnick:
             self.pm = 1
         else:
             self.pm = 0
