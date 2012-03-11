@@ -235,6 +235,8 @@ class RUINHandler(DefaultCommandHandler):
             
     def cmd_LOGIN(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: login <password>. Only usable in PM's!")
+        nick = nick.split('!')
+        nick = nick[0]
         if not arg:
             return usage()
         if self.pm == 1:
