@@ -105,7 +105,7 @@ class RUINHandler(DefaultCommandHandler):
         nick = nick.split('!')
         justnick = nick[0]
         if justnick == self.client.nick:
-            self._msg(chan, "RUINBot version 12.3 (11032012) up and running.")
+            self._msg(config['ownernick'], "RUINBot version 12.3 (11032012) up and running.")
         
 
 
@@ -196,6 +196,8 @@ class RUINHandler(DefaultCommandHandler):
                 self._msg(chan, "%s: %s" % (nick.split('!')[0], random.choice(items)))
 
     def cmd_JOIN(self, nick, chan, arg):
+        nick = nick.split('!')
+        nick = nick[0]
         try:
             getAdmin = self.admins[nick].find('true')
         except KeyError:
@@ -209,6 +211,8 @@ class RUINHandler(DefaultCommandHandler):
         
 
     def cmd_PART(self, nick, chan, arg):
+        nick = nick.split('!')
+        nick = nick[0]
         try:
             getAdmin = self.admins[nick].find('true')
         except KeyError:

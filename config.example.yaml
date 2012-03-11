@@ -26,3 +26,4 @@ db:
 
 cmdchar: '.' # Command character.
 adminpwd: '<your admin password>'
+ownernick: 'svkampen'
