@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# RUINBot version 10032012
+# RUINBot version 12.3.11
+# Build Date: 11032012
+# 
 # (C) 2012 Sam van Kampen
 #
 # Some of the main code copied from Kitn (as there is no Oyoyo documentation)
@@ -103,31 +105,10 @@ class RUINHandler(DefaultCommandHandler):
         nick = nick.split('!')
         justnick = nick[0]
         if justnick == self.client.nick:
-            return
-        self.seennick(justnick, chan)
-        self.setnickmodes(justnick, chan)
-        self.news("JOINNEWS", chan)
+            self._msg(chan, "RUINBot version 12.3 (11032012) up and running.")
         
-    
-    def news(self, newstype, chan):
-        news = db.execute("SELECT news FROM news WHERE newstype = ? AND chan = ?", (newstype, chan))
-        rawnews = news[0]
-        self._msg(chan, "Join News for %s: %s" % (chan, rawnews))
 
-    def seennick(self, nick, chan):
-        seen = db.execute("SELECT seen FROM nickrecall WHERE nick = ?", (nick,)).fetchone()
-        if not seen:
-            self._msg(chan, "Welcome to %s, %s! Join #minecraft for server chat." % (chan, nick))
-            db.execute("INSERT INTO nickrecall (seen, chan) VALUES ('TRUE', '%s')" % chan)
-            return
-        self._msg(chan, "Welcome back, %s!" % nick)
-                
-    def setnickmodes(self, nick, chan):
-        modes = db.execute("SELECT modes FROM nickrecall WHERE nick = ? AND chan = ?", (nick, chan)).fetchone()
-        if not modes:
-            return
-        client.send('MODE', '%s', modes, '%s' % (chan, nick))
-        
+
     def parser(self, nick, chan, msg):
 
         m = self.COMMAND_RE.match(msg)
@@ -377,32 +358,7 @@ class RUINHandler(DefaultCommandHandler):
         self._msg(chan, "* = Owner Only ** = PM only.")
 
     # SPECIAL MODE COMMANDS
-    
-    @admin_only
-    def cmd_SETAUTOMODES(self, nick, chan, arg):
-        usage = lambda: self._msg(chan, "Usage: setautomodes <nick> <modes> <chan>")
-        notopered = lambda: self._msg(chan, "[ERR]Not opered up!")
-        if not arg:
-            return usage()
-        if not self.operedup:
-            return notopered()
-        
-        args = arg.split()
-        nick = args[0]
-        modes = args[1]
-        chan = args[2]
-        
-        existing = db.execute("SELECT modes FROM nickrecall WHERE nick = ? AND chan = ?", (nick, chan)).fetchone()
-        if existing:
-            db.execute("UPDATE nickrecall SET modes = ? WHERE nick = ? AND chan = ?", (modes, nick, chan))
-            database.commit()
-        else:
-            db.execute("INSERT INTO nickrecall (modes, nick, chan) VALUES (?,?,?)", (modes, nick, chan))
-            database.commit()
             
-        logging.info("[INFO] Auto modes set for nick %s: %s in chan %s" % (nick, modes, chan))
-            
-    @admin_only
     def cmd_OPERUP(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: operup (duh)")
         opernick = config['oper']['nick']
@@ -421,9 +377,7 @@ if __name__ == '__main__':
     
         database = sqlite3.connect(config['db']['path'])
         db = database.cursor()
-        db.execute("""CREATE TABLE IF NOT EXISTS nickrecall (nick TEXT, chan TEXT, modes TEXT, seen TEXT)""")
         db.execute("""CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT, trigger TEXT, factoid TEXT)""")
-        db.execute("""CREATE TABLE IF NOT EXISTS news (news TEXT, newstype TEXT, setby TEXT, chan TEXT)""")
         database.commit()
     
     

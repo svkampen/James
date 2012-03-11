@@ -1,0 +1,12 @@
+Okay, because it is kind of weird how versions work at the moment, I shall explain.
+
+If I commit on the second of march, 2012, the Build Date is 02032012.
+In this case, the version is 12.3.2 - so the date is turned around, dotted, and zeros are removed.
+
+I will, from now on, paste the version in the commit name, and the Build Date and version in the
+file itself.
+
+The commit number seems pretty straight-forward to me, so...
+
+Bye,
+-- Sam
