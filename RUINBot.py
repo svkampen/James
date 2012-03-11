@@ -303,29 +303,6 @@ class RUINHandler(DefaultCommandHandler):
         logging.info("[TWEEPY] Updating status...")
         api.update_status('%s' % arg)
         logging.info("[TWEEPY] Updated.")
-        
-    def cmd_PASTEBIN(self, nick, chan, arg):
-        usage = lambda: self._msg(chan, "pastebin <stuffstuff>")
-        
-        if not arg:
-            return usage()
-        
-        url = 'http://pastebin.com/api/api_post.php'
-        
-        values = {'api_dev_key' : '120c7c03f4960b390931ee922605c0f0',
-                  'api_paste_code' : '%s',
-                  'api_option' : 'paste' % arg,
-                  }
-
-        try:
-            data = urllib.urlencode(values)
-            req = urllib2.Request(url, data)
-            response = urllib2.urlopen(req)
-            
-            pasteurl = response.read()
-            print("Paste URL: %s" % pasteurl)
-        except Exception, detail:
-            print "Error: ", detail
 
     # MAINLY FACTOID COMMANDS
 
@@ -413,7 +390,7 @@ class RUINHandler(DefaultCommandHandler):
             self._msg(chan, "Unknown quote operation %s." % args[0])
 
     def cmd_CMDS(self, nick, chan, arg):
-        self._msg(chan, "Commands: join*, part*, setnick*, login**, about, space, choose, tweet, remember, recall, forget")
+        self._msg(chan, "Commands: join*, part*, setnick*, login**, about, quote, choose, tweet, remember, recall, forget")
         self._msg(chan, "* = Owner Only ** = PM only.")
 
     # SPECIAL MODE COMMANDS
