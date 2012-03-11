@@ -92,6 +92,8 @@ class RUINHandler(DefaultCommandHandler):
 
 
     def privmsg(self, nick, chan, msg):
+        if not msg.startswith(config['cmdchar']):
+            return ""
         logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))
         botnick = self.client.nick
         botnick = botnick.upper()
