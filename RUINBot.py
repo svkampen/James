@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# RUINBot version 12.3.11.25
+# RUINBot version 12.3.11.3
 # Build Date: 11032012
 # 
 # (C) 2012 Sam van Kampen
@@ -92,8 +92,6 @@ class RUINHandler(DefaultCommandHandler):
 
 
     def privmsg(self, nick, chan, msg):
-        if not msg.startswith(config['cmdchar']):
-            return ""
         logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))
         botnick = self.client.nick
         botnick = botnick.upper()
@@ -187,8 +185,13 @@ class RUINHandler(DefaultCommandHandler):
     # STANDARD COMMANDS
 
     def cmd_ABOUT(self, nick, chan, arg):
-        self._msg(chan, "Hi! I'm RUINBot. I am the bot created by Sam van Kampen (with some help from Aiiane/Aeriele/Amber).")
-        self._msg(chan, "My code is hosted at GitHub.")
+        if arg == config['ownernick']:
+            aboutowner = config.get('aboutowner')
+            for item in aboutowner:
+                self._msg(chan, "%s" % item)
+        else:
+            self._msg(chan, "Hi! I'm RUINBot. I am the bot created by Sam van Kampen (with some help from Aiiane/Aeriele/Amber).")
+            self._msg(chan, "My code is hosted at GitHub.")
 
     def cmd_CHOOSE(self, nick, chan, arg):
         """choose - Given a set of items, pick one randomly."""
@@ -226,6 +229,8 @@ class RUINHandler(DefaultCommandHandler):
             self._msg(chan, "Parting channel %s on request of %s." % (arg, nick))
             helpers.part(self.client, arg)
             logging.info("[PART] %s by %s" % (arg, nick))
+        else:
+            self._msg(chan, "Erm, you aren't an admin...")
 
     def cmd_SETNICK(self, nick, chan, arg):
         try:
@@ -265,7 +270,7 @@ class RUINHandler(DefaultCommandHandler):
         if getAdmin != -1:
             self._msg(nick, "Dying.")
             logging.info("Dying. Issued by %s." % (nick))
-            raise SystemExit
+            sys.exit()
 
     # SORTA SPECIAL COMMANDS
 

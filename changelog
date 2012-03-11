@@ -4,7 +4,16 @@ Legend:
   * Changed
   + Added
   - Removed
+  ** Bugfix
   !! Comment
+
+Version 12.3.11.3 (11032012):
+  [NEWSTABLE]
+  ** The part command.
+  - Displaying commands only.
+  - Commands in list that were removed.
+  - Some commands.
+  + About the owner (see config.example.yaml)
 
 Version 12.3.11.2 (11032012):
   [STABLE]

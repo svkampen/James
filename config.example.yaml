@@ -24,6 +24,10 @@ servers:
 db:
     path: '/path/to/database'
 
+aboutowner:
+    - 'Owner: blahblah'
+    - 'Blah, blah blah'
+
 cmdchar: '.' # Command character.
 adminpwd: '<your admin password>'
 ownernick: 'svkampen'
