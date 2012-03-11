@@ -196,17 +196,34 @@ class RUINHandler(DefaultCommandHandler):
                 self._msg(chan, "%s: %s" % (nick.split('!')[0], random.choice(items)))
 
     def cmd_JOIN(self, nick, chan, arg):
-        self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
-        helpers.join(self.client, arg)
-        logging.info("[JOIN] %s by %s" % (arg, nick))
+        try:
+            getAdmin = self.admins[nick].find('true')
+        except KeyError:
+            getAdmin = -1
+        if getAdmin != -1:
+            self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
+            helpers.join(self.client, arg)
+            logging.info("[JOIN] %s by %s" % (arg, nick))
+        else:
+            self._msg(chan, "Erm, you aren't an admin...")
+        
 
     def cmd_PART(self, nick, chan, arg):
-        self._msg(chan, "Parting channel %s on request of %s." % (arg, nick))
-        helpers.part(self.client, arg)
-        logging.info("[PART] %s by %s" % (arg, nick))
+        try:
+            getAdmin = self.admins[nick].find('true')
+        except KeyError:
+            getAdmin = -1
+        if getAdmin != -1:
+            self._msg(chan, "Parting channel %s on request of %s." % (arg, nick))
+            helpers.part(self.client, arg)
+            logging.info("[PART] %s by %s" % (arg, nick))
 
     def cmd_SETNICK(self, nick, chan, arg):
-        if self.admins[nick].find('true') != -1:
+        try:
+            getAdmin = self.admins[nick].find('true')
+        except KeyError:
+            getAdmin = -1
+        if getAdmin != -1:
             usage = lambda: self._msg(chan, "Usage: setnick <nick>")
             if not arg:
                 return usage()
@@ -214,7 +231,7 @@ class RUINHandler(DefaultCommandHandler):
             client.send('NICK', '%s' % arg)
             logging.info("[NICKCHANGE] -> %s" % arg)
         else:
-            self._msg(chan, "Erm, you aren't an admin?")
+            self._msg(chan, "Erm, you aren't an admin")
             
     def cmd_LOGIN(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: login <password>. Only usable in PM's!")
