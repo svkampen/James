@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# RUINBot version 12.3.11
+# RUINBot version 12.3.11.2
 # Build Date: 11032012
 # 
 # (C) 2012 Sam van Kampen
@@ -319,35 +319,50 @@ class RUINHandler(DefaultCommandHandler):
             return usage()
         trigger = arg
         factoid = db.execute("SELECT factoid FROM factoids WHERE trigger = ?", (trigger,))
-        result = db.execute("DELETE FROM factoids WHERE trigger = ?", (trigger,))
-        if not result:
+        if not factoid:
             return nonexistant()
+        db.execute("DELETE FROM factoids WHERE trigger = ?", (trigger,))
         self._msg(chan, 'Forgot %s!' % trigger)
+        database.commit()
         logging.info("Forgot '%s' (%s)" % (trigger, factoid))
         
     # SOME COMIC AND FUN COMMANDS
     
-    def cmd_XKCD(self, nick, chan, arg):
-        # My code, even though amber's is almost the same.
-        try:
-            comic = int(arg)
-            comic_json_uri = "http://xkcd.com/%d/info.0.json" % comic
-        except (TypeError, ValueError):
-            comic_json_uri = "http://xkcd.com/info.0.json"
-        try:
-            data = urllib2.urlopen(comic_json_uri, timeout=3)
-            xkcd_json = json.load(data)
-            self._msg(chan, "xkcd #%d: %s <http://xkcd.com/%d/>" % (
-                xkcd_json['num'], xkcd_json['title'], xkcd_json['num'],
-            ))
-        except urllib2.URLError:
-            self._msg(chan, "Comic lookup failed (Comic #%s)" % comic)
-
-
-    def cmd_TEEHEE(self, nick, chan, arg):
-        self._msg(chan, "Ha. Ha. Ha. Ha. Stayin' Alive!")
-        logging.info("[CMDS] Executed.")
-        
+    def cmd_QUOTE(self, nick, chan, arg):
+        '''Quote handling!'''
+        usage = lambda: self._msg(chan, "Usage: quote [ADD|LIST|GET|RM] [QUOTE|QUOTENUMBER]")
+        help = lambda: self._msg(chan, "To split a quote into multiple lines, use the |, for example, 'RaindeerLovers: HAI!|Star: Morning.'")
+        if not arg:
+            return (usage(), help())
+        args = arg.split()
+        nick = nick.split('!')
+        if args[0].upper() == "ADD":
+            quote = args[1]
+            timestamp = strftime("%a, the %dth of %B, %Y")
+            db.execute("INSERT INTO quotes (quote, nick, timestamp) VALUES (?, ?, ?)", (quote, nick, timestamp))
+            self._msg(chan, "Added quote #%s (points to %s) to the quote database" % (quotenum, quote))
+            logging.info("Added quote #%s (%s) to the quote database. Added by %s." % (quotenum, quote, nick))
+        elif args[0].upper() == "GET":
+            quotenum = args[1]
+            quote = db.execute("SELECT quote FROM quotes WHERE id = ?", (quotenum,)).fetchone()
+            quote = quote.split('|')
+            timestamp = db.execute("SELECT timestamp FROM quotes WHERE id = ?" (quotenum,)).fetchone()
+            setby = db.execute("SELECT nick FROM quotes WHERE id = ?", (quotenum,)).fetchone()
+            self._msg(chan, "Quote number %s:" % (quotenum))
+            for i in quote:
+                print(i)
+            self._msg(chan, "Added by %s on %s" % (nick, timestamp))
+        elif args[0].upper() == "RM":
+            quotenum = args[1]
+            nonexistant = lambda: self._msg(chan, "Unable to forget quote #%s. Nonexistant?" % quotenum)
+            quote = db.execute("SELECT quote FROM quotes WHERE id = ?", (quotenum,)).fetchone()
+            if not quote:
+                return nonexistant()
+            db.execute("DELETE FROM factoids WHERE id = ?", (quotenum,))
+            self._msg(chan, "Forgot #%s (pointed to %s)!" % (quotenum, quote))
+            logging.info("Forgot quote #%s (%s). Forgot by %s." % (quotenum, quote, nick))
+        else:
+            self._msg(chan, "Unknown quote operation %s." % args[0])
 
     def cmd_SPACE(self, nick, chan, arg):
         self._msg(chan, "%s%s%s" % ("Sp","a"*int(arg),"ce"))
@@ -378,6 +393,7 @@ if __name__ == '__main__':
         database = sqlite3.connect(config['db']['path'])
         db = database.cursor()
         db.execute("""CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT, trigger TEXT, factoid TEXT)""")
+        db.execute("""CREATE TABLE IF NOT EXISTS quotes (id INTEGER PRIMARY KEY AUTOINCREMENT, quote TEXT, nick TEXT, timestamp TEXT)""")
         database.commit()
     
     

@@ -6,15 +6,19 @@ Legend:
   - Removed
   !! Comment
 
-Version 11032012 (12.3.11):
+Version 12.3.11.2 (11032012):
   [STABLE]
+  + Quoting.
+
+Version 12.3.11 (11032012):
+  [OLDSTABLE]
   - Some functions that didn't work
   * Cleaned up some code
   - Some functions still using admin_only.
   
   !! Now starting commit numbers. This will be commit number 60. W00t for over 50 commits!~~ !!
 
-Version 10032012:
+Version 12.3.10 (10032012):
   [UNSTABLE]
   + login command
   * the way that being a bot admin works
