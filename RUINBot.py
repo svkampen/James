@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# RUINBot version 12.3.11.2
+# RUINBot version 12.3.11.25
 # Build Date: 11032012
 # 
 # (C) 2012 Sam van Kampen
@@ -240,7 +240,7 @@ class RUINHandler(DefaultCommandHandler):
         if self.pm == 1:
             if arg == config['adminpwd']:
                 self.admins[nick] = 'true'
-                self.msg(nick, "You are now logged in as rank 'admin'.")
+                self._msg(nick, "You are now logged in as rank 'admin'.")
         else:
             self._msg(chan, "This command is only usable in a PM.")
 
