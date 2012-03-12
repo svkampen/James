@@ -15,7 +15,8 @@ from oyoyo.client import IRCClient, IRCApp
 from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
 
-import json, urllib2, tweepy, urllib, time
+import json, urllib2, tweepy, urllib
+from time import strftime
 from urlparse import urlparse
 
 from BeautifulSoup import BeautifulSoup as soup
