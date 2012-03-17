@@ -6,10 +6,10 @@ oper:
     
 twitter:
     enabled: '<insert if enabled here>' # true or false.
-    consumersecret: '<insert here>'
-    consumerkey: '<insert here>'
-    accesstoken: '<insert here>'
-    accesssecret: '<insert here>'
+    consumersecret: '<insert here if enabled>'
+    consumerkey: '<insert here if enabled>'
+    accesstoken: '<insert here if enabled>'
+    accesssecret: '<insert here if enabled>'
 
 servers:
     tehsvk.net:
