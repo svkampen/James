@@ -367,9 +367,10 @@ class RUINHandler(DefaultCommandHandler):
         args = arg.split()
         nick = nick.split('!')
         if args[0].upper() == "ADD":
-            quote = args[1:]
+            quote = ' '.join(args[1:])
             timestamp = strftime("%a, the %dth of %B, %Y")
             db.execute("INSERT INTO quotes (quote, nick, timestamp) VALUES (?, ?, ?)", (quote, nick, timestamp))
+            quotenum = db.execute("SELECT id FROM quotes WHERE quote = ?", (quote,))
             self._msg(chan, "Added quote #%s (points to %s) to the quote database" % (quotenum, quote))
             logging.info("Added quote #%s (%s) to the quote database. Added by %s." % (quotenum, quote, nick))
         elif args[0].upper() == "GET":
