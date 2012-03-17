@@ -37,6 +37,7 @@ app = None
 class RUINHandler(DefaultCommandHandler):
 
     def __init__(self, *args, **kwargs):
+        '''Handles initial actions.'''
         super(RUINHandler, self).__init__(*args, **kwargs)
         self.COMMAND_RE = re.compile(r"^(?:%s:\s+|%s)(\w+)(?:\s+(.*))?$" % (self.client.nick, re.escape(config['cmdchar'])))
         self.operedup = None
