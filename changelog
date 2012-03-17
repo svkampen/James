@@ -7,6 +7,11 @@ Legend:
   ** Bugfix
   !! Comment
 
+Version 12.3.17: (17032012):
+  [NEWSTABLE]
+  * Changed some things, not really bugfix.
+  + Added the testing branch. Updates on here will come shortly.
+
 Version 12.3.16 (16032012):
   [STABLE]
   + Added being able to turn off twittering.

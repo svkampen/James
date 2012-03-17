@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# RUINBot version 12.3.11.3
-# Build Date: 11032012
+# RUINBot version 12.3.17
+# Build Date: 17032012
 # 
 # (C) 2012 Sam van Kampen
 #
@@ -40,8 +40,8 @@ class RUINHandler(DefaultCommandHandler):
         super(RUINHandler, self).__init__(*args, **kwargs)
         self.COMMAND_RE = re.compile(r"^(?:%s:\s+|%s)(\w+)(?:\s+(.*))?$" % (self.client.nick, re.escape(config['cmdchar'])))
         self.operedup = None
-        self.lm = None
-        self.slm = None
+        self.messages = dict()
+        self.messages['lm'] = ""
         self.admins = dict()
         # URLs
         self.URL_RE = re.compile(r"""
@@ -104,20 +104,20 @@ class RUINHandler(DefaultCommandHandler):
                 self._msg(nick, "Unknown command..")
         else:
             self.pm = 0
-        self.slm = self.lm
-        self.lm = msg     
+        self.messages['slm'] = self.messages['lm']
+        self.messages['lm'] = msg     
         self.parser(nick, chan, msg)
 
     def join(self, nick, chan):
         nick = nick.split('!')
         justnick = nick[0]
         if justnick == self.client.nick:
-            self._msg(config['ownernick'], "RUINBot version 12.3 (11032012) up and running.")
+            self._msg(config['ownernick'], "RUINBot version 12.3 at your service.")
         
 
 
     def parser(self, nick, chan, msg):
-
+        '''Parse commands!'''
         m = self.COMMAND_RE.match(msg)
         if m:
             cmd = m.group(1)
