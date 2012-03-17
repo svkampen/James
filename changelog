@@ -7,8 +7,16 @@ Legend:
   ** Bugfix
   !! Comment
 
+Version 12.3.16 (16032012):
+  [STABLE]
+  + Added being able to turn off twittering.
+  + Added some tags, made stable base branch master.
+  * Merged versiontwo into master
+  !! This is a [STABLE] version. !!
+  
+
 Version 12.3.11.3 (11032012):
-  [NEWSTABLE]
+  [OLDSTABLE]
   ** The part command.
   - Displaying commands only.
   - Commands in list that were removed.
@@ -16,7 +24,6 @@ Version 12.3.11.3 (11032012):
   + About the owner (see config.example.yaml)
 
 Version 12.3.11.2 (11032012):
-  [STABLE]
   + Quoting.
 
 Version 12.3.11 (11032012):
@@ -28,7 +35,6 @@ Version 12.3.11 (11032012):
   !! Now starting commit numbers. This will be commit number 60. W00t for over 50 commits!~~ !!
 
 Version 12.3.10 (10032012):
-  [UNSTABLE]
   + login command
   * the way that being a bot admin works
   - the admin_only decorator.

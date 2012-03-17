@@ -280,6 +280,9 @@ class RUINHandler(DefaultCommandHandler):
     # SORTA SPECIAL COMMANDS
 
     def cmd_TWEET(self, nick, chan, arg):
+        if config['twitter']['enabled'].upper() != "true":
+            self._msg(chan, "tweet is not enabled in this bot, sorry!")
+            return
         usage = lambda: self._msg(chan, "Usage: tweet <tweet>")
         
         if not arg:

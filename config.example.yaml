@@ -5,6 +5,7 @@ oper:
     pass: '<your oper pass> (same here)'
     
 twitter:
+    enabled: '<insert if enabled here>' # true or false.
     consumersecret: '<insert here>'
     consumerkey: '<insert here>'
     accesstoken: '<insert here>'
