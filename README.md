@@ -1,27 +1,8 @@
-## RUINBot, a simple IRC bot.
+## James, a simple IRC bot.
 
-**Ohai.** RUINBot is an IRC bot I originally made just for fun.
+**Ohai.** James is an IRC bot I originally made just for fun.
 Well, it's still just for fun, but also used to get to know
 more about python.
-
-### Branches
-#### Master
-
-The master branch will always have a (somewhat) stable release.
-At the moment, this is not the case, but that's because I just started
-to make this model the model as it is.
-
-#### Testing
-
-The testing branch will have testing updates, which probably run fine,
-You can download these, but it is not sure if they will run properly.
-
-#### Volatile
-
-The volatile, or unstable branch, will always have the latest updates, 
-but may be unstable and failing to work on your system/irc network.
-Some commands may also be broken, so this is mainly for developers only.
-
 
 ### How it works
 
@@ -43,7 +24,10 @@ in the configuration file.
 
 #### Oyoyo
 
-Oyoyo is the IRC library for Python I use. It might not have been the right choice, seeing as Twisted has a great library for doing this, but oh well. Im not going to convert it, that's how lazy I am. And it still does everything I want, so..
+Oyoyo is the IRC library for Python I use. It might not have been the right choice,
+seeing as Twisted has a great library for doing this, but oh well.
+Im not going to convert it, because that would take a lot of time that I do not have.
+And it still does everything I want, so..
 
 #### BeautifulSoup
 
@@ -51,7 +35,8 @@ A HTML parser used for getting titles of websites and such.
 
 #### PyYAML
 
-The parser for my configuration files, this is a very important library that you shall certainly have to get. Unless you ask me to make a simpleConfig file using dicts.
+The parser for my configuration files, this is a very important library that you **will** have to get.
+Unless you ask me to make a simpleConfig file using dicts.
 
 ### Why you should use this and not Eggdrop/Any other IRC bot
 
@@ -60,7 +45,6 @@ It is simple to install, yet will be able to use much of the functions you will 
 
 You can simply add in functions in Python (it's really not that hard.) instead of having to learn TCL or C and modifying (in this case) Eggdrop. The simplicity is endless!
 
-You won't have to set 99 options in the config file, but it will work just as well for simple things like reacting on sentences, remembering factoids, saving quotes and more!
-(it are approx. 30 options, of which 10 are server options and 5 are optional, and they are easy-peasy)
+You won't have to set 999 options in the config file, but it will work just as well for simple things like reacting on sentences, remembering factoids, saving quotes and more!
 
 **-- Sam**
