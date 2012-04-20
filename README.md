@@ -6,7 +6,7 @@ more about python.
 
 ### How it works
 
-To make RUINBot work, you need a couple of libraries.
+To make James work, you need a couple of libraries.
 
 * Tweepy (optional, only if you want to enable tweeting.)
 * Oyoyo
