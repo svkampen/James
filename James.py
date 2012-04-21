@@ -202,11 +202,17 @@ class JamesHandler(DefaultCommandHandler):
         else:
             admin = False
         if admin == True:
-            self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
-            helpers.join(self.client, arg)
-            logging.info("[JOIN] %s by %s" % (arg, nick))
+            if self.pm != 0:
+                self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
+                helpers.join(self.client, arg)
+                logging.info("[JOIN] %s by %s" % (arg, nick))
+            else:
+                self._msg(nick, "Joining channel %s." % (arg, nick))
         else:
-            self._msg(chan, "Erm, you aren't an admin...")
+            if self.pm != 0:
+                self._msg(chan, "Erm, you aren't an admin...")
+            else:
+                self._msg(nick, "Erm, you aren't an admin...")
 
     def cmd_PART(self, nick, chan, arg):
         nick = nick.split('!')
