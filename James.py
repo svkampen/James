@@ -93,9 +93,10 @@ class JamesHandler(DefaultCommandHandler):
         botnick = botnick.upper()
         if chan.upper() == botnick:
             self.pm = 1
+        nick = nick.split('!')
+        nick = nick[0]
         if not msg.startswith(config['cmdchar']):
-            nick = nick.split('!')
-            nick = nick[0]
+
             self._msg(nick, "Unknown command..")
         else:
             self.pm = 0
