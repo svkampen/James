@@ -91,13 +91,14 @@ class JamesHandler(DefaultCommandHandler):
         logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))
         botnick = self.client.nick
         botnick = botnick.upper()
+        nick = nick.split('!')
+        nick = nick[0]
         if chan.upper() == botnick:
             self._msg(nick, "DERP")
             self.pm = 1
         else:
             self.pm = 0
-        nick = nick.split('!')
-        nick = nick[0]
+
         if not msg.startswith(config['cmdchar']):
             self._msg(nick, "Unknown command..")
         self.messages['slm'] = self.messages['lm']
@@ -203,18 +204,12 @@ class JamesHandler(DefaultCommandHandler):
         else:
             admin = False
         if admin == True:
-            if self.pm != 0:
                 self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
                 helpers.join(self.client, arg)
                 logging.info("[JOIN] %s by %s" % (arg, nick))
-            else:
-                self._msg(nick, "Joining channel %s." % (arg, nick))
         else:
-            if self.pm != 0:
-                self._msg(chan, "Erm, you aren't an admin...")
-            else:
-                self._msg(nick, "Erm, you aren't an admin...")
-
+            self._msg(chan, "Erm, you aren't an admin...")
+            
     def cmd_PART(self, nick, chan, arg):
         nick = nick.split('!')
         nick = nick[0]
