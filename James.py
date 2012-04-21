@@ -92,6 +92,7 @@ class JamesHandler(DefaultCommandHandler):
         botnick = self.client.nick
         botnick = botnick.upper()
         if chan.upper() == botnick:
+            self._msg(nick, "DERP")
             self.pm = 1
         else:
             self.pm = 0
