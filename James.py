@@ -34,7 +34,7 @@ class JamesHandler(DefaultCommandHandler):
 
     def __init__(self, *args, **kwargs):
         '''Handles initial actions.'''
-        super(RUINHandler, self).__init__(*args, **kwargs)
+        super(JamesHandler, self).__init__(*args, **kwargs)
         self.COMMAND_RE = re.compile(r"^(?:%s:\s+|%s)(\w+)(?:\s+(.*))?$" % (self.client.nick, re.escape(config['cmdchar'])))
         self.operedup = None
         self.messages = dict()
@@ -107,7 +107,7 @@ class JamesHandler(DefaultCommandHandler):
         nick = nick.split('!')
         justnick = nick[0]
         if justnick == self.client.nick:
-            self._msg(config['ownernick'], "RUINBot version 12.3 at your service.")
+            self._msg(config['ownernick'], "James version 12.4 at your service.")
 
     def parser(self, nick, chan, msg):
         '''Parse commands!'''
