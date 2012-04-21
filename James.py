@@ -94,13 +94,13 @@ class JamesHandler(DefaultCommandHandler):
         nick = nick.split('!')
         nick = nick[0]
         if chan.upper() == botnick:
-            self._msg(nick, "DERP")
             self.pm = 1
+            if not msg.startswith(config['cmdchar']):
+                self._msg(nick, "Unknown command..")
         else:
             self.pm = 0
 
-        if not msg.startswith(config['cmdchar']):
-            self._msg(nick, "Unknown command..")
+
         self.messages['slm'] = self.messages['lm']
         self.messages['lm'] = msg     
         self.parser(nick, chan, msg)
