@@ -359,44 +359,6 @@ class JamesHandler(DefaultCommandHandler):
         database.commit()
         logging.info("Forgot '%s' (%s)" % (trigger, factoid))
         
-    # SOME COMIC AND FUN COMMANDS
-    
-    def cmd_QUOTE(self, nick, chan, arg):
-        '''Quote handling!'''
-        usage = lambda: self._msg(chan, "Usage: quote [ADD|LIST|GET|RM] [QUOTE|QUOTENUMBER]")
-        help = lambda: self._msg(chan, "To split a quote into multiple lines, use the |, for example, 'RaindeerLovers: HAI!|Star: Morning.'")
-        if not arg:
-            return (usage(), help())
-        args = arg.split()
-        nick = nick.split('!')
-        if args[0].upper() == "ADD":
-            quote = ' '.join(args[1:])
-            timestamp = strftime("%a, the %dth of %B, %Y")
-            db.execute("INSERT INTO quotes (quote, nick, timestamp) VALUES (?, ?, ?)", (quote, nick, timestamp))
-            quotenum = db.execute("SELECT id FROM quotes WHERE quote = ?", (quote,))
-            self._msg(chan, "Added quote #%s (points to %s) to the quote database" % (quotenum, quote))
-            logging.info("Added quote #%s (%s) to the quote database. Added by %s." % (quotenum, quote, nick))
-        elif args[0].upper() == "GET":
-            quotenum = args[1]
-            quote = db.execute("SELECT quote FROM quotes WHERE id = ?", (quotenum,)).fetchone()
-            quote = quote.split('|')
-            timestamp = db.execute("SELECT timestamp FROM quotes WHERE id = ?" (quotenum,)).fetchone()
-            setby = db.execute("SELECT nick FROM quotes WHERE id = ?", (quotenum,)).fetchone()
-            self._msg(chan, "Quote number %s:" % (quotenum))
-            for i in quote:
-                print(i)
-            self._msg(chan, "Added by %s on %s" % (nick, timestamp))
-        elif args[0].upper() == "RM":
-            quotenum = args[1]
-            nonexistant = lambda: self._msg(chan, "Unable to forget quote #%s. Nonexistant?" % quotenum)
-            quote = db.execute("SELECT quote FROM quotes WHERE id = ?", (quotenum,)).fetchone()
-            if not quote:
-                return nonexistant()
-            db.execute("DELETE FROM factoids WHERE id = ?", (quotenum,))
-            self._msg(chan, "Forgot #%s (pointed to %s)!" % (quotenum, quote))
-            logging.info("Forgot quote #%s (%s). Forgot by %s." % (quotenum, quote, nick))
-        else:
-            self._msg(chan, "Unknown quote operation %s." % args[0])
 
     def cmd_CMDS(self, nick, chan, arg):
         self._msg(chan, "Commands: join*, part*, setnick*, login**, logout**, about, quote, choose, tweet, remember, recall, forget")
