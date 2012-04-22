@@ -109,7 +109,10 @@ class JamesHandler(DefaultCommandHandler):
         nick = nick.split('!')
         justnick = nick[0]
         if justnick == self.client.nick:
-            self._msg(config['ownernick'], "James version 12.4 at your service.")
+            if chan == '#lobby':
+                self._msg(chan, "James version 12.4 started.")
+            else:
+                pass
 
     def parser(self, nick, chan, msg):
         '''Parse commands!'''
