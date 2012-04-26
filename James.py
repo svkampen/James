@@ -299,9 +299,9 @@ class JamesHandler(DefaultCommandHandler):
         username = api.me().name
         logging.info("[TWEEPY] Successfully authenticated via OAuth! Yay! (Uname: '%s')" % username)
         
-        if arg.lower() == "getLatestTweet":
+        if arg.lower() == "getlatesttweet":
             pub = api.home_timeline()
-            self._msg(chan, pub[0].text)
+            self._msg(chan, "Latest tweet is: '%s'" % pub[0].text)
             return
         
         logging.info("[TWEEPY] Updating status...")
