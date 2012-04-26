@@ -301,7 +301,7 @@ class JamesHandler(DefaultCommandHandler):
         
         if arg.lower() == "getLatestTweet":
             pub = api.home_timeline()
-            self._msg(chan, pub[0])
+            self._msg(chan, pub[0].text)
             return
         
         logging.info("[TWEEPY] Updating status...")
