@@ -9,7 +9,7 @@
 # That code (C) 2011 Amber Yust =)
 # 
 # https://github.com/svkampen/James/wiki/About
-#
+# 
 
 from oyoyo.client import IRCClient, IRCApp
 from oyoyo.cmdhandler import DefaultCommandHandler
@@ -91,8 +91,8 @@ class JamesHandler(DefaultCommandHandler):
         logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))
         botnick = self.client.nick
         botnick = botnick.upper()
-        nick = nick.split('!')
-        nick = nick[0]
+        nick = nick.split('!')[0]
+        
         if chan.upper() == botnick:
             self.pm = 1
             if not msg.startswith(config['cmdchar']):
@@ -106,8 +106,8 @@ class JamesHandler(DefaultCommandHandler):
         self.parser(nick, chan, msg)
 
     def join(self, nick, chan):
-        nick = nick.split('!')
-        justnick = nick[0]
+        nick = nick.split('!')[0]
+        just
         if justnick == self.client.nick:
             if chan == '#lobby':
                 self._msg(chan, "James version 12.4 started.")
@@ -199,9 +199,30 @@ class JamesHandler(DefaultCommandHandler):
 
     # ADMIN COMMANDS
 
+    def cmd_EVAL(self, nick, chan, arg):
+		nick = nick.split('!')[0]
+		
+		if nick in self.admins:
+			admin = True
+		else:
+			admin = False
+		
+		if admin:
+			# Yay for better syntax up in hear.
+			self._msg(chan, 'Evaluating Python code...')
+			if len(args) < 2:
+				eval(args[0])
+			elif len(args)<3:
+				if '-r' in args:
+					print(eval(args[1]))
+			else:
+				self._msg(chan, 'Unknown amount of arguments; aborting.')
+			
+			self._msg(chan, 'Done.')
+
     def cmd_JOIN(self, nick, chan, arg):
-        nick = nick.split('!')
-        nick = nick[0]
+        nick = nick.split('!')[0]
+        
         if nick in self.admins:
             admin = True
         else:
@@ -214,8 +235,8 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "Erm, you aren't an admin...")
             
     def cmd_PART(self, nick, chan, arg):
-        nick = nick.split('!')
-        nick = nick[0]
+        nick = nick.split('!')[0]
+        
         if nick in self.admins:
             admin = True
         else:
@@ -228,8 +249,8 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "Erm, you aren't an admin...")
 
     def cmd_SETNICK(self, nick, chan, arg):
-        nick = nick.split('!')
-        nick = nick[0]
+        nick = nick.split('!')[0]
+        
         if nick in self.admins:
             admin = True
         else:
@@ -246,8 +267,8 @@ class JamesHandler(DefaultCommandHandler):
             
     def cmd_LOGIN(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: login <password>. Only usable in PM's!")
-        nick = nick.split('!')
-        nick = nick[0]
+        nick = nick.split('!')[0]
+        
         if not arg:
             return usage()
         if self.pm == 1:
@@ -262,10 +283,10 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "This command is only usable in a PM.")
     
     def cmd_LOGOUT(self, nick, chan, arg):
-        nick = nick.split('!')
-        nick = nick[0]
+        nick = nick.split('!')[0]
+        
         if self.pm == 1:
-            self.admins.remove(self.admins.index(nick))
+            self.admins.remove(nick)
             self._msg(nick, "You have been logged out. Have a nice day!")
         else:
             self._msg(chan, "This command is only usable in a PM.")
