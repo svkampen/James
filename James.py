@@ -211,12 +211,13 @@ class JamesHandler(DefaultCommandHandler):
 			# Yay for better syntax up in hear.
 			self._msg(chan, 'Evaluating Python code...')
 			if len(args) < 2:
-				eval(args[0])
+				eval(' '.join(args[0:]))
 			elif len(args)<3:
 				if '-r' in args:
-					print(eval(args[1]))
+					print(eval(' '.join(args[1:])))
 			else:
 				self._msg(chan, 'Unknown amount of arguments; aborting.')
+			    return
 			
 			self._msg(chan, 'Done.')
 
