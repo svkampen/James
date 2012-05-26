@@ -93,7 +93,7 @@ class JamesHandler(DefaultCommandHandler):
         botnick = botnick.upper()
         nick = nick.split('!')[0]
         
-        if chan.upper() == botnick:
+        if chan.upper() == botnick and nick != botnick:
             self.pm = 1
             if not msg.startswith(config['cmdchar']):
                 self._msg(nick, "Unknown command..")
@@ -107,12 +107,9 @@ class JamesHandler(DefaultCommandHandler):
 
     def join(self, nick, chan):
         nick = nick.split('!')[0]
-        just
-        if justnick == self.client.nick:
-            if chan == '#lobby':
-                self._msg(chan, "James version 12.4 started.")
-            else:
-                pass
+        if nick != self.client.nick:
+            self._msg(chan, "Welcome to %s, %s!" % (chan, nick))
+            #self.checkMail(nick)
 
     def parser(self, nick, chan, msg):
         '''Parse commands!'''
@@ -199,27 +196,31 @@ class JamesHandler(DefaultCommandHandler):
 
     # ADMIN COMMANDS
 
+    def cmd_ADMINS(self, nick, chan, arg):
+        for admin in self.admins:
+            self._msg(chan, admin)
+
     def cmd_EVAL(self, nick, chan, arg):
-		nick = nick.split('!')[0]
-		
-		if nick in self.admins:
-			admin = True
-		else:
-			admin = False
-		
-		if admin:
-			# Yay for better syntax up in hear.
-			self._msg(chan, 'Evaluating Python code...')
-			if len(args) < 2:
-				eval(' '.join(args[0:]))
-			elif len(args)<3:
-				if '-r' in args:
-					print(eval(' '.join(args[1:])))
-			else:
-				self._msg(chan, 'Unknown amount of arguments; aborting.')
-			    return
-			
-			self._msg(chan, 'Done.')
+        nick = nick.split('!')[0]
+        args = arg.split()
+        if nick in self.admins:
+            admin = True
+        else:
+            admin = False
+        if admin:
+            # Yay for better syntax up in hear.
+            self._msg(chan, 'Evaluating Python code...')
+            if not '-r' in args:
+                eval(' '.join(args[0:]))
+            elif '-r' in args:
+                    print(eval(' '.join(args[1:])))
+            else:
+                self._msg(chan, 'Unknown amount of arguments; aborting.')
+                return
+            self._msg(chan, 'Done.')
+
+        else:
+            self._msg(chan, "Erm, you aren't an admin...")
 
     def cmd_JOIN(self, nick, chan, arg):
         nick = nick.split('!')[0]
