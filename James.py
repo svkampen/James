@@ -213,6 +213,7 @@ class JamesHandler(DefaultCommandHandler):
 			message = ' '.join(args[2:])
 			self._msg(chan, "Sending message '%s' to user %s..." % (message, user)
 			db.execute("INSERT INTO mail (message, user, sentby, timestamp) VALUES (?,?,?)", (message, user, nick, timestamp))
+			database.commit()
 			self._msg(chan, "Done.")
 			
 		elif args[0] == "get":
@@ -241,13 +242,14 @@ class JamesHandler(DefaultCommandHandler):
 			self._msg(chan, "Message-id: %d" % (msgid))
 			self._msg(chan, "\n")
 			self._msg(chan, "%s")
-			self._msg(chan, "\nSent by: %s" % (sentby))
+			self._msg(chan, "\nSent by: %s, at %s" % (sentby, timestamp))
 			
 		elif args[0] == "delete" or args[0] == "rm":
 			msgid = args[1]
 			message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
 			db.execute("DELETE FROM mail WHERE id = ?", (msgid,))
 			self._msg(chan, "Deleted message '%s' (message id: %s')" % (message, msgid))
+			database.commit()
 			
 			
 			
