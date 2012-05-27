@@ -80,7 +80,7 @@ class JamesHandler(DefaultCommandHandler):
         logging.info("Completed connection actions for %s." % self.client.host)
 
     def privmsg(self, nick, chan, msg):
-		""" Message receival """
+        """ Message receival """
         logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))
         botnick = self.client.nick
         botnick = botnick.upper()
@@ -198,68 +198,68 @@ class JamesHandler(DefaultCommandHandler):
 
     # MAIL COMMANDS
     def cmd_MAIL(self, nick, chan, arg):
-	    """ Get, read, send and delete serverwide mail."""
-		args = arg.split()
-		nick = nick.split('!')
-		if not arg:
-			usage = lambda: self._msg(chan, "Usage: mail <send|get|read|delete> [user] [message] [ID]")
-			example = lambda: self._msg(chan, "Example: mail send neoinr I like cows")
-		    return (usage(), example())
+        """ Get, read, send and delete serverwide mail."""
+        args = arg.split()
+        nick = nick.split('!')
+        if not arg:
+            usage = lambda: self._msg(chan, "Usage: mail <send|get|read|delete> [user] [message] [ID]")
+            example = lambda: self._msg(chan, "Example: mail send neoinr I like cows")
+            return (usage(), example())
 
         if args[0] == "send":
-			# Sending mail.
-			timestamp = time.strftime("[%H:%M]")
-			user = args[1]
-			message = ' '.join(args[2:])
-			self._msg(chan, "Sending message '%s' to user %s..." % (message, user)
-			db.execute("INSERT INTO mail (message, user, sentby, timestamp) VALUES (?,?,?)", (message, user, nick, timestamp))
-			database.commit()
-			self._msg(chan, "Done.")
-			
-		elif args[0] == "get":
-			ids = db.execute("SELECT id FROM mail WHERE user = ?", (nick,)).fetchall()
-			timestamps = db.execute("SELECT timestamp FROM mail WHERE user = ?", (nick,)).fetchall()
-			messages = db.execute("SELECT message FROM mail WHERE user = ?", (nick,)).fetchall()
-			sent-bys = db.execute("SELECT sentby FROM mail WHERE user = ?", (nick,)).fetchall()
-			num = 0
-			
-			if len(timestamps) != 0:
-			    while num < (len(timestamps)-1):
-				    self._msg(chan, "[%s] %s  %s...        %s" % (ids[num], timestamps[num], messages[num][:-(len(messages[num]/3)], sent-bys[num]))
-    				num = num + 1
-			
-	    		self._msg(chan, "\nTotal of %d messages." % ((len(messages)-1))
-	    	
-	    	else:
-				self._msg(chan, "No messages found.")
-				
-			
-		elif args[0] == "read":
-			msgid = args[1]
-			message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
-			sentby = db.execute("SELECT sentby FROM mail WHERE id = ?", (msgid,)).fetchone()
-			
-			self._msg(chan, "Message-id: %d" % (msgid))
-			self._msg(chan, "\n")
-			self._msg(chan, "%s")
-			self._msg(chan, "\nSent by: %s, at %s" % (sentby, timestamp))
-			
-		elif args[0] == "delete" or args[0] == "rm":
-			msgid = args[1]
-			message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
-			db.execute("DELETE FROM mail WHERE id = ?", (msgid,))
-			self._msg(chan, "Deleted message '%s' (message id: %s')" % (message, msgid))
-			database.commit()
-			
-			
-			
-			
-			
+            # Sending mail.
+            timestamp = time.strftime("[%H:%M]")
+            user = args[1]
+            message = ' '.join(args[2:])
+            self._msg(chan, "Sending message '%s' to user %s..." % (message, user)
+            db.execute("INSERT INTO mail (message, user, sentby, timestamp) VALUES (?,?,?)", (message, user, nick, timestamp))
+            database.commit()
+            self._msg(chan, "Done.")
+            
+        elif args[0] == "get":
+            ids = db.execute("SELECT id FROM mail WHERE user = ?", (nick,)).fetchall()
+            timestamps = db.execute("SELECT timestamp FROM mail WHERE user = ?", (nick,)).fetchall()
+            messages = db.execute("SELECT message FROM mail WHERE user = ?", (nick,)).fetchall()
+            sent-bys = db.execute("SELECT sentby FROM mail WHERE user = ?", (nick,)).fetchall()
+            num = 0
+            
+            if len(timestamps) != 0:
+                while num < (len(timestamps)-1):
+                    self._msg(chan, "[%s] %s  %s...        %s" % (ids[num], timestamps[num], messages[num][:-(len(messages[num]/3)], sent-bys[num]))
+                    num = num + 1
+            
+                self._msg(chan, "\nTotal of %d messages." % ((len(messages)-1))
+            
+            else:
+                self._msg(chan, "No messages found.")
+                
+            
+        elif args[0] == "read":
+            msgid = args[1]
+            message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
+            sentby = db.execute("SELECT sentby FROM mail WHERE id = ?", (msgid,)).fetchone()
+            
+            self._msg(chan, "Message-id: %d" % (msgid))
+            self._msg(chan, "\n")
+            self._msg(chan, "%s")
+            self._msg(chan, "\nSent by: %s, at %s" % (sentby, timestamp))
+            
+        elif args[0] == "delete" or args[0] == "rm":
+            msgid = args[1]
+            message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
+            db.execute("DELETE FROM mail WHERE id = ?", (msgid,))
+            self._msg(chan, "Deleted message '%s' (message id: %s')" % (message, msgid))
+            database.commit()
+            
+            
+            
+            
+            
 
     # ADMIN COMMANDS
 
     def cmd_EVAL(self, nick, chan, arg):
-		""" Evaluate an expression. """
+        """ Evaluate an expression. """
         nick = nick.split('!')[0]
         args = arg.split()
         if nick in self.admins:
@@ -398,7 +398,7 @@ class JamesHandler(DefaultCommandHandler):
     # MAINLY FACTOID COMMANDS
 
     def cmd_REMEMBER(self, nick, chan, arg):
-		""" Remember a factoid """
+        """ Remember a factoid """
         usage = lambda: self._msg(chan, "Usage: remember <trigger> <factoid>")
         if not arg:
             return usage()
@@ -416,7 +416,7 @@ class JamesHandler(DefaultCommandHandler):
         logging.info("[INFO] Remembered '%s' (%s)" % (trigger, factoid))
 
     def cmd_RECALL(self, nick, chan, arg):
-		""" Recall a factoid """
+        """ Recall a factoid """
         usage = lambda: self._msg(chan, "Usage: recall <trigger>")
         nonexistant = lambda: self._msg(chan, "Unable to recall '%s'. Nonexistant?" % arg)
         if not arg:
@@ -431,7 +431,7 @@ class JamesHandler(DefaultCommandHandler):
         logging.info("[INFO] Recalled '%s'" % trigger)
         
     def cmd_FORGET(self, nick, chan, arg):
-		""" Forget a factoid """
+        """ Forget a factoid """
         usage = lambda: self._msg(chan, "Usage: forget <trigger>")
         nonexistant = lambda: self._msg(chan, "Unable to forget '%s'. Nonexistant?" % arg)
         if not arg:
@@ -448,42 +448,42 @@ class JamesHandler(DefaultCommandHandler):
         
         
     def cmd_CMDS(self, nick, chan, arg):
-		""" Gimme those commands! """
-		if not arg:
-			usage = lambda: self._msg(chan, "Usage: cmds <cmdtype>")
-	        types = lambda: self._msg(chan, "Types: owner, normal, pm")
+        """ Gimme those commands! """
+        if not arg:
+            usage = lambda: self._msg(chan, "Usage: cmds <cmdtype>")
+            types = lambda: self._msg(chan, "Types: owner, normal, pm")
             
             return (usage(), types())
         
         if arg == "owner":
-			self._msg(chan, "==  Owner Commands ==")
-			self._msg(chan, "==      join       ==")
-			self._msg(chan, "==      part       ==")
-			self._msg(chan, "==      setnick    ==")
-			self._msg(chan, "==      eval       ==")
-			self._msg(chan, "=====================")
-			
-		elif arg == "normal":
-			self._msg(chan, "== Normal Commands ==")
-			self._msg(chan, "==     about       ==")
-			self._msg(chan, "==     quote       ==")
-			self._msg(chan, "==     choose      ==")
-			self._msg(chan, "==     tweet       ==")
-			self._msg(chan, "==     remember    ==")
-			self._msg(chan, "==     recall      ==")
-			self._msg(chan, "==     forget      ==")
-			self._msg(chan, "==     mail        ==")
-			self._msg(chan, "=====================")
-		
-		elif arg == "pm":
-			self._msg(chan, "==   PM Commands   ==")
-			self._msg(chan, "==     login       ==")
-			self._msg(chan, "==     logout      ==")
-			self._msg(chan, "=====================")
-			
+            self._msg(chan, "==  Owner Commands ==")
+            self._msg(chan, "==      join       ==")
+            self._msg(chan, "==      part       ==")
+            self._msg(chan, "==      setnick    ==")
+            self._msg(chan, "==      eval       ==")
+            self._msg(chan, "=====================")
+            
+        elif arg == "normal":
+            self._msg(chan, "== Normal Commands ==")
+            self._msg(chan, "==     about       ==")
+            self._msg(chan, "==     quote       ==")
+            self._msg(chan, "==     choose      ==")
+            self._msg(chan, "==     tweet       ==")
+            self._msg(chan, "==     remember    ==")
+            self._msg(chan, "==     recall      ==")
+            self._msg(chan, "==     forget      ==")
+            self._msg(chan, "==     mail        ==")
+            self._msg(chan, "=====================")
+        
+        elif arg == "pm":
+            self._msg(chan, "==   PM Commands   ==")
+            self._msg(chan, "==     login       ==")
+            self._msg(chan, "==     logout      ==")
+            self._msg(chan, "=====================")
+            
         else:
-			self._msg(chan, "Unknown command type: %s" % (arg))
-			return
+            self._msg(chan, "Unknown command type: %s" % (arg))
+            return
 
     # SPECIAL MODE COMMANDS
             
