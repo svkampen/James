@@ -245,11 +245,15 @@ class JamesHandler(DefaultCommandHandler):
             message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
             sentby = db.execute("SELECT sentby FROM mail WHERE id = ?", (msgid,)).fetchone()
             timestamp = db.execute("SELECT timestamp FROM mail WHERE id = ?", (msgid,)).fetchone()            
+            sentto = db.execute("SELECT user FROM mail WHERE id = ?", (msgid,)).fetchone()
 
             if not message:
                 self._msg(chan, "Unknown message id; message not found.")
                 return
 
+            if sentto != nick and not nick in self.admins:
+                self._msg(chan, "Error: unable to read message (unauthorized)")
+                return
 
             self._msg(chan, "Message-id: %s" % (msgid))
             self._msg(chan, "\n    ")
@@ -523,7 +527,7 @@ if __name__ == '__main__':
         database = sqlite3.connect(config['db']['path'])
         db = database.cursor()
         db.execute("""CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT, trigger TEXT, factoid TEXT)""")
-        db.execute("""CREATE TABLE IF NOT EXISTS mail (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, user TEXT, sentby TEXT, timestamp TEXT)""")
+        db.execute("""CREATE TABLE IF NOT EXISTS mail (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, user TEXT, sentby TEXT, sentto TEXT, timestamp TEXT)""")
         database.commit()
     
     
