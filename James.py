@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# James version 12.4
-# Build Date: 21042012
+# James version 12.5
+# Build Date: 27052012
 # 
 # (C) 2012 Sam van Kampen
 #
@@ -104,7 +104,7 @@ class JamesHandler(DefaultCommandHandler):
         nick = nick.split('!')[0]
         if nick != self.client.nick:
             self._msg(chan, "Welcome to %s, %s!" % (chan, nick))
-            self.checkMail(nick)
+            self.cmd_MAIL(nick, '#lobby', 'msgcount')
 
     def parser(self, nick, chan, msg):
         """Parse commands!"""
@@ -201,7 +201,7 @@ class JamesHandler(DefaultCommandHandler):
     # MAIL COMMANDS
     def cmd_MAIL(self, nick, chan, arg):
         """ Get, read, send and delete serverwide mail."""
-        nick = nick.split('!')[0]
+        nick = nick.split('!')[0].lower()
         if not arg:
             usage = lambda: self._msg(chan, "Usage: mail <send|get|read|delete> [user] [message] [ID]")
             example = lambda: self._msg(chan, "Example: mail send neoinr I like cows")
@@ -210,9 +210,14 @@ class JamesHandler(DefaultCommandHandler):
         args = arg.split()
 
         if args[0] == "send":
+            if len(args) < 3:
+                self._msg(chan, "Usage: mail send <user> <message>")
+                return
+
+
             # Sending mail.
             timestamp = time.strftime("[%H:%M]")
-            user = args[1]
+            user = args[1].lower()
             message = ' '.join(args[2:])
             self._msg(chan, "Sending message '%s' to user %s..." % (message, user))
             db.execute("INSERT INTO mail (message, user, sentby, timestamp) VALUES (?,?,?,?)", (message, user, nick, timestamp))
@@ -228,7 +233,10 @@ class JamesHandler(DefaultCommandHandler):
             
             if len(timestamps) != 0:
                 while num < (len(timestamps)):
-                    self._msg(chan, "[%s] %s  %s...        %s" % (ids[num][0], timestamps[num][0], messages[num][0], sentbys[num][0]))
+                    if len(messages[num][0]) < 10:
+                        self._msg(chan, "[%s] %s  %s           %s" % (ids[num][0], timestamps[num][0], messages[num][0], sentbys[num][0]))
+                    else:
+                        self._msg(chan, "[%s] %s  %s...           %s" % (ids[num][0], timestamps[num][0], messages[num][0][:-len(messages[num][0])/3], sentbys[num][0]))
                     num = num + 1
             
                 if len(messages) > 1:
@@ -241,6 +249,11 @@ class JamesHandler(DefaultCommandHandler):
                 
             
         elif args[0] == "read":
+            if len(args) < 2:
+                self._msg(chan, "Usage: mail read <ID>")
+                return
+
+
             msgid = args[1]
             message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
             sentby = db.execute("SELECT sentby FROM mail WHERE id = ?", (msgid,)).fetchone()
@@ -251,21 +264,45 @@ class JamesHandler(DefaultCommandHandler):
                 self._msg(chan, "Unknown message id; message not found.")
                 return
 
-            if sentto != nick and not nick in self.admins:
+            if sentto[0] != nick.lower() and not nick in self.admins:
                 self._msg(chan, "Error: unable to read message (unauthorized)")
                 return
 
-            self._msg(chan, "Message-id: %s" % (msgid))
+            self._msg(chan, "MessageID: %s" % (msgid))
+            self._msg(chan, "Sent by: %s" % (sentby[0]))
+            self._msg(chan, "Sent to: %s" % (sentto[0]))
+            self._msg(chan, "Sent at: %s" % (timestamp[0][:-1][1:])) # Remove the [] in the timestamp
             self._msg(chan, "\n    ")
             self._msg(chan, "%s" % (message))
-            self._msg(chan, "   ")
-            self._msg(chan, "Sent by: %s, at %s" % (sentby[0], timestamp[0][:-1][1:]))
+
+        elif args[0] == "msgcount":
+            msgcount = db.execute("SELECT message FROM mail WHERE user = ?", (nick,)).fetchall()
+            if not len(msgcount)<2:
+                self._msg(chan, "You have a total of %d messages." % len(msgcount))
+            else:
+                self._msg(chan, "You have a total of 1 message.")
+
             
         elif args[0] == "delete" or args[0] == "rm":
+            if len(args) < 2:
+                self._msg(chan, "Usage: mail delete <ID>")
+                return
+
             msgid = args[1]
             message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
+            sentto = db.execute("SELECT user FROM mail WHERE id = ?", (msgid,)).fetchone()
+
+            if not message:
+                self._msg(chan, "Unknown message id; message not found.")
+                return
+
+            if sentto[0] != nick.lower() and not nick in self.admins:
+                self._msg(chan, "Error: unable to delete message (unauthorized)")
+                return
+
             db.execute("DELETE FROM mail WHERE id = ?", (msgid,))
-            self._msg(chan, "Deleted message '%s' (message id: %s')" % (message, msgid))
+
+            self._msg(chan, "Deleted message '%s' (message id: %s')" % (message[0], msgid[0]))
             database.commit()
             
             
@@ -526,8 +563,18 @@ if __name__ == '__main__':
     
         database = sqlite3.connect(config['db']['path'])
         db = database.cursor()
-        db.execute("""CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT, trigger TEXT, factoid TEXT)""")
-        db.execute("""CREATE TABLE IF NOT EXISTS mail (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, user TEXT, sentby TEXT, sentto TEXT, timestamp TEXT)""")
+
+        db.execute("""CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                           trigger TEXT,
+                                                           factoid TEXT
+                                                           )""")
+
+        db.execute("""CREATE TABLE IF NOT EXISTS mail (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                       message TEXT,
+                                                       user TEXT,
+                                                       sentby TEXT,
+                                                       timestamp TEXT
+                                                       )""")
         database.commit()
     
     
