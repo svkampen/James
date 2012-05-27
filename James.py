@@ -18,6 +18,8 @@ import json, urllib2, tweepy, urllib, time, logging, yaml, re, sys, sqlite3, tra
 from urlparse import urlparse
 from BeautifulSoup import BeautifulSoup as soup
 
+from urllib import urlencode
+
 logging.basicConfig(level=logging.INFO)
 config = None
 app = None
@@ -86,7 +88,7 @@ class JamesHandler(DefaultCommandHandler):
         botnick = botnick.upper()
         nick = nick.split('!')[0]
         
-        if chan.upper() == botnick and nick != botnick:
+        if chan.upper() == botnick and nick.upper() != botnick:
             self.pm = 1
             if not msg.startswith(config['cmdchar']):
                 self._msg(nick, "Unknown command..")
@@ -187,7 +189,7 @@ class JamesHandler(DefaultCommandHandler):
         else:
                 self._msg(chan, "%s: %s" % (nick.split('!')[0], random.choice(items)))
 
-    def _cmd_MEME(self, nick, chan, arg):
+    def cmd_MEME(self, nick, chan, arg):
         """meme - search for a meme on KnowYourMeme"""
         usage = lambda: self._msg(chan, "Usage: meme <query>")
         if not arg:
@@ -199,20 +201,21 @@ class JamesHandler(DefaultCommandHandler):
     # MAIL COMMANDS
     def cmd_MAIL(self, nick, chan, arg):
         """ Get, read, send and delete serverwide mail."""
-        args = arg.split()
-        nick = nick.split('!')
+        nick = nick.split('!')[0]
         if not arg:
             usage = lambda: self._msg(chan, "Usage: mail <send|get|read|delete> [user] [message] [ID]")
             example = lambda: self._msg(chan, "Example: mail send neoinr I like cows")
             return (usage(), example())
+
+        args = arg.split()
 
         if args[0] == "send":
             # Sending mail.
             timestamp = time.strftime("[%H:%M]")
             user = args[1]
             message = ' '.join(args[2:])
-            self._msg(chan, "Sending message '%s' to user %s..." % (message, user)
-            db.execute("INSERT INTO mail (message, user, sentby, timestamp) VALUES (?,?,?)", (message, user, nick, timestamp))
+            self._msg(chan, "Sending message '%s' to user %s..." % (message, user))
+            db.execute("INSERT INTO mail (message, user, sentby, timestamp) VALUES (?,?,?,?)", (message, user, nick, timestamp))
             database.commit()
             self._msg(chan, "Done.")
             
@@ -220,15 +223,18 @@ class JamesHandler(DefaultCommandHandler):
             ids = db.execute("SELECT id FROM mail WHERE user = ?", (nick,)).fetchall()
             timestamps = db.execute("SELECT timestamp FROM mail WHERE user = ?", (nick,)).fetchall()
             messages = db.execute("SELECT message FROM mail WHERE user = ?", (nick,)).fetchall()
-            sent-bys = db.execute("SELECT sentby FROM mail WHERE user = ?", (nick,)).fetchall()
+            sentbys = db.execute("SELECT sentby FROM mail WHERE user = ?", (nick,)).fetchall()
             num = 0
             
             if len(timestamps) != 0:
-                while num < (len(timestamps)-1):
-                    self._msg(chan, "[%s] %s  %s...        %s" % (ids[num], timestamps[num], messages[num][:-(len(messages[num]/3)], sent-bys[num]))
+                while num < (len(timestamps)):
+                    self._msg(chan, "[%s] %s  %s...        %s" % (ids[num][0], timestamps[num][0], messages[num][0], sentbys[num][0]))
                     num = num + 1
             
-                self._msg(chan, "\nTotal of %d messages." % ((len(messages)-1))
+                if len(messages) > 1:
+                    self._msg(chan, "\nTotal of %d messages." % (len(messages)))
+                else:
+                    self._msg(chan, "Total of 1 message.")
             
             else:
                 self._msg(chan, "No messages found.")
@@ -238,11 +244,18 @@ class JamesHandler(DefaultCommandHandler):
             msgid = args[1]
             message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
             sentby = db.execute("SELECT sentby FROM mail WHERE id = ?", (msgid,)).fetchone()
-            
-            self._msg(chan, "Message-id: %d" % (msgid))
-            self._msg(chan, "\n")
-            self._msg(chan, "%s")
-            self._msg(chan, "\nSent by: %s, at %s" % (sentby, timestamp))
+            timestamp = db.execute("SELECT timestamp FROM mail WHERE id = ?", (msgid,)).fetchone()            
+
+            if not message:
+                self._msg(chan, "Unknown message id; message not found.")
+                return
+
+
+            self._msg(chan, "Message-id: %s" % (msgid))
+            self._msg(chan, "\n    ")
+            self._msg(chan, "%s" % (message))
+            self._msg(chan, "   ")
+            self._msg(chan, "Sent by: %s, at %s" % (sentby[0], timestamp[0][:-1][1:]))
             
         elif args[0] == "delete" or args[0] == "rm":
             msgid = args[1]
@@ -405,6 +418,10 @@ class JamesHandler(DefaultCommandHandler):
         args = arg.split()
         trigger = args[0]
         factoid = args[1]
+        if trigger == "svkampen" and nick.split('!')[0] == "Madi":
+            self._msg(chan, "Unable to change protected user 'svkampen'")
+            return
+
         existing = db.execute("SELECT id FROM factoids WHERE trigger = ?", (trigger,)).fetchone()
         if existing:
             db.execute("UPDATE factoids SET factoid = ? WHERE trigger = ?", (factoid, existing[0]))
