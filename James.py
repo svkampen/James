@@ -222,6 +222,7 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "Sending message '%s' to user %s..." % (message, user))
             db.execute("INSERT INTO mail (message, user, sentby, timestamp) VALUES (?,?,?,?)", (message, user, nick, timestamp))
             database.commit()
+            logging.info("[MAIL] Mail sent (from: '%s', to: '%s', message: '%s'." % (nick, user, message))
             self._msg(chan, "Done.")
             
         elif args[0] == "get":
@@ -247,6 +248,8 @@ class JamesHandler(DefaultCommandHandler):
             else:
                 self._msg(chan, "No messages found.")
                 
+            logging.info("[MAIL] Opened mailbox for %s and found %s messages." % (nick, len(messages)))
+                
             
         elif args[0] == "read":
             if len(args) < 2:
@@ -264,6 +267,7 @@ class JamesHandler(DefaultCommandHandler):
                 self._msg(chan, "Unknown message id; message not found.")
                 return
 
+<<<<<<< HEAD
             if sentto[0] != nick.lower() and not nick in self.admins:
                 self._msg(chan, "Error: unable to read message (unauthorized)")
                 return
@@ -272,6 +276,15 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "Sent by: %s" % (sentby[0]))
             self._msg(chan, "Sent to: %s" % (sentto[0]))
             self._msg(chan, "Sent at: %s" % (timestamp[0][:-1][1:])) # Remove the [] in the timestamp
+=======
+            if sentto[0] != nick and not nick in self.admins:
+                self._msg(chan, "Error: unable to read message (unauthorized)")
+                return
+
+            self._msg(chan, "Message-id: %s" % (msgid))
+            self._msg(chan, "Sent by: %s" % sentby[0])
+            self._msg(chan, "Sent to: %s" % sentto[0])
+>>>>>>> 2772664c70e74ef54c8727ed0062bea5fec084f3
             self._msg(chan, "\n    ")
             self._msg(chan, "%s" % (message))
 
@@ -282,6 +295,8 @@ class JamesHandler(DefaultCommandHandler):
             else:
                 self._msg(chan, "You have a total of 1 message.")
 
+            
+            logging.info("[MAIL] %s read MID %s (from: %s, timestamp: %s)" % (nick, msgid, sentby[0], timestamp[0][:-1][1:]))
             
         elif args[0] == "delete" or args[0] == "rm":
             if len(args) < 2:
@@ -304,6 +319,8 @@ class JamesHandler(DefaultCommandHandler):
 
             self._msg(chan, "Deleted message '%s' (message id: %s')" % (message[0], msgid[0]))
             database.commit()
+            
+            logging.info("[MAIL] Deleted message '%s' (MID: %s)" % (message, msgid))
             
             
             
