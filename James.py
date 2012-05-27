@@ -217,6 +217,7 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "Sending message '%s' to user %s..." % (message, user))
             db.execute("INSERT INTO mail (message, user, sentby, timestamp) VALUES (?,?,?,?)", (message, user, nick, timestamp))
             database.commit()
+            logging.info("[MAIL] Mail sent (from: '%s', to: '%s', message: '%s'." % (nick, user, message))
             self._msg(chan, "Done.")
             
         elif args[0] == "get":
@@ -239,6 +240,8 @@ class JamesHandler(DefaultCommandHandler):
             else:
                 self._msg(chan, "No messages found.")
                 
+            logging.info("[MAIL] Opened mailbox for %s and found %s messages." % (nick, len(messages)))
+                
             
         elif args[0] == "read":
             msgid = args[1]
@@ -251,15 +254,19 @@ class JamesHandler(DefaultCommandHandler):
                 self._msg(chan, "Unknown message id; message not found.")
                 return
 
-            if sentto != nick and not nick in self.admins:
+            if sentto[0] != nick and not nick in self.admins:
                 self._msg(chan, "Error: unable to read message (unauthorized)")
                 return
 
             self._msg(chan, "Message-id: %s" % (msgid))
+            self._msg(chan, "Sent by: %s" % sentby[0])
+            self._msg(chan, "Sent to: %s" % sentto[0])
             self._msg(chan, "\n    ")
             self._msg(chan, "%s" % (message))
             self._msg(chan, "   ")
             self._msg(chan, "Sent by: %s, at %s" % (sentby[0], timestamp[0][:-1][1:]))
+            
+            logging.info("[MAIL] %s read MID %s (from: %s, timestamp: %s)" % (nick, msgid, sentby[0], timestamp[0][:-1][1:]))
             
         elif args[0] == "delete" or args[0] == "rm":
             msgid = args[1]
@@ -267,6 +274,8 @@ class JamesHandler(DefaultCommandHandler):
             db.execute("DELETE FROM mail WHERE id = ?", (msgid,))
             self._msg(chan, "Deleted message '%s' (message id: %s')" % (message, msgid))
             database.commit()
+            
+            logging.info("[MAIL] Deleted message '%s' (MID: %s)" % (message, msgid))
             
             
             
