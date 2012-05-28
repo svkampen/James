@@ -130,7 +130,7 @@ class JamesHandler(DefaultCommandHandler):
     # Commandohs.
 
     def _url_announce(self, chan, url):
-    # Amber.
+        # Amber.
         """Announce the info for a detected URL in the channel it was detected in."""
         try:
             if not url.startswith("http"):
@@ -234,10 +234,10 @@ class JamesHandler(DefaultCommandHandler):
             
             if len(timestamps) != 0:
                 while num < (len(timestamps)):
-                    if len(messages[num][0]) < 10:
+                    if len(messages[num][0]) < 5:
                         self._msg(chan, "[%s] %s  %s           %s" % (ids[num][0], timestamps[num][0], messages[num][0], sentbys[num][0]))
                     else:
-                        self._msg(chan, "[%s] %s  %s...           %s" % (ids[num][0], timestamps[num][0], messages[num][0][:-len(messages[num][0])/3], sentbys[num][0]))
+                        self._msg(chan, "[%s] %s  %s...        %s" % (ids[num][0], timestamps[num][0], messages[num][0][:4], sentbys[num][0]))
                     num = num + 1
             
                 if len(messages) > 1:
@@ -267,7 +267,6 @@ class JamesHandler(DefaultCommandHandler):
                 self._msg(chan, "Unknown message id; message not found.")
                 return
 
-<<<<<<< HEAD
             if sentto[0] != nick.lower() and not nick in self.admins:
                 self._msg(chan, "Error: unable to read message (unauthorized)")
                 return
@@ -276,7 +275,7 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "Sent by: %s" % (sentby[0]))
             self._msg(chan, "Sent to: %s" % (sentto[0]))
             self._msg(chan, "Sent at: %s" % (timestamp[0][:-1][1:])) # Remove the [] in the timestamp
-=======
+
             if sentto[0] != nick and not nick in self.admins:
                 self._msg(chan, "Error: unable to read message (unauthorized)")
                 return
@@ -284,19 +283,21 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "Message-id: %s" % (msgid))
             self._msg(chan, "Sent by: %s" % sentby[0])
             self._msg(chan, "Sent to: %s" % sentto[0])
->>>>>>> 2772664c70e74ef54c8727ed0062bea5fec084f3
+
             self._msg(chan, "\n    ")
-            self._msg(chan, "%s" % (message))
+            for line in message.split('|'):
+                self._msg(chan, ">> %s" % (line))
+            
+            logging.info("[MAIL] %s read MID %s (from: %s, timestamp: %s)" % (nick, msgid, sentby[0], timestamp[0][:-1][1:]))
 
         elif args[0] == "msgcount":
             msgcount = db.execute("SELECT message FROM mail WHERE user = ?", (nick,)).fetchall()
-            if not len(msgcount)<2:
-                self._msg(chan, "You have a total of %d messages." % len(msgcount))
+            if len(msgcount) > 1:
+                self._msg(chan, "You have a total of %d messages. Say +mail get to list your messages." % len(msgcount))
+            elif len(msgcount) == 1:
+                self._msg(chan, "You have a total of 1 message. Say +mail get to list your messages.")
             else:
-                self._msg(chan, "You have a total of 1 message.")
-
-            
-            logging.info("[MAIL] %s read MID %s (from: %s, timestamp: %s)" % (nick, msgid, sentby[0], timestamp[0][:-1][1:]))
+                self._msg(chan, "You have no new messages.")
             
         elif args[0] == "delete" or args[0] == "rm":
             if len(args) < 2:
