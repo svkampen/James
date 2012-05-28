@@ -298,6 +298,8 @@ class JamesHandler(DefaultCommandHandler):
                 self._msg(chan, "You have a total of 1 message. Say +mail get to list your messages.")
             else:
                 self._msg(chan, "You have no new messages.")
+                
+            logging.info("[MAIL] Fetched messagecount for user %s." % nick)
             
         elif args[0] == "delete" or args[0] == "rm":
             if len(args) < 2:
