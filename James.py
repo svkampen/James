@@ -237,9 +237,9 @@ class JamesHandler(DefaultCommandHandler):
             if len(timestamps) != 0:
                 while num < (len(timestamps)):
                     if len(messages[num][0]) < 5:
-                        self._msg(chan, "[%s] %s  %s           %s" % (ids[num][0], timestamps[num][0], messages[num][0], sentbys[num][0]))
+                        self._msg(chan, "[%s]  %s  %s           %s" % (ids[num][0], timestamps[num][0], messages[num][0].replace('|', ' '), sentbys[num][0]))
                     else:
-                        self._msg(chan, "[%s] %s  %s...        %s" % (ids[num][0], timestamps[num][0], messages[num][0][:4], sentbys[num][0]))
+                        self._msg(chan, "[%s] %s  %s...        %s" % (ids[num][0], timestamps[num][0], messages[num][0][:4].replace('|', ' '), sentbys[num][0]))
                     num = num + 1
             
                 if len(messages) > 1:
@@ -272,19 +272,8 @@ class JamesHandler(DefaultCommandHandler):
             if sentto[0] != nick.lower() and not nick in self.admins:
                 self._msg(chan, "Error: unable to read message (unauthorized)")
                 return
-
-            self._msg(chan, "MessageID: %s" % (msgid))
-            self._msg(chan, "Sent by: %s" % (sentby[0]))
-            self._msg(chan, "Sent to: %s" % (sentto[0]))
-            self._msg(chan, "Sent at: %s" % (timestamp[0][:-1][1:])) # Remove the [] in the timestamp
-
-            if sentto[0] != nick and not nick in self.admins:
-                self._msg(chan, "Error: unable to read message (unauthorized)")
-                return
-
-            self._msg(chan, "Message-id: %s" % (msgid))
-            self._msg(chan, "Sent by: %s" % sentby[0])
-            self._msg(chan, "Sent to: %s" % sentto[0])
+            
+            self._msg(chan, "[%s] - [%s -> %s] - [%s]" % (msgid, sentby, sentto, timestamp))
 
             self._msg(chan, "\n    ")
             for line in message.split('|'):
