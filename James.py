@@ -100,11 +100,13 @@ class JamesHandler(DefaultCommandHandler):
         self.messages['lm'] = msg     
         self.parser(nick, chan, msg)
 
-    def join(self, nick, chan):
-        nick = nick.split('!')[0]
-        if nick != self.client.nick:
-            self._msg(chan, "Welcome to %s, %s!" % (chan, nick))
-            self.cmd_MAIL(nick, '#lobby', 'msgcount')
+    # <UnoAphex> Make it so it just shuts the fuck up
+    # <UnoAphex> until asked
+    #def join(self, nick, chan):
+    #    nick = nick.split('!')[0]
+    #    if nick != self.client.nick:
+    #        self._msg(chan, "Welcome to %s, %s!" % (chan, nick))
+    #        self.cmd_MAIL(nick, '#lobby', 'msgcount')
 
     def parser(self, nick, chan, msg):
         """Parse commands!"""
