@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 #
-# James version 12.5
 # Build Date: 27052012
 # 
 # (C) 2012 Sam van Kampen
 #
 # Some of the main code copied from Kitn (as there is no Oyoyo documentation)
 # That code (C) 2011 Amber Yust =)
+#
+# Also some of the decorator code copied from rmmh/skybot. Again, that code (C) rmmh et al.
 # 
 # https://github.com/svkampen/James/wiki/About
 # 
@@ -18,22 +19,26 @@ import json, urllib2, tweepy, urllib, time, logging, yaml, re, sys, sqlite3, tra
 from urlparse import urlparse
 from BeautifulSoup import BeautifulSoup as soup
 
+from threading import Thread
+
 from urllib import urlencode
 
 logging.basicConfig(level=logging.INFO)
 config = None
 app = None
     
+
 class JamesHandler(DefaultCommandHandler):
 
     def __init__(self, *args, **kwargs):
         """Handles initial actions."""
         super(JamesHandler, self).__init__(*args, **kwargs)
+
         self.COMMAND_RE = re.compile(r"^(?:%s:\s+|%s)(\w+)(?:\s+(.*))?$" % (self.client.nick, re.escape(config['cmdchar'])))
         self.operedup = None
         self.messages = dict()
         self.messages['lm'] = ""
-        self.admins = []
+        self.admins = ['svkampen']
         # URLs
         self.URL_RE = re.compile(r"""
             \b
@@ -58,6 +63,40 @@ class JamesHandler(DefaultCommandHandler):
                 )*
             )?
         """, re.X)
+
+
+    class UrbanSearch(Thread):
+
+        def _get_json(self, url):
+            url = url.replace(' ', '%20')
+            page = urllib2.urlopen(url)
+            data = json.loads(page.read())
+            return data
+
+        def run(self, james, chan, nick, num, showlink, url):
+            data = self._get_json(url)
+
+            defs = data['list']
+
+            if data['result_type'] == 'no_results':
+                return 'not found.'
+
+            out = defs[num]['word'] + ': ' + defs[num]['definition']
+
+            readmore = False
+
+            if len(out) > 200:
+                out = out[:out.rfind(' ', 0, 200)] + '...'
+                readmore = True
+            
+            out = out.strip('\n')
+
+            james._msg(chan, "%s: %s" % (nick.split('!')[0],out))
+            if readmore or showlink:
+                james._msg(chan, "  ")
+                james._msg(chan, "Read more: %s" % james._shorten(defs[num]['permalink']))
+
+
 
 
     def welcome(self, nick, chan, msg):
@@ -102,11 +141,12 @@ class JamesHandler(DefaultCommandHandler):
 
     # <UnoAphex> Make it so it just shuts the fuck up
     # <UnoAphex> until asked
-    #def join(self, nick, chan):
-    #    nick = nick.split('!')[0]
-    #    if nick != self.client.nick:
-    #        self._msg(chan, "Welcome to %s, %s!" % (chan, nick))
-    #        self.cmd_MAIL(nick, '#lobby', 'msgcount')
+    #
+    # Edit: <neoinr> Make him call Acaelus a snailus
+    def join(self, nick, chan):
+        nick = nick.split('!')[0]
+        if nick.lower() in ("acaelus", "nagah", "nagger", "fishermanfrommontreal"):
+            self._msg(chan, "Acaelus, snailus, as big as a whaleus.")
 
     def parser(self, nick, chan, msg):
         """Parse commands!"""
@@ -176,7 +216,16 @@ class JamesHandler(DefaultCommandHandler):
         except ValueError as e:
             logging.warning("Unable to examine URL %s" % url, exc_info=True)
 
+    
+    def _get_json(self, url):
+        url = url.replace(' ', '%20')
+        page = urllib2.urlopen(url)
+        data = json.loads(page.read())
+        return data
+
+
     # STANDARD COMMANDS
+
 
     def cmd_ABOUT(self, nick, chan, arg):
         self._msg(chan, "Hi! I'm James. I am the bot created by Sam van Kampen (with some help from Aiiane/Aaeriele/Amber).")
@@ -316,10 +365,120 @@ class JamesHandler(DefaultCommandHandler):
             
             logging.info("[MAIL] Deleted message '%s' (MID: %s)" % (message, msgid))
             
+
+    def cmd_NYT(self, nick, chan, arg):
+        ''' Search using the NYT Article API '''
+        if not arg:
+            self._msg(chan, "Usage: nyt [type] [query]")
+            self._msg(chan, "More information: http://bit.ly/KC5NGV")
+
+        args = arg.split()
+    
+        type = args[0]
+        query = ' '.join(args[1:]).replace(" ", "%20")
+        url = 'http://api.nytimes.com/svc/search/v1/article?%s&api-key=%s' % (urlencode({'query': query}), '0b5514a882c37ad59137c1c6cc4fad24:9:66203467')
+
+        data = self._get_json(url)
+
+        if type == "read":
+            shorturl = self._shorten(data['results'][0]['url']) # Shorten with bitly!
+            if not ';' in data['results'][0]['title']:
+                self._msg(chan, data['results'][0]['title']+ ' -- ' + data['results'][0]['date'] + ' -- ' + shorturl)
+            else:
+                self._msg(chan, data['results'][0]['title'].split(';')[1] + ' -- ' + data['results'][0]['date'] + ' -- ' + shorturl)
+            self._msg(chan, "\n%s" % (data['results'][0]['body'].replace('&rdquo', "'").replace("&ldquo;", "'").replace("&rsquo;", "'")+"..."))
+            self._msg(chan, "Read more: %s" % shorturl)
+
+        elif type == "search":
+            num = 1
+            while num <5:
+                shorturl = self._shorten(data['results'][num]['url']) # Same as above!
+                if not ';' in data['results'][num]['title']:
+                    self._msg(chan, "\x02%s.\x02 -- %s - %s" % (str(num), data['results'][num]['title'], shorturl))
+                else:
+                    self._msg(chan, "\x02%s.\x02 -- %s - %s" % (str(num), data['results'][num]['title'].split(';')[1], shorturl))            
+
+                num = num + 1
+
+    def cmd_LMGTFY(self, nick, chan, arg):
+        self._msg(chan, "http://lmgtfy.com/?q=%s" % arg.replace(' ', '%20'))
+
+    def cmd_BITLY(self, nick, chan, arg):
+       ''' Bit.ly shortener '''
+       if 'that' == arg:
+           arg = self.messages['slm']
+       if ': ' in arg:
+           arg = ' '.join(arg.split(': ')[1:])
+
+       out = self._shorten(arg)
+       self._msg(chan, "%s: %s" % (nick.split('!')[0], out))
+
+    def _shorten(self, arg):
+       if not arg:
+           return self._msg(chan, "Usage: bitly <url>")
+      
+       if not arg.startswith('http'):
+           arg = 'http://' + arg
+
+       url = 'http://api.bit.ly/shorten?version=2.0.1&%s&login=svkampen&apiKey=R_a48d3cdf1246bfc2005db3fd35be3d95&format=json' % (urlencode({'longUrl': arg}))
+       data = self._get_json(url)
+
+       return data['results'][arg]['shortUrl']
+
+    def cmd_BING(self, nick, chan, arg):
+        ''' BING? FUCK BING! '''
+        self._msg(chan, "Bing? FUCK BING!")
             
-            
-            
-            
+    def cmd_MTGOX(self, nick, chan, arg):
+        url = 'https://mtgox.com/code/data/ticker.php'
+        data = self._get_json(url)
+
+        ticker = data['ticker']
+        self._msg(chan, "Current: %s - Volume: %s" % (ticker['buy'], ticker['vol']))
+
+    def cmd_GOOGLE(self, nick, chan, arg):
+        ''' Googling! '''
+        if not arg:
+            return self._msg(chan, "Usage: google [query]")
+
+        args = arg.split()
+        url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&safe=off&%s' % (urlencode({'q': ' '.join(args[0:])}))
+
+        data = self._get_json(url)
+
+        if len(data['responseData']['results']) == 0:
+            self._msg(chan, "%s: No results found." % nick.split('!')[0])
+            return
+
+        results = data['responseData']['results']
+
+        self._msg(chan, "\x02%s\x02 -- %s" % (results[0]['url'], results[0]['titleNoFormatting']))
+
+    def cmd_URBAN(self, nick, chan, arg):
+        ''' UrbanDictionary lookup. '''
+
+        if not arg:
+            return self._msg(chan, "Usage: urban [phrase]")
+
+        args = arg.split()
+
+        showlink = False
+
+        if '-n' in args:
+            if '--showlink' in args:
+                args.remove('--showlink')
+                showlink = True
+            num = int(args[1]) - 1
+            url = 'http://www.urbandictionary.com/iphone/search/define?%s' % (urlencode({'term': ' '.join(args[2:])}))
+        else:
+            if '--showlink' in args:
+                args.remove('--showlink')
+                showlink = True
+            num = 0
+            url = 'http://www.urbandictionary.com/iphone/search/define?%s' % (urlencode({'term': ' '.join(args[0:])}))
+        
+        urbanSearch = self.UrbanSearch()
+        urbanSearch.run(self,chan, nick,num,showlink,url)
 
     # ADMIN COMMANDS
 
@@ -327,13 +486,14 @@ class JamesHandler(DefaultCommandHandler):
         """ Evaluate an expression. """
         nick = nick.split('!')[0]
         args = arg.split()
+        if 'open' in arg:
+            return self._msg(chan, "Nice try.")
         if nick in self.admins:
             admin = True
         else:
             admin = False
         if admin:
             # Yay for better syntax up in hear.
-            self._msg(chan, 'Evaluating Python code...')
             if not '-r' in args:
                 eval(' '.join(args[0:]))
             elif '-r' in args:
@@ -341,7 +501,6 @@ class JamesHandler(DefaultCommandHandler):
             else:
                 self._msg(chan, 'Unknown amount of arguments; aborting.')
                 return
-            self._msg(chan, 'Done.')
 
         else:
             self._msg(chan, "Erm, you aren't an admin...")
@@ -420,6 +579,10 @@ class JamesHandler(DefaultCommandHandler):
     # SORTA SPECIAL COMMANDS
 
     def cmd_TWEET(self, nick, chan, arg):
+        if nick.split('!')[0] not in self.admins or 'neoinr' in nick.split('!')[0]:
+            self._msg(chan, "Erm.. you are not an admin.")
+            return
+
         if config['twitter']['enabled'].upper() != "TRUE":
             self._msg(chan, "tweet is not enabled in this bot, sorry!")
             return
@@ -469,7 +632,7 @@ class JamesHandler(DefaultCommandHandler):
             return usage()
         args = arg.split()
         trigger = args[0]
-        factoid = args[1]
+        factoid = ' '.join(args[1:])
         if trigger == "svkampen" and nick.split('!')[0] == "Madi":
             self._msg(chan, "Unable to change protected user 'svkampen'")
             return
@@ -525,16 +688,20 @@ class JamesHandler(DefaultCommandHandler):
             return (usage(), types())
         
         if arg == "owner":
-            self._msg(chan, "==  Owner Commands ==")
+            ''' self._msg(chan, "==  Owner Commands ==")
             self._msg(chan, "==      join       ==")
             self._msg(chan, "==      part       ==")
             self._msg(chan, "==      setnick    ==")
             self._msg(chan, "==      eval       ==")
-            self._msg(chan, "=====================")
+            self._msg(chan, "=====================") '''
+
+            self._msg(chan, "join, part, setnick, eval, tweet")
             
         elif arg == "normal":
-            self._msg(chan, "== Normal Commands ==")
+            ''' self._msg(chan, "== Normal Commands ==")
             self._msg(chan, "==     about       ==")
+            self._msg(chan, "==     bitly       ==")
+            self._msg(chan, "==     google (g)  ==")
             self._msg(chan, "==     quote       ==")
             self._msg(chan, "==     choose      ==")
             self._msg(chan, "==     tweet       ==")
@@ -542,13 +709,19 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "==     recall      ==")
             self._msg(chan, "==     forget      ==")
             self._msg(chan, "==     mail        ==")
-            self._msg(chan, "=====================")
+            self._msg(chan, "==     mtgox       ==")
+            self._msg(chan, "==     urban (u)   ==")
+            self._msg(chan, "=====================") '''
+
+            self._msg(chan, "about, bitly, google (g), urban (u), choose, tweet, remember, recall, forget, mail, mtgox")
         
         elif arg == "pm":
-            self._msg(chan, "==   PM Commands   ==")
+            ''' self._msg(chan, "==   PM Commands   ==")
             self._msg(chan, "==     login       ==")
             self._msg(chan, "==     logout      ==")
-            self._msg(chan, "=====================")
+            self._msg(chan, "=====================") '''
+            
+            self._msg(chan, "login, logout")
             
         else:
             self._msg(chan, "Unknown command type: %s" % (arg))
@@ -566,6 +739,15 @@ class JamesHandler(DefaultCommandHandler):
 
     def _msg(self, chan, msg):
         helpers.msg(self.client, chan, msg)
+
+
+    def cmd_U(self, nick, chan, arg):
+        self.cmd_URBAN(nick, chan, arg)
+
+    def cmd_G(self, nick, chan, arg):
+        self.cmd_GOOGLE(nick, chan, arg)
+
+
 
 if __name__ == '__main__':
     
@@ -603,3 +785,4 @@ if __name__ == '__main__':
         clients[server] = client
         app.addClient(client)
         app.run()
+
