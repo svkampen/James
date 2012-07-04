@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #
-# Build Date: 27052012
+# Build Date: Something2012
 # 
 # (C) 2012 Sam van Kampen
 #
 # Some of the main code copied from Kitn (as there is no Oyoyo documentation)
 # That code (C) 2011 Amber Yust =)
 #
-# Also some of the decorator code copied from rmmh/skybot. Again, that code (C) rmmh et al.
+# Also some of the code is from rmmh/skybot. Again, that code (C) rmmh et al.
 # 
 # https://github.com/svkampen/James/wiki/About
 # 
@@ -15,19 +15,20 @@
 from oyoyo.client import IRCClient, IRCApp
 from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
-import json, urllib2, tweepy, urllib, time, logging, yaml, re, sys, sqlite3, traceback, random
+import json, urllib2, tweepy, urllib, time, logging, yaml, re, sys, sqlite3, traceback, random, os
 from urlparse import urlparse
 from BeautifulSoup import BeautifulSoup as soup
 
 from threading import Thread
-
+from lxml import etree # OMG XML
 from urllib import urlencode
 
+from socket import socket
 logging.basicConfig(level=logging.INFO)
 config = None
 app = None
-    
 
+           
 class JamesHandler(DefaultCommandHandler):
 
     def __init__(self, *args, **kwargs):
@@ -38,7 +39,10 @@ class JamesHandler(DefaultCommandHandler):
         self.operedup = None
         self.messages = dict()
         self.messages['lm'] = ""
-        self.admins = ['svkampen']
+        self.admins = ['svkampen', 'neoinr']
+        self.nicklist = []
+        self.definedcommands = []
+
         # URLs
         self.URL_RE = re.compile(r"""
             \b
@@ -118,11 +122,20 @@ class JamesHandler(DefaultCommandHandler):
                 modes = s.get('modes')
                 if modes:
                     client.send('MODE', s['nick'], modes)
+        self.client.send('MODE James +B')
+        self.client.send('MODE James -x')
         logging.info("Completed connection actions for %s." % self.client.host)
+
+
 
     def privmsg(self, nick, chan, msg):
         """ Message receival """
+        realnick = nick.split('!')[0]
         logging.info("Message received: [%s] <%s>: %s " % (chan, nick, msg))
+        if not realnick in self.nicklist:
+            self.nicklist.append(realnick)
+            logging.info("Added nick to nicklist: %s" % realnick)
+
         botnick = self.client.nick
         botnick = botnick.upper()
         nick = nick.split('!')[0]
@@ -134,9 +147,23 @@ class JamesHandler(DefaultCommandHandler):
         else:
             self.pm = 0
 
+        for filter in self.filters:
+            if filter in msg.lower().split() and filter not in self.nicklist:
+                self.client.send('KICK %s %s :Banned word: %s' % (chan, nick.split('!')[0], filter))
+                logging.info('Banned word detected; kicking user.')
 
         self.messages['slm'] = self.messages['lm']
+        if 'http://' in msg:
+            self.messages['htm'] = msg
         self.messages['lm'] = msg     
+        self.messages[nick.split('!')[0]] = msg
+        if nick.split('!')[0] in self.killlist:
+            self.client.send("KILL %s :Oh, yes, I forgot, you should be dead." % (nick.split('!')[0]))
+            if self.kills < 5:
+                self.kills = self.kills + 1
+            else:
+                self.killlist.remove(nick.split('!')[0])
+                self.kills = 0
         self.parser(nick, chan, msg)
 
     # <UnoAphex> Make it so it just shuts the fuck up
@@ -150,11 +177,15 @@ class JamesHandler(DefaultCommandHandler):
 
     def parser(self, nick, chan, msg):
         """Parse commands!"""
+        if 'twitter.com' in msg and 'status' in msg:
+            self._get_status(chan, msg)
+            return
+
         m = self.COMMAND_RE.match(msg)
         if m:
-            cmd = m.group(1)
+            cmd = m.group(1).upper()
             arg = m.group(2)
-            cmd_func = 'cmd_%s' % cmd.upper()
+            cmd_func = 'cmd_%s' % cmd
             if hasattr(self, cmd_func):
                 try:
                     getattr(self, cmd_func)(nick, chan, arg)
@@ -163,7 +194,10 @@ class JamesHandler(DefaultCommandHandler):
                 # Don't try to parse a URL in a recognized command
                 return
             else:
-                logging.warning('Unknown command "%s".' % cmd)
+                if cmd in self.definedcommands:
+                    self.cmd_EVAL(nick, chan, '%s(%s)' % (cmd, arg))
+                else:
+                    logging.warning("Unknown command.")
 
         m = self.URL_RE.search(msg)
         if m:
@@ -216,7 +250,9 @@ class JamesHandler(DefaultCommandHandler):
         except ValueError as e:
             logging.warning("Unable to examine URL %s" % url, exc_info=True)
 
-    
+    def _get_xml(self, url):
+        return etree.fromstring(urllib2.urlopen(url).read())
+
     def _get_json(self, url):
         url = url.replace(' ', '%20')
         page = urllib2.urlopen(url)
@@ -226,9 +262,21 @@ class JamesHandler(DefaultCommandHandler):
 
     # STANDARD COMMANDS
 
+    def cmd_WIKI(self, nick, chan, arg):
+        return self._msg(chan, 'http://en.wikipedia.org/wiki/%s'.replace('=', '') % (urlencode({'': arg})))
+
+    def cmd_REGISTER(self, nick, chan, arg):
+        self._msg('NickServ', 'logout')
+        self._msg('NickServ', 'register kikkerfish sam@tehsvk.net')
+        logging.info('Registered with NickServ')
+
+    def cmd_DEF(self, nick, chan, arg):
+        self.definedcommands.append(arg[:arg.find('(')])
+        exec 'global '+arg[:arg.find('(')].rstrip()+'\ndef '+(arg.replace('\\n', '\n')).replace('\\t', '    ')
+        self._msg(chan, "Added function.")
 
     def cmd_ABOUT(self, nick, chan, arg):
-        self._msg(chan, "Hi! I'm James. I am the bot created by Sam van Kampen (with some help from Aiiane/Aaeriele/Amber).")
+        self._msg(chan, "Hi! I'm James. I am an IRC bot! Use +help to see my commands.")
         self._msg(chan, "My code is hosted at GitHub. http://git.tehsvk.net/James/")
 
     def cmd_CHOOSE(self, nick, chan, arg):
@@ -248,123 +296,27 @@ class JamesHandler(DefaultCommandHandler):
 
         self._msg(chan, "http://knowyourmeme.com/search?%s" % urlencode({'q': arg}))
         
+    def cmd_WEATHER(self, nick, chan, arg):
+        """ OMG WEATHER FROM GOOGLE USING XML """
+        if not arg:
+            return self._msg(chan, "Usage: +weather <city>")
+        weather = self._get_xml("http://google.com/ig/api?%s" % (urlencode({'weather': arg})))
+        weather = weather.find('weather')
+        
+        winfo = dict((item.tag, item.get('data')) for item in weather.find('current_conditions'))
+        winfo['city'] = weather.find('forecast_information/city').get('data')
+        winfo['high'] = weather.find('forecast_conditions/high').get('data')
+        winfo['low'] = weather.find('forecast_conditions/low').get('data')
+        self._msg(chan, "Weather for %(city)s: %(condition)s - %(temp_f)sF/%(temp_c)sC - %(humidity)s" % winfo)
 
     # MAIL COMMANDS
-    def cmd_MAIL(self, nick, chan, arg):
-        """ Get, read, send and delete serverwide mail."""
-        nick = nick.split('!')[0].lower()
-        if not arg:
-            usage = lambda: self._msg(chan, "Usage: mail <send|get|read|delete> [user] [message] [ID]")
-            example = lambda: self._msg(chan, "Example: mail send neoinr I like cows")
-            return (usage(), example())
+    def cmd_MD5(self, nick, chan, arg):
+        ''' MD5 hashing. I know md5's module is deprecated. Fuck you. '''
+        from md5 import md5
+        self._msg(chan, "%s: %s" % (nick.split('!')[0], md5(arg).hexdigest()))            
 
-        args = arg.split()
-
-        if args[0] == "send":
-            if len(args) < 3:
-                self._msg(chan, "Usage: mail send <user> <message>")
-                return
-
-
-            # Sending mail.
-            timestamp = time.strftime("[%H:%M]")
-            user = args[1].lower()
-            message = ' '.join(args[2:])
-            self._msg(chan, "Sending message '%s' to user %s..." % (message, user))
-            db.execute("INSERT INTO mail (message, user, sentby, timestamp) VALUES (?,?,?,?)", (message, user, nick, timestamp))
-            database.commit()
-            logging.info("[MAIL] Mail sent (from: '%s', to: '%s', message: '%s'." % (nick, user, message))
-            self._msg(chan, "Done.")
-            
-        elif args[0] == "get":
-            ids = db.execute("SELECT id FROM mail WHERE user = ?", (nick,)).fetchall()
-            timestamps = db.execute("SELECT timestamp FROM mail WHERE user = ?", (nick,)).fetchall()
-            messages = db.execute("SELECT message FROM mail WHERE user = ?", (nick,)).fetchall()
-            sentbys = db.execute("SELECT sentby FROM mail WHERE user = ?", (nick,)).fetchall()
-            num = 0
-            
-            if len(timestamps) != 0:
-                while num < (len(timestamps)):
-                    if len(messages[num][0]) < 5:
-                        self._msg(chan, "[%s]  %s  %s           %s" % (ids[num][0], timestamps[num][0], messages[num][0].replace('|', ' '), sentbys[num][0]))
-                    else:
-                        self._msg(chan, "[%s] %s  %s...        %s" % (ids[num][0], timestamps[num][0], messages[num][0][:4].replace('|', ' '), sentbys[num][0]))
-                    num = num + 1
-            
-                if len(messages) > 1:
-                    self._msg(chan, "\nTotal of %d messages." % (len(messages)))
-                else:
-                    self._msg(chan, "Total of 1 message.")
-            
-            else:
-                self._msg(chan, "No messages found.")
-                
-            logging.info("[MAIL] Opened mailbox for %s and found %s messages." % (nick, len(messages)))
-                
-            
-        elif args[0] == "read":
-            if len(args) < 2:
-                self._msg(chan, "Usage: mail read <ID>")
-                return
-
-
-            msgid = args[1]
-            message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
-            sentby = db.execute("SELECT sentby FROM mail WHERE id = ?", (msgid,)).fetchone()
-            timestamp = db.execute("SELECT timestamp FROM mail WHERE id = ?", (msgid,)).fetchone()            
-            sentto = db.execute("SELECT user FROM mail WHERE id = ?", (msgid,)).fetchone()
-
-            if not message:
-                self._msg(chan, "Unknown message id; message not found.")
-                return
-
-            if sentto[0] != nick.lower() and not nick in self.admins:
-                self._msg(chan, "Error: unable to read message (unauthorized)")
-                return
-            
-            self._msg(chan, "[%s] - [%s -> %s] - [%s]" % (msgid, sentby, sentto, timestamp))
-
-            self._msg(chan, "\n    ")
-            for line in message.split('|'):
-                self._msg(chan, ">> %s" % (line))
-            
-            logging.info("[MAIL] %s read MID %s (from: %s, timestamp: %s)" % (nick, msgid, sentby[0], timestamp[0][:-1][1:]))
-
-        elif args[0] == "msgcount":
-            msgcount = db.execute("SELECT message FROM mail WHERE user = ?", (nick,)).fetchall()
-            if len(msgcount) > 1:
-                self._msg(chan, "You have a total of %d messages. Say +mail get to list your messages." % len(msgcount))
-            elif len(msgcount) == 1:
-                self._msg(chan, "You have a total of 1 message. Say +mail get to list your messages.")
-            else:
-                self._msg(chan, "You have no new messages.")
-                
-            logging.info("[MAIL] Fetched messagecount for user %s." % nick)
-            
-        elif args[0] == "delete" or args[0] == "rm":
-            if len(args) < 2:
-                self._msg(chan, "Usage: mail delete <ID>")
-                return
-
-            msgid = args[1]
-            message = db.execute("SELECT message FROM mail WHERE id = ?", (msgid,)).fetchone()
-            sentto = db.execute("SELECT user FROM mail WHERE id = ?", (msgid,)).fetchone()
-
-            if not message:
-                self._msg(chan, "Unknown message id; message not found.")
-                return
-
-            if sentto[0] != nick.lower() and not nick in self.admins:
-                self._msg(chan, "Error: unable to delete message (unauthorized)")
-                return
-
-            db.execute("DELETE FROM mail WHERE id = ?", (msgid,))
-
-            self._msg(chan, "Deleted message '%s' (message id: %s')" % (message[0], msgid[0]))
-            database.commit()
-            
-            logging.info("[MAIL] Deleted message '%s' (MID: %s)" % (message, msgid))
-            
+    def cmd_QUIT(self, nick, chan, arg):
+        os.abort()
 
     def cmd_NYT(self, nick, chan, arg):
         ''' Search using the NYT Article API '''
@@ -406,12 +358,17 @@ class JamesHandler(DefaultCommandHandler):
     def cmd_BITLY(self, nick, chan, arg):
        ''' Bit.ly shortener '''
        if 'that' == arg:
-           arg = self.messages['slm']
+           arg = self.messages['htm']
        if ': ' in arg:
            arg = ' '.join(arg.split(': ')[1:])
 
        out = self._shorten(arg)
        self._msg(chan, "%s: %s" % (nick.split('!')[0], out))
+
+    def cmd_NIGGR(self, nick, chan, arg):
+        ''' nig.gr shortener. '''
+        out = urllib2.urlopen('http://nig.gr/api/%s' % arg.replace(' ','%20')).read()
+        self._msg(chan, '%s: %s' % (nick.split('!')[0], out))
 
     def _shorten(self, arg):
        if not arg:
@@ -480,14 +437,20 @@ class JamesHandler(DefaultCommandHandler):
         urbanSearch = self.UrbanSearch()
         urbanSearch.run(self,chan, nick,num,showlink,url)
 
+    def cmd_ADDFILTER(self, nick, chan, arg):
+        self.filters.append(arg.lower())
+
+    def cmd_DELFILTER(self, nick, chan, arg):
+        self.filters.append(arg.lower())
+
     # ADMIN COMMANDS
 
     def cmd_EVAL(self, nick, chan, arg):
         """ Evaluate an expression. """
+        if self.pm:
+            chan = nick.split('!')[0]
         nick = nick.split('!')[0]
         args = arg.split()
-        if 'open' in arg:
-            return self._msg(chan, "Nice try.")
         if nick in self.admins:
             admin = True
         else:
@@ -556,7 +519,7 @@ class JamesHandler(DefaultCommandHandler):
         
         if not arg:
             return usage()
-        if self.pm == 1:
+        if self.pm == 1 or self.pm == 0:
             if nick in self.admins:
                 self._msg(nick, "You are already logged in!")
             if arg == config['adminpwd']:
@@ -578,6 +541,9 @@ class JamesHandler(DefaultCommandHandler):
 
     # SORTA SPECIAL COMMANDS
 
+    def cmd_TWITTER(self, nick, chan, arg):
+        return self._msg(chan, "http://twitter.com/#!/JamesIRCBot")
+
     def cmd_TWEET(self, nick, chan, arg):
         if nick.split('!')[0] not in self.admins or 'neoinr' in nick.split('!')[0]:
             self._msg(chan, "Erm.. you are not an admin.")
@@ -595,6 +561,9 @@ class JamesHandler(DefaultCommandHandler):
         
         if arg.lower() == "that":
             arg = self.messages['slm']
+
+        if arg in self.nicklist:
+            arg = self.messages[arg]
         
         consumer_key=config['twitter']['consumerkey']
         consumer_secret=config['twitter']['consumersecret']
@@ -616,12 +585,12 @@ class JamesHandler(DefaultCommandHandler):
          
         
         logging.info("[TWEEPY] Updating status...")
-        api.update_status('%s' % arg)
+        api.update_status('%s' % (arg))
         logging.info("[TWEEPY] Updated.")
         
         last_updated_by = nick
         
-        self._msg(chan, "Updated twitter status to '%s' (executed by '%s')" % (arg, nick))
+        self._msg(chan, "Updated twitter status to '%s' (executed by %s)" % (arg, nick))
 
     # MAINLY FACTOID COMMANDS
 
@@ -631,18 +600,20 @@ class JamesHandler(DefaultCommandHandler):
         if not arg:
             return usage()
         args = arg.split()
-        trigger = args[0]
-        factoid = ' '.join(args[1:])
-        if trigger == "svkampen" and nick.split('!')[0] == "Madi":
-            self._msg(chan, "Unable to change protected user 'svkampen'")
-            return
+        if len(' '.join(arg.split('/')[:1]).split()) < 2:
+            trigger = nick.split('!')[0]
+            factoid = ' '.join(args)
+        else:
+            trigger = args[0]
+            factoid = ' '.join(args[1:])
+
 
         existing = db.execute("SELECT id FROM factoids WHERE trigger = ?", (trigger,)).fetchone()
         if existing:
             db.execute("UPDATE factoids SET factoid = ? WHERE trigger = ?", (factoid, existing[0]))
             database.commit()
         else:
-            db.execute("INSERT INTO factoids (trigger, factoid) VALUES ('%s', '%s')" % (trigger, factoid))
+            db.execute("INSERT INTO factoids (trigger, factoid) VALUES (?, ?)", (trigger, factoid))
             database.commit()
         self._msg(chan, "%s now points to %s." % (trigger, factoid))
         logging.info("[INFO] Remembered '%s' (%s)" % (trigger, factoid))
@@ -695,7 +666,7 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "==      eval       ==")
             self._msg(chan, "=====================") '''
 
-            self._msg(chan, "join, part, setnick, eval, tweet")
+            self._msg(nick.split('!')[0], "Owner Commands: join, part, setnick, eval, tweet")
             
         elif arg == "normal":
             ''' self._msg(chan, "== Normal Commands ==")
@@ -713,7 +684,7 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "==     urban (u)   ==")
             self._msg(chan, "=====================") '''
 
-            self._msg(chan, "about, bitly, google (g), urban (u), choose, tweet, remember, recall, forget, mail, mtgox")
+            self._msg(nick.split('!')[0], "Normal Commands: about, bitly, niggr, google (g), urban (u), choose, tweet, remember, recall, forget, nyt, fuck, approvefuck, setruse, spamruse, mail, mtgox")
         
         elif arg == "pm":
             ''' self._msg(chan, "==   PM Commands   ==")
@@ -721,7 +692,7 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "==     logout      ==")
             self._msg(chan, "=====================") '''
             
-            self._msg(chan, "login, logout")
+            self._msg(nick.split('!')[0], "PM Commands: login, logout")
             
         else:
             self._msg(chan, "Unknown command type: %s" % (arg))
@@ -737,9 +708,19 @@ class JamesHandler(DefaultCommandHandler):
         logging.info("[INFO] Opered up!")
         self.operedup = True
 
+    def cmd_REQUEST(self, nick, chan, arg):
+        self.newfeats.append(arg.lower())
+
+    def cmd_GETREQS(self, nick, chan, arg):
+        self._msg(chan, "%s" % self.newfeats)
+
     def _msg(self, chan, msg):
         helpers.msg(self.client, chan, msg)
 
+    def cmd_STONE(self, nick, chan, arg):
+        self.client.send("KILL %s :NOU!" % (arg))
+        self.killlist.append(arg)
+        self._msg(chan, "Successfully stoned! (lol?)")
 
     def cmd_U(self, nick, chan, arg):
         self.cmd_URBAN(nick, chan, arg)
@@ -747,11 +728,17 @@ class JamesHandler(DefaultCommandHandler):
     def cmd_G(self, nick, chan, arg):
         self.cmd_GOOGLE(nick, chan, arg)
 
-
+    def cmd_HELP(self, nick, chan, arg):
+        self.cmd_CMDS(nick, chan, 'normal')
 
 if __name__ == '__main__':
     
-        with open('config.yaml') as f:
+        try:
+            config = sys.argv[1]
+        except:
+            config = 'config.yaml'
+
+        with open(config) as f:
             config = yaml.safe_load(f)
     
         database = sqlite3.connect(config['db']['path'])
