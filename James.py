@@ -15,7 +15,7 @@
 from oyoyo.client import IRCClient, IRCApp
 from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
-import json, urllib2, tweepy, urllib, time, logging, yaml, re, sys, sqlite3, traceback, random, os
+import json, urllib2, tweepy, logging, yaml, re, sys, sqlite3, random, os
 from urlparse import urlparse
 from BeautifulSoup import BeautifulSoup as soup
 
@@ -23,7 +23,6 @@ from threading import Thread
 from lxml import etree # OMG XML
 from urllib import urlencode
 
-from socket import socket
 logging.basicConfig(level=logging.INFO)
 config = None
 app = None
