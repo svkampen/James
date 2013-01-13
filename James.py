@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# Build Date: Something2012
+# Build Date: 12012013
 # 
-# (C) 2012 Sam van Kampen
+# (C) 2012-2013 Sam van Kampen
 #
 # Some of the main code copied from Kitn (as there is no Oyoyo documentation)
 # That code (C) 2011 Amber Yust =)
