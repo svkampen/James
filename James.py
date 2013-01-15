@@ -88,13 +88,13 @@ class JamesHandler(DefaultCommandHandler):
             except KeyError:
                 logging.error('Authentication info for %s missing "to" or "msg", skipping.' % self.client.host)
         # If default channels to join are specified, join them.
-                channels = s.get('channels', ())
-                for channel in channels:
-                    helpers.join(self.client, channel)        
-                # If server-specific user modes are specified, set them.
-                modes = s.get('modes')
-                if modes:
-                    self.client.send('MODE', s["nick"], modes)
+        channels = s.get('channels', ())
+        for channel in channels:
+            helpers.join(self.client, channel)        
+        # If server-specific user modes are specified, set them.
+        modes = s.get('modes')
+        if modes:
+            self.client.send('MODE', s["nick"], modes)
         logging.info("Completed connection actions for %s." % self.client.host)
 
 
