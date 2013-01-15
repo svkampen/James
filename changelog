@@ -7,6 +7,12 @@ Legend:
   ** Bugfix
   !! Comment
 
+Version 13.1.15:
+  ** Doing modes and channels.
+  ** Exception on trying to access undefined name.
+  - Hardcoded modesets.
+  + Added testing branch. Oh boy. This is going to end in tears. 
+
 Version 12.4.21: (21042012):
   ** Changed branches, removed all except master.
   ** Renamed RUINBot to James!

@@ -16,6 +16,7 @@ servers:
         port: 6667
         nick: RUINBot
         name: RUINBot
+        modes: '-x+B'
         channels:
             - '#RUINBot'
         auth:
