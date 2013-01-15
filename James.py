@@ -47,7 +47,7 @@ class JamesHandler(DefaultCommandHandler):
         ''' Dynamically register commands in the self.cmds list '''
         for function in dir(self):
             if function.startswith("cmd_"):
-                self.cmds.append(function)
+                self.cmds.append(function.split("_")[1].lower())
     class UrbanSearch(Thread):
 
         def _get_json(self, url):
@@ -347,12 +347,6 @@ class JamesHandler(DefaultCommandHandler):
         urbanSearch = self.UrbanSearch()
         urbanSearch.run(self,chan, nick,num,showlink,url)
 
-    def cmd_ADDFILTER(self, nick, chan, arg):
-        self.filters.append(arg.lower())
-
-    def cmd_DELFILTER(self, nick, chan, arg):
-        self.filters.append(arg.lower())
-
     # ADMIN COMMANDS
 
     def cmd_EVAL(self, nick, chan, arg):
@@ -626,19 +620,9 @@ class JamesHandler(DefaultCommandHandler):
         logging.info("[INFO] Opered up!")
         self.operedup = True
 
-    def cmd_REQUEST(self, nick, chan, arg):
-        self.newfeats.append(arg.lower())
-
-    def cmd_GETREQS(self, nick, chan, arg):
-        self._msg(chan, "%s" % self.newfeats)
 
     def _msg(self, chan, msg):
         helpers.msg(self.client, chan, msg)
-
-    def cmd_STONE(self, nick, chan, arg):
-        self.client.send("KILL %s :NOU!" % (arg))
-        self.killlist.append(arg)
-        self._msg(chan, "Successfully stoned! (lol?)")
 
     def cmd_U(self, nick, chan, arg):
         self.cmd_URBAN(nick, chan, arg)
