@@ -70,7 +70,7 @@ class JamesHandler(DefaultCommandHandler):
 
             james._msg(chan, "%s: %s" % (nick.split('!')[0],out))
             if readmore or showlink:
-                james._msg(chan, "  ")
+                #james._msg(chan, "  ")
                 james._msg(chan, "Read more: %s" % james._shorten(defs[num]['permalink']))
 
 
@@ -82,7 +82,7 @@ class JamesHandler(DefaultCommandHandler):
         s = config['servers'][self.client.host]
         # If an auth is specified, use it.
         auth = s.get('auth')
-        if auth:
+        if auth['to']:
             try:
                 self._msg(auth['to'], auth['msg'])
             except KeyError:
@@ -94,9 +94,7 @@ class JamesHandler(DefaultCommandHandler):
                 # If server-specific user modes are specified, set them.
                 modes = s.get('modes')
                 if modes:
-                    self.client.send('MODE', s['nick'], modes)
-        self.client.send('MODE James +B')
-        self.client.send('MODE James -x')
+                    self.client.send('MODE', s["nick"], modes)
         logging.info("Completed connection actions for %s." % self.client.host)
 
 
@@ -125,13 +123,6 @@ class JamesHandler(DefaultCommandHandler):
             self.messages['htm'] = msg
         self.messages['lm'] = msg     
         self.messages[nick.split('!')[0]] = msg
-        if nick.split('!')[0] in self.killlist:
-            self.client.send("KILL %s :Oh, yes, I forgot, you should be dead." % (nick.split('!')[0]))
-            if self.kills < 5:
-                self.kills = self.kills + 1
-            else:
-                self.killlist.remove(nick.split('!')[0])
-                self.kills = 0
         self.parser(nick, chan, msg)
 
     # <UnoAphex> Make it so it just shuts the fuck up
