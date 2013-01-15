@@ -23,6 +23,10 @@ servers:
             to: NickServ
             msg: 'identify <your pass>'
 
+register:
+    pass: '<insert register pass here>'
+    email: '<insert register email here>'
+
 db:
     path: '/path/to/database'
 

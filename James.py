@@ -17,7 +17,6 @@ from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
 import json, urllib2, tweepy, logging, yaml, re, sys, sqlite3, random, os
 from urlparse import urlparse
-from BeautifulSoup import BeautifulSoup as soup
 
 from threading import Thread
 from lxml import etree # OMG XML
@@ -40,6 +39,7 @@ class JamesHandler(DefaultCommandHandler):
         self.admins = ['svkampen', 'neoinr']
         self.nicklist = []
         self.definedcommands = []
+        self.adminCommands = {'part': helpers.part, 'join': helpers.join}
 
 
     class UrbanSearch(Thread):
@@ -171,7 +171,7 @@ class JamesHandler(DefaultCommandHandler):
 
     def cmd_REGISTER(self, nick, chan, arg):
         self._msg('NickServ', 'logout')
-        self._msg('NickServ', 'register kikkerfish sam@tehsvk.net')
+        self._msg('NickServ', 'register %s %s' % (config['register']['pass'], config['register']['email']))
         logging.info('Registered with NickServ')
 
     def cmd_DEF(self, nick, chan, arg):
@@ -380,7 +380,8 @@ class JamesHandler(DefaultCommandHandler):
         else:
             admin = False
         if admin == True:
-                self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
+                if chan != self.client.nick:
+                    self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
                 helpers.join(self.client, arg)
                 logging.info("[JOIN] %s by %s" % (arg, nick))
         else:
@@ -399,6 +400,12 @@ class JamesHandler(DefaultCommandHandler):
             logging.info("[PART] %s by %s" % (arg, nick))
         else:
             self._msg(chan, "Erm, you aren't an admin...")
+            
+    def execAdminCommand(self, nick, chan, arg, msgToLeave):
+        if nick in self.admins:
+            if chan != self.client.nick:
+                self._msg(chan, msgToLeave)
+            
 
     def cmd_SETNICK(self, nick, chan, arg):
         nick = nick.split('!')[0]
