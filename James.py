@@ -26,8 +26,7 @@ from urllib import urlencode
 logging.basicConfig(level=logging.INFO)
 config = None
 app = None
-
-           
+    
 class JamesHandler(DefaultCommandHandler):
 
     def __init__(self, *args, **kwargs):
@@ -41,31 +40,6 @@ class JamesHandler(DefaultCommandHandler):
         self.admins = ['svkampen', 'neoinr']
         self.nicklist = []
         self.definedcommands = []
-
-        # URLs
-        self.URL_RE = re.compile(r"""
-            \b
-            (
-                (https?://|www\.)    
-                ([a-zA-Z0-9-]+\.)+   # domain segments
-                [a-zA-Z]{2,4}        # TLD
-                
-                # We don't require 'nice' URLs to have a path (/ can be implied)
-            |
-                # URLs that don't start with a 'nice' prefix
-                ([a-zA-Z0-9-]+\.)+   # domain segments
-                [a-zA-Z]{2,4}        # TLD
-                (?=/)                # These URLs are required to at least have a /
-            )
-            (
-                /
-                (
-                    \([^\s()]+\)     # Allow paired parens
-                |
-                    [^\s()]+         # Normal URL content (no parens)
-                )*
-            )?
-        """, re.X)
 
 
     class UrbanSearch(Thread):
@@ -116,11 +90,11 @@ class JamesHandler(DefaultCommandHandler):
         # If default channels to join are specified, join them.
                 channels = s.get('channels', ())
                 for channel in channels:
-                    helpers.join(client, channel)        
+                    helpers.join(self.client, channel)        
                 # If server-specific user modes are specified, set them.
                 modes = s.get('modes')
                 if modes:
-                    client.send('MODE', s['nick'], modes)
+                    self.client.send('MODE', s['nick'], modes)
         self.client.send('MODE James +B')
         self.client.send('MODE James -x')
         logging.info("Completed connection actions for %s." % self.client.host)
@@ -145,11 +119,6 @@ class JamesHandler(DefaultCommandHandler):
                 self._msg(nick, "Unknown command..")
         else:
             self.pm = 0
-
-        for filter in self.filters:
-            if filter in msg.lower().split() and filter not in self.nicklist:
-                self.client.send('KICK %s %s :Banned word: %s' % (chan, nick.split('!')[0], filter))
-                logging.info('Banned word detected; kicking user.')
 
         self.messages['slm'] = self.messages['lm']
         if 'http://' in msg:
@@ -192,62 +161,7 @@ class JamesHandler(DefaultCommandHandler):
                     logging.error("Exception while attempting to process command '%s'" % cmd, exc_info=True)
                 # Don't try to parse a URL in a recognized command
                 return
-            else:
-                if cmd in self.definedcommands:
-                    self.cmd_EVAL(nick, chan, '%s(%s)' % (cmd, arg))
-                else:
-                    logging.warning("Unknown command.")
 
-        m = self.URL_RE.search(msg)
-        if m:
-            logging.info("Found URL in %s: %s" % (chan, m.group()))
-            self._url_announce(chan, m.group())
-    # Commandohs.
-
-    def _url_announce(self, chan, url):
-        # Amber.
-        """Announce the info for a detected URL in the channel it was detected in."""
-        try:
-            if not url.startswith("http"):
-                url = "http://%s" % url
-            orig_domain = urlparse(url).netloc
-            result = urllib2.urlopen(url, timeout=5)
-            final_url = result.geturl()
-            final_domain = urlparse(final_url).netloc
-            report_components = []
-            if orig_domain != final_domain:
-                report_components.append("[%s]" % final_domain)
-                if result.info().getmaintype() == 'text':
-                    # Try parsing it with BeautifulSoup
-                    parsed = soup(result.read())
-                    title_tag = parsed.find('title')
-                    if title_tag:
-                        title_segments = re.split(r'[^a-z]+', title_tag.string[:100].lower())
-                        title_segment_letters = (
-                        ''.join(L for L in segment.lower() if L in string.lowercase)
-                        for segment in title_segments
-                        )
-                        title_segment_letters = [s for s in title_segment_letters if s]
-                        f = final_url.lower()
-                        title_segments_found = [s for s in title_segment_letters if s in f]
-                        found_len = len(''.join(title_segments_found))
-                        total_len = len(''.join(title_segment_letters))
-                        if found_len < 0.6 * total_len:
-                            logging.info("Reporting title '%s' (found: %s, total: %s)" % (
-                            title_tag.string[:100], found_len, total_len))
-                            report_components.append('"%s"' % title_tag.string[:100])
-                        else:
-                            logging.info("Not reporting title '%s' (found: %s, total: %s)" % (
-                            title_tag.string[:100], found_len, total_len))
-                        
-            # Only announce the url if something caught our attention
-            if report_components:
-                self._msg(chan, "Link points to %s" % ' - '.join(report_components))
-
-        except urllib2.URLError as e:
-            logging.info("URLError while retrieving %s" % url, exc_info=True)
-        except ValueError as e:
-            logging.warning("Unable to examine URL %s" % url, exc_info=True)
 
     def _get_xml(self, url):
         return etree.fromstring(urllib2.urlopen(url).read())
