@@ -39,9 +39,15 @@ class JamesHandler(DefaultCommandHandler):
         self.admins = ['svkampen', 'neoinr']
         self.nicklist = []
         self.definedcommands = []
-        self.adminCommands = {'part': helpers.part, 'join': helpers.join}
+        self.cmds = []
+        self.dynamicSetCommands()
 
 
+    def dynamicSetCommands(self):
+        ''' Dynamically register commands in the self.cmds list '''
+        for function in dir(self):
+            if function.startswith("cmd_"):
+                self.cmds.append(function)
     class UrbanSearch(Thread):
 
         def _get_json(self, url):
@@ -569,6 +575,7 @@ class JamesHandler(DefaultCommandHandler):
             
             return (usage(), types())
         
+        
         if arg == "owner":
             ''' self._msg(chan, "==  Owner Commands ==")
             self._msg(chan, "==      join       ==")
@@ -595,7 +602,7 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "==     urban (u)   ==")
             self._msg(chan, "=====================") '''
 
-            self._msg(nick.split('!')[0], "Normal Commands: about, bitly, niggr, google (g), urban (u), choose, tweet, remember, recall, forget, nyt, fuck, approvefuck, setruse, spamruse, mail, mtgox")
+            self._msg(nick.split('!')[0], "Normal Commands: %s" % (', '.join(self.cmds)))
         
         elif arg == "pm":
             ''' self._msg(chan, "==   PM Commands   ==")

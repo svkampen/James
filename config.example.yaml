@@ -26,6 +26,10 @@ servers:
 register:
     pass: '<insert register pass here>'
     email: '<insert register email here>'
+    
+urbandictionary:
+    disabledchans:
+        - '#teenagers'
 
 db:
     path: '/path/to/database'
