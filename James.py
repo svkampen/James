@@ -22,6 +22,7 @@ import requests # You may need to 'pip install requests'
 from threading import Thread
 from lxml import etree # OMG XML
 from urllib import urlencode
+import time
 
 logging.basicConfig(level=logging.INFO)
 config = None
