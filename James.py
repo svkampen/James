@@ -38,7 +38,7 @@ class JamesHandler(DefaultCommandHandler):
         self.operedup = None
         self.messages = dict()
         self.messages['lm'] = ""
-        self.admins = ['svkampen', 'neoinr']
+        self.admins = config['admins']['list']
         self.nicklist = []
         self.definedcommands = []
         self.cmds = []
@@ -78,10 +78,10 @@ class JamesHandler(DefaultCommandHandler):
             
             out = out.strip('\n')
 
-            james._msg(chan, "%s: %s" % (nick.split('!')[0],out))
+            james._msg(nick, "%s: %s" % (nick.split('!')[0],out))
             if readmore or showlink:
                 #james._msg(chan, "  ")
-                james._msg(chan, "Read more: %s" % james._shorten(defs[num]['permalink']))
+                james._msg(nick, "Read more: %s" % james._shorten(defs[num]['permalink']))
 
 
 
@@ -186,6 +186,23 @@ class JamesHandler(DefaultCommandHandler):
        return data['results'][arg]['shortUrl']
 
     # STANDARD COMMANDS
+    
+    def cmd_SET(self, nick, chan, arg):
+        ''' Set various things '''
+        usage = lambda: self._msg(chan, "Usage: set <thing> <otherthing>")
+        if not arg:
+            return usage()
+        
+        args = arg.split()
+        if args[0] == admin:
+            user = args[1]
+            self.admins.append(user)
+            self._msg(nick, "Set person to admin :)")
+            self._msg(user, "You've just been promoted to admin!")
+            logging.info("Added %s to the admin list." % (user))
+        else:
+            return usage()
+        
     def cmd_WIKI(self, nick, chan, arg):
         return self._msg(chan, 'http://en.wikipedia.org/wiki/%s'.replace('=', '') % (urlencode({'': arg})))
 
@@ -282,7 +299,7 @@ class JamesHandler(DefaultCommandHandler):
            arg = ' '.join(arg.split(': ')[1:])
 
        out = self._shorten(arg)
-       self._msg(chan, "%s: %s" % (nick.split('!')[0], out))
+       self._msg(nick, "%s: %s" % (nick.split('!')[0], out))
 
     def cmd_BING(self, nick, chan, arg):
         ''' BING? FUCK BING! '''
@@ -373,7 +390,7 @@ class JamesHandler(DefaultCommandHandler):
             admin = False
         if admin == True:
                 if chan != self.client.nick:
-                    self._msg(chan, "Joining channel %s on request of %s." % (arg, nick))
+                    self._msg(nick, "Joining channel %s." % (arg))
                 helpers.join(self.client, arg)
                 logging.info("[JOIN] %s by %s" % (arg, nick))
         else:
@@ -518,7 +535,7 @@ class JamesHandler(DefaultCommandHandler):
         else:
             db.execute("INSERT INTO factoids (trigger, factoid) VALUES (?, ?)", (trigger, factoid))
             database.commit()
-        self._msg(chan, "%s now points to %s." % (trigger, factoid))
+        self._msg(nick, "%s now points to %s." % (trigger, factoid))
         logging.info("[INFO] Remembered '%s' (%s)" % (trigger, factoid))
 
     def cmd_RECALL(self, nick, chan, arg):
@@ -533,7 +550,7 @@ class JamesHandler(DefaultCommandHandler):
         if not factoid:
             return nonexistant()
         factoid = factoid[0]
-        self._msg(chan, "%s: %s" % (trigger, factoid))
+        self._msg(nick, "%s: %s" % (trigger, factoid))
         logging.info("[INFO] Recalled '%s'" % trigger)
         
     def cmd_FORGET(self, nick, chan, arg):
@@ -547,7 +564,7 @@ class JamesHandler(DefaultCommandHandler):
         if not factoid:
             return nonexistant()
         db.execute("DELETE FROM factoids WHERE trigger = ?", (trigger,))
-        self._msg(chan, 'Forgot %s!' % trigger)
+        self._msg(nick, 'Forgot %s!' % trigger)
         database.commit()
         logging.info("Forgot '%s' (%s)" % (trigger, factoid))
         
@@ -574,9 +591,9 @@ class JamesHandler(DefaultCommandHandler):
             r = requests.post(github_url, data=json.dumps(payload), auth=auth, headers=headers)
             data = json.loads(r.text)
             if r.status_code == 201:
-                self._msg(chan, "Posted issue on issue tracker. URL: %s" % (self._shorten(data['html_url'])))
+                self._msg(nick, "Posted issue on issue tracker. URL: %s" % (self._shorten(data['html_url'])))
             else:
-                self._msg(chan, "Failed posting issue on issue tracker, sorry!")
+                self._msg(nick, "Failed posting issue on issue tracker, sorry!")
         else:
             return self._msg(nick, "Please wait for %d more seconds until trying to post another issue!" % (secondsToWait))
             
@@ -603,9 +620,9 @@ class JamesHandler(DefaultCommandHandler):
             r = requests.post(github_url, data=json.dumps(payload), auth=auth, headers=headers)
             data = json.loads(r.text)
             if r.status_code == 201:
-                self._msg(chan, "Posted request on issue tracker. URL: %s" % (self._shorten(data['html_url'])))
+                self._msg(nick, "Posted request on issue tracker. URL: %s" % (self._shorten(data['html_url'])))
             else:
-                self._msg(chan, "Failed posting request on issue tracker, sorry!")
+                self._msg(nick, "Failed posting request on issue tracker, sorry!")
         else:
             return self._msg(nick, "Please wait for %d more seconds until trying to request another feature!" % (secondsToWait))
             
