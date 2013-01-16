@@ -281,7 +281,7 @@ class JamesHandler(DefaultCommandHandler):
            arg = ' '.join(arg.split(': ')[1:])
 
        out = self._shorten(arg)
-       self._msg(chan, "%s: %s" % (nick.split('!')[0], out))v
+       self._msg(chan, "%s: %s" % (nick.split('!')[0], out))
 
     def cmd_BING(self, nick, chan, arg):
         ''' BING? FUCK BING! '''
