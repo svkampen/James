@@ -569,7 +569,7 @@ class JamesHandler(DefaultCommandHandler):
         
         secondsToWait = (self.lastReportTime + 300)-time.time()
         
-        if secondsToWait > 0:
+        if secondsToWait < 0:
         
             r = requests.post(github_url, data=json.dumps(payload), auth=auth, headers=headers)
             data = json.loads(r.text)
@@ -598,7 +598,7 @@ class JamesHandler(DefaultCommandHandler):
         
         secondsToWait = (self.lastReportTime + 120)-time.time()
         
-        if secondsToWait > 0:
+        if secondsToWait < 0:
         
             r = requests.post(github_url, data=json.dumps(payload), auth=auth, headers=headers)
             data = json.loads(r.text)
