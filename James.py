@@ -17,6 +17,7 @@ from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
 import json, urllib2, tweepy, logging, yaml, re, sys, sqlite3, random, os
 from urlparse import urlparse
+import requests # You may need to 'pip install requests'
 
 from threading import Thread
 from lxml import etree # OMG XML
@@ -40,14 +41,16 @@ class JamesHandler(DefaultCommandHandler):
         self.nicklist = []
         self.definedcommands = []
         self.cmds = []
-        self.dynamicSetCommands()
+        self.lastReportTime = time.time() - 300
+        self.getCommands()
 
 
-    def dynamicSetCommands(self):
+    def getCommands(self):
         ''' Dynamically register commands in the self.cmds list '''
         for function in dir(self):
             if function.startswith("cmd_"):
                 self.cmds.append(function.split("_")[1].lower())
+                
     class UrbanSearch(Thread):
 
         def _get_json(self, url):
@@ -136,7 +139,7 @@ class JamesHandler(DefaultCommandHandler):
     #
     # Edit: <neoinr> Make him call Acaelus a snailus
     def join(self, nick, chan):
-        nick = nick.split('!')[0]
+        
         if nick.lower() in ("acaelus", "nagah", "nagger", "fishermanfrommontreal"):
             self._msg(chan, "Acaelus, snailus, as big as a whaleus.")
 
@@ -168,10 +171,20 @@ class JamesHandler(DefaultCommandHandler):
         page = urllib2.urlopen(url)
         data = json.loads(page.read())
         return data
+    
+    def _shorten(self, arg):
+       if not arg:
+           return self._msg(chan, "Usage: bitly <url>")
+      
+       if not arg.startswith('http'):
+           arg = 'http://' + arg
 
+       url = 'http://api.bit.ly/shorten?version=2.0.1&%s&login=svkampen&apiKey=R_a48d3cdf1246bfc2005db3fd35be3d95&format=json' % (urlencode({'longUrl': arg}))
+       data = self._get_json(url)
+
+       return data['results'][arg]['shortUrl']
 
     # STANDARD COMMANDS
-
     def cmd_WIKI(self, nick, chan, arg):
         return self._msg(chan, 'http://en.wikipedia.org/wiki/%s'.replace('=', '') % (urlencode({'': arg})))
 
@@ -179,11 +192,6 @@ class JamesHandler(DefaultCommandHandler):
         self._msg('NickServ', 'logout')
         self._msg('NickServ', 'register %s %s' % (config['register']['pass'], config['register']['email']))
         logging.info('Registered with NickServ')
-
-    def cmd_DEF(self, nick, chan, arg):
-        self.definedcommands.append(arg[:arg.find('(')])
-        exec 'global '+arg[:arg.find('(')].rstrip()+'\ndef '+(arg.replace('\\n', '\n')).replace('\\t', '    ')
-        self._msg(chan, "Added function.")
 
     def cmd_ABOUT(self, nick, chan, arg):
         self._msg(chan, "Hi! I'm James. I am an IRC bot! Use +help to see my commands.")
@@ -273,28 +281,11 @@ class JamesHandler(DefaultCommandHandler):
            arg = ' '.join(arg.split(': ')[1:])
 
        out = self._shorten(arg)
-       self._msg(chan, "%s: %s" % (nick.split('!')[0], out))
-
-    def cmd_NIGGR(self, nick, chan, arg):
-        ''' nig.gr shortener. '''
-        out = urllib2.urlopen('http://nig.gr/api/%s' % arg.replace(' ','%20')).read()
-        self._msg(chan, '%s: %s' % (nick.split('!')[0], out))
-
-    def _shorten(self, arg):
-       if not arg:
-           return self._msg(chan, "Usage: bitly <url>")
-      
-       if not arg.startswith('http'):
-           arg = 'http://' + arg
-
-       url = 'http://api.bit.ly/shorten?version=2.0.1&%s&login=svkampen&apiKey=R_a48d3cdf1246bfc2005db3fd35be3d95&format=json' % (urlencode({'longUrl': arg}))
-       data = self._get_json(url)
-
-       return data['results'][arg]['shortUrl']
+       self._msg(chan, "%s: %s" % (nick.split('!')[0], out))v
 
     def cmd_BING(self, nick, chan, arg):
         ''' BING? FUCK BING! '''
-        self._msg(chan, "Bing? FUCK BING!")
+        self._msg(chan, "Bing? WHY?!")
             
     def cmd_MTGOX(self, nick, chan, arg):
         url = 'https://mtgox.com/code/data/ticker.php'
@@ -353,7 +344,7 @@ class JamesHandler(DefaultCommandHandler):
         """ Evaluate an expression. """
         if self.pm:
             chan = nick.split('!')[0]
-        nick = nick.split('!')[0]
+        
         args = arg.split()
         if nick in self.admins:
             admin = True
@@ -373,7 +364,7 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "Erm, you aren't an admin...")
 
     def cmd_JOIN(self, nick, chan, arg):
-        nick = nick.split('!')[0]
+        
         
         if nick in self.admins:
             admin = True
@@ -388,7 +379,7 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(chan, "Erm, you aren't an admin...")
             
     def cmd_PART(self, nick, chan, arg):
-        nick = nick.split('!')[0]
+        
         
         if nick in self.admins:
             admin = True
@@ -408,7 +399,7 @@ class JamesHandler(DefaultCommandHandler):
             
 
     def cmd_SETNICK(self, nick, chan, arg):
-        nick = nick.split('!')[0]
+        
         
         if nick in self.admins:
             admin = True
@@ -426,7 +417,7 @@ class JamesHandler(DefaultCommandHandler):
             
     def cmd_LOGIN(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: login <password>. Only usable in PM's!")
-        nick = nick.split('!')[0]
+        
         
         if not arg:
             return usage()
@@ -439,10 +430,10 @@ class JamesHandler(DefaultCommandHandler):
             else:
                 self._msg(nick, "Incorrect password.")
         else:
-            self._msg(chan, "This command is only usable in a PM.")
+            self._msg(nick, "This command is only usable in a PM.")
     
     def cmd_LOGOUT(self, nick, chan, arg):
-        nick = nick.split('!')[0]
+        
         
         if self.pm == 1:
             self.admins.remove(nick)
@@ -559,7 +550,65 @@ class JamesHandler(DefaultCommandHandler):
         database.commit()
         logging.info("Forgot '%s' (%s)" % (trigger, factoid))
         
+    # Github API commands
+    
+    def cmd_REPORTBUG(self, nick, chan, arg):
+        ''' Report a bug to the James issue tracker '''
+        usage = lambda: self._msg(chan, "Usage: reportbug title|description")
+        if not arg:
+            return usage()
         
+        args = arg.split('|')
+        title, description = args[0], args[1]
+        
+        github_url = 'https://api.github.com/repos/svkampen/James/issues'
+        auth = (config['github_auth']['user'], config['github_auth']['pass'])
+        headers = {'Content-Type': 'application/json'}
+        payload = {'title': title, 'body': description, 'assignee': 'svkampen', 'labels': ['bug']}
+        
+        secondsToWait = (self.lastReportTime + 300)-time.time()
+        
+        if secondsToWait > 0:
+        
+            r = requests.post(github_url, data=json.dumps(payload), auth=auth, headers=headers)
+            data = json.loads(r.text)
+            if r.status_code == 201:
+                self._msg(chan, "Posted issue on issue tracker. URL: %s" % (self._shorten(data['html_url'])))
+            else:
+                self._msg(chan, "Failed posting issue on issue tracker, sorry!")
+        else:
+            return self._msg(nick, "Please wait for %d more seconds until trying to post another issue!" % (secondsToWait))
+            
+        self.lastReportTime = time.time()
+        
+    def cmd_REQUESTFEAT(self, nick, chan, arg):
+        ''' Request a feature for James on the issue tracker '''
+        usage = lambda: self._msg(chan, "Usage: requestfeat title|description")
+        if not arg:
+            return usage()
+        
+        args = arg.split('|')
+        title, description = args[0], args[1]
+        
+        github_url = 'https://api.github.com/repos/svkampen/James/issues'
+        auth = (config['github_auth']['user'], config['github_auth']['pass'])
+        headers = {'Content-Type': 'application/json'}
+        payload = {'title': title, 'body': description, 'assignee': 'svkampen', 'labels': ['want']}
+        
+        secondsToWait = (self.lastReportTime + 120)-time.time()
+        
+        if secondsToWait > 0:
+        
+            r = requests.post(github_url, data=json.dumps(payload), auth=auth, headers=headers)
+            data = json.loads(r.text)
+            if r.status_code == 201:
+                self._msg(chan, "Posted request on issue tracker. URL: %s" % (self._shorten(data['html_url'])))
+            else:
+                self._msg(chan, "Failed posting request on issue tracker, sorry!")
+        else:
+            return self._msg(nick, "Please wait for %d more seconds until trying to request another feature!" % (secondsToWait))
+            
+        self.lastReportTime = time.time()
         
     def cmd_CMDS(self, nick, chan, arg):
         """ Gimme those commands! """

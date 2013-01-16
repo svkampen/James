@@ -33,6 +33,10 @@ urbandictionary:
 
 db:
     path: '/path/to/database'
+    
+github_auth:
+    github_user: 'JamesIRC'
+    github_pass: 'reallycooldude99'
 
 aboutowner:
     - 'Owner: blahblah'
