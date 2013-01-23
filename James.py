@@ -38,6 +38,7 @@ class JamesHandler(DefaultCommandHandler):
         self.operedup = None
         self.messages = dict()
         self.messages['lm'] = ""
+        self.messages['list'] = []
         self.admins = config['admins']['list']
         self.nicklist = []
         self.definedcommands = []
@@ -132,7 +133,8 @@ class JamesHandler(DefaultCommandHandler):
         self.messages['slm'] = self.messages['lm']
         if 'http://' in msg:
             self.messages['htm'] = msg
-        self.messages['lm'] = msg     
+        self.messages['lm'] = msg
+        self.messages['list'].append(msg)
         self.messages[nick.split('!')[0]] = msg
         self.parser(nick, chan, msg)
 
@@ -478,10 +480,17 @@ class JamesHandler(DefaultCommandHandler):
         if not arg:
             return usage()
         
-
+        args = arg.split()
         
         if arg.lower() == "that":
             arg = self.messages['slm']
+
+        if args[0].lower() == "these":
+            numofmsgs = int(-args[1])
+            arg = ' '.join(self.messages['list'][:numofmsgs])
+
+
+
 
         if arg in self.nicklist:
             arg = self.messages[arg]
