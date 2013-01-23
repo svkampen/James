@@ -71,12 +71,13 @@ class JamesHandler(DefaultCommandHandler):
             out = defs[num]['word'] + ': ' + defs[num]['definition']
 
             readmore = False
+            
+            out = out.strip('\n')
+            out = out.strip('\r\n')
 
             if len(out) > 200:
                 out = out[:out.rfind(' ', 0, 200)] + '...'
                 readmore = True
-            
-            out = out.strip('\n')
 
             james._msg(nick, "%s: %s" % (nick.split('!')[0],out))
             if readmore or showlink:
