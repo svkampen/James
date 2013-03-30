@@ -152,6 +152,13 @@ class JamesHandler(DefaultCommandHandler):
         if 'twitter.com' in msg and 'status' in msg:
             self._get_status(chan, msg)
             return
+        
+        m = re.match("^(>{3})\s*(.*)", msg)
+        if m:
+            worked = self.cmd_EVAL(nick, chan, m.group(1))
+            if not worked:
+                #self.GET_WORKED_UP()
+                pass
 
         m = self.COMMAND_RE.match(msg)
         if m:
@@ -368,18 +375,10 @@ class JamesHandler(DefaultCommandHandler):
         
         args = arg.split()
         if nick in self.admins:
-            admin = True
-        else:
-            admin = False
-        if admin:
             # Yay for better syntax up in hear.
-            if not '-r' in args:
-                eval(' '.join(args[0:]))
-            elif '-r' in args:
-                print(eval(' '.join(args[1:])))
-            else:
-                self._msg(chan, 'Unknown amount of arguments; aborting.')
-                return
+            output = eval(' '.join(args[1:]))
+            if output is not None:
+                self._msg(chan, output)
 
         else:
             self._msg(chan, "Erm, you aren't an admin...")
