@@ -23,11 +23,13 @@ from threading import Thread
 from lxml import etree # OMG XML
 from urllib import urlencode
 import time
+import things
 
 logging.basicConfig(level=logging.INFO)
 config = None
 app = None
-    
+lessthan = LessThan(3)
+
 class JamesHandler(DefaultCommandHandler):
 
     def __init__(self, *args, **kwargs):
