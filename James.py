@@ -20,10 +20,11 @@ from urlparse import urlparse
 import requests # You may need to 'pip install requests'
 
 from threading import Thread
-from lxml import etree # OMG XML
+#from lxml import etree # OMG XML IS BROKEN
 from urllib import urlencode
 import time
-import things
+import enchant # requires enchant c library and its python bindings, pyenchant
+from things import *
 
 logging.basicConfig(level=logging.INFO)
 config = None
@@ -42,11 +43,13 @@ class JamesHandler(DefaultCommandHandler):
         self.messages['lm'] = ""
         self.messages['list'] = []
         self.admins = config['admins']['list']
+        self.admins.append("Lion")
         self.nicklist = []
         self.definedcommands = []
         self.cmds = []
         self.lastReportTime = time.time() - 300
         self.getCommands()
+        self.enchantdict = enchant.Dict("en_US")
 
 
     def getCommands(self):
@@ -82,7 +85,7 @@ class JamesHandler(DefaultCommandHandler):
                 out = out[:out.rfind(' ', 0, 200)] + '...'
                 readmore = True
 
-            james._msg(nick, "%s: %s" % (nick.split('!')[0],out))
+            james._msg(chan, "%s: %s" % (nick.split('!')[0],out))
             if readmore or showlink:
                 #james._msg(chan, "  ")
                 james._msg(nick, "Read more: %s" % james._shorten(defs[num]['permalink']))
@@ -157,12 +160,14 @@ class JamesHandler(DefaultCommandHandler):
         
         m = re.match("^(>{3})\s*(.*)", msg)
         if m:
-            worked = self.cmd_EVAL(nick, chan, m.group(1))
+            worked = self.cmd_EVAL(nick, chan, m.group(2))
             if not worked:
                 #self.GET_WORKED_UP()
                 pass
 
         m = self.COMMAND_RE.match(msg)
+        if chan == "#programming":
+            self._msg("#base", "<"+nick+"> "+msg)
         if m:
             cmd = m.group(1).upper()
             arg = m.group(2)
@@ -374,13 +379,36 @@ class JamesHandler(DefaultCommandHandler):
         """ Evaluate an expression. """
         if self.pm:
             chan = nick.split('!')[0]
+
+        outputthree = False
         
         args = arg.split()
         if nick in self.admins:
             # Yay for better syntax up in hear.
-            output = eval(' '.join(args[1:]))
-            if output is not None:
-                self._msg(chan, output)
+            try:
+                output = eval(arg)
+                if output is not None:
+                    self.leo = output #wink wink
+                    if len(str(output)) > 390:
+                        outputone = str(output)[:390]
+                        outputtwo = str(output)[390:]
+                        if len(outputtwo) > 390:
+                            outputtwo = str(output)[390:780]
+                            outputthree = str(output)[780:]
+                        self._msg(chan, outputone)
+                        self._msg(chan, outputtwo)
+                        if outputthree:
+                            self._msg(chan, outputthree)
+                        return
+                    self._msg(chan, str(output))
+            except:
+                try:
+                    exec(arg, globals())
+                except NameError:
+                    exec(arg, globals(), locals())
+                #if output is not None:
+                #    self.leo = output
+                #    self._msg(chan, str(output))
 
         else:
             self._msg(chan, "Erm, you aren't an admin...")
@@ -638,6 +666,11 @@ class JamesHandler(DefaultCommandHandler):
             return self._msg(nick, "Please wait for %d more seconds until trying to request another feature!" % (secondsToWait))
             
         self.lastReportTime = time.time()
+
+    def cmd_ISSPELLEDCORRECTLY(self, nick, chan, arg):
+        """Is this word spelled correctly?"""
+        usage = lambda: self._msg(chan, "Usage: isspelledcorrectly <word>")
+        return self._msg(chan, "Yes, that is spelled correctly") if self.enchantdict.check(arg) else self._msg(chan, "No!")
         
     def cmd_CMDS(self, nick, chan, arg):
         """ Gimme those commands! """
