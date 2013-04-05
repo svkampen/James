@@ -16,7 +16,6 @@ from oyoyo.client import IRCClient, IRCApp
 from oyoyo.cmdhandler import DefaultCommandHandler
 from oyoyo import helpers
 import json, urllib2, tweepy, logging, yaml, re, sys, sqlite3, random, os
-from urlparse import urlparse
 import requests # You may need to 'pip install requests'
 
 from threading import Thread
@@ -24,12 +23,12 @@ from threading import Thread
 from urllib import urlencode
 import time
 import enchant # requires enchant c library and its python bindings, pyenchant
-from things import *
+#from things import *
 
 logging.basicConfig(level=logging.INFO)
 config = None
 app = None
-lessthan = LessThan(3)
+#lessthan = LessThan(3)
 
 class JamesHandler(DefaultCommandHandler):
 
@@ -181,8 +180,8 @@ class JamesHandler(DefaultCommandHandler):
                 return
 
 
-    def _get_xml(self, url):
-        return etree.fromstring(urllib2.urlopen(url).read())
+#    def _get_xml(self, url):
+#        return etree.fromstring(urllib2.urlopen(url).read())
 
     def _get_json(self, url):
         url = url.replace(' ', '%20')
@@ -192,7 +191,7 @@ class JamesHandler(DefaultCommandHandler):
     
     def _shorten(self, arg):
        if not arg:
-           return self._msg(chan, "Usage: bitly <url>")
+           return "Usage: bitly <url>"
       
        if not arg.startswith('http'):
            arg = 'http://' + arg
@@ -211,7 +210,7 @@ class JamesHandler(DefaultCommandHandler):
             return usage()
         
         args = arg.split()
-        if args[0] == admin:
+        if args[0] == 'admin':
             user = args[1]
             self.admins.append(user)
             self._msg(nick, "Set person to admin :)")
@@ -381,8 +380,6 @@ class JamesHandler(DefaultCommandHandler):
             chan = nick.split('!')[0]
 
         outputthree = False
-        
-        args = arg.split()
         if nick in self.admins:
             # Yay for better syntax up in hear.
             try:
@@ -411,36 +408,26 @@ class JamesHandler(DefaultCommandHandler):
                 #    self._msg(chan, str(output))
 
         else:
-            self._msg(chan, "Erm, you aren't an admin...")
+            #self._msg(nick, "Erm, you aren't an admin...")
+            pass
 
     def cmd_JOIN(self, nick, chan, arg):
         
-        
         if nick in self.admins:
-            admin = True
-        else:
-            admin = False
-        if admin == True:
                 if chan != self.client.nick:
                     self._msg(nick, "Joining channel %s." % (arg))
                 helpers.join(self.client, arg)
                 logging.info("[JOIN] %s by %s" % (arg, nick))
         else:
-            self._msg(chan, "Erm, you aren't an admin...")
+            self._msg(nick, "Erm, you aren't an admin...")
             
     def cmd_PART(self, nick, chan, arg):
-        
-        
         if nick in self.admins:
-            admin = True
-        else:
-            admin = False
-        if admin == True:
             self._msg(chan, "Parting channel %s on request of %s." % (arg, nick))
             helpers.part(self.client, arg)
             logging.info("[PART] %s by %s" % (arg, nick))
         else:
-            self._msg(chan, "Erm, you aren't an admin...")
+            self._msg(nick, "Erm, you aren't an admin...")
             
     def execAdminCommand(self, nick, chan, arg, msgToLeave):
         if nick in self.admins:
@@ -449,13 +436,7 @@ class JamesHandler(DefaultCommandHandler):
             
 
     def cmd_SETNICK(self, nick, chan, arg):
-        
-        
         if nick in self.admins:
-            admin = True
-        else:
-            admin = False
-        if admin == True:
             usage = lambda: self._msg(chan, "Usage: setnick <nick>")
             if not arg:
                 return usage()
@@ -467,7 +448,6 @@ class JamesHandler(DefaultCommandHandler):
             
     def cmd_LOGIN(self, nick, chan, arg):
         usage = lambda: self._msg(chan, "Usage: login <password>. Only usable in PM's!")
-        
         
         if not arg:
             return usage()
@@ -483,8 +463,6 @@ class JamesHandler(DefaultCommandHandler):
             self._msg(nick, "This command is only usable in a PM.")
     
     def cmd_LOGOUT(self, nick, chan, arg):
-        
-        
         if self.pm == 1:
             self.admins.remove(nick)
             self._msg(nick, "You have been logged out. Have a nice day!")
@@ -546,8 +524,6 @@ class JamesHandler(DefaultCommandHandler):
         logging.info("[TWEEPY] Updating status...")
         api.update_status('%s' % (arg))
         logging.info("[TWEEPY] Updated.")
-        
-        last_updated_by = nick
         
         self._msg(chan, "Updated twitter status to '%s' (executed by %s)" % (arg, nick))
 
@@ -619,7 +595,7 @@ class JamesHandler(DefaultCommandHandler):
         title, description = args[0], args[1]
         
         github_url = 'https://api.github.com/repos/svkampen/James/issues'
-        auth = (config['github_auth']['user'], config['github_auth']['pass'])
+        auth = (config['github_auth']['github_user'], config['github_auth']['github_pass'])
         headers = {'Content-Type': 'application/json'}
         payload = {'title': title, 'body': description, 'assignee': 'svkampen', 'labels': ['bug']}
         
@@ -648,7 +624,7 @@ class JamesHandler(DefaultCommandHandler):
         title, description = args[0], args[1]
         
         github_url = 'https://api.github.com/repos/svkampen/James/issues'
-        auth = (config['github_auth']['user'], config['github_auth']['pass'])
+        auth = (config['github_auth']['github_user'], config['github_auth']['github_pass'])
         headers = {'Content-Type': 'application/json'}
         payload = {'title': title, 'body': description, 'assignee': 'svkampen', 'labels': ['want']}
         
@@ -670,6 +646,8 @@ class JamesHandler(DefaultCommandHandler):
     def cmd_ISSPELLEDCORRECTLY(self, nick, chan, arg):
         """Is this word spelled correctly?"""
         usage = lambda: self._msg(chan, "Usage: isspelledcorrectly <word>")
+        if not arg:
+            return usage()
         return self._msg(chan, "Yes, that is spelled correctly") if self.enchantdict.check(arg) else self._msg(chan, "No!")
         
     def cmd_CMDS(self, nick, chan, arg):
@@ -724,7 +702,6 @@ class JamesHandler(DefaultCommandHandler):
     # SPECIAL MODE COMMANDS
             
     def cmd_OPERUP(self, nick, chan, arg):
-        usage = lambda: self._msg(chan, "Usage: operup (duh)")
         opernick = config['oper']['nick']
         operpass = config['oper']['pass']
         client.send('OPER', opernick, operpass)
