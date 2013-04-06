@@ -22,10 +22,9 @@ servers:
             - '#programming'
         auth:
             to: NickServ
-            msg: 'identify kikkerfish'
-
+            msg: 'identify hah'
 register:
-    pass: 'kikkerfish'
+    pass: 'hah'
     email: 'sam@tehsvk.net'
     
 urbandictionary:
