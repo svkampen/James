@@ -29,5 +29,6 @@ def plugins_to_commands(plugins):
         for function in plugin.__dict__.itervalues():
             if hasattr(function, "hook"):
                 commands.append(Command(function, function.hook))
-    return commands
+
+:c
 
