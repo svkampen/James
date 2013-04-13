@@ -23,6 +23,7 @@ from threading import Thread
 from urllib import urlencode
 import time
 import enchant # requires enchant c library and its python bindings, pyenchant
+from util import bin
 #from things import *
 
 logging.basicConfig(level=logging.INFO)
