@@ -12,6 +12,9 @@ class Command():
         self.function = function
         self.hooks = hooks
 
+    def __call__(self):
+        return self.function()
+
     def get_function(self):
         """Get the function associated with this command"""
         return self.function
@@ -29,6 +32,4 @@ def plugins_to_commands(plugins):
         for function in plugin.__dict__.itervalues():
             if hasattr(function, "hook"):
                 commands.append(Command(function, function.hook))
-
-:c
-
+    return commands
