@@ -1,9 +1,9 @@
 """
 Hello!
 """
-from decorators import command
+from util.decorators import command
 
 @command('hey', 'hello')
-def hello(*args):
+def hello(bot, nick, chan, arg):
     """Prints 'hello!'"""
     print("hello!")

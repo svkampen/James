@@ -1,8 +1,7 @@
-from decorators import command, returns
+from util.decorators import command
 import os
 
-@returns('msg_out')
 @command('bash', short='$')
-def bash(nick, chan, arg):
+def bash(bot, nick, chan, arg):
     """Execute a bash command"""
-    return os.popen(arg).read()
+    return bot._msg(chan, os.popen(arg).read())

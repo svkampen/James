@@ -1,0 +1,49 @@
+# CONFIG FILE FOR RUINBOT
+# Lets keep that there for historical reasons :)
+
+oper:
+    nick: '<your oper nick (if exists)>'
+    pass: '<your oper pass> (same here)'
+    
+twitter:
+    enabled: 'false' # true or false.
+    consumersecret: '<insert here if enabled>'
+    consumerkey: '<insert here if enabled>'
+    accesstoken: '<insert here if enabled>'
+    accesssecret: '<insert here if enabled>'
+
+servers:
+    irc.awfulnet.org:
+        port: 6667
+        nick: James
+        name: James
+        modes: '-x+B'
+        channels:
+            - '#programming'
+        auth:
+            to: NickServ
+            msg: 'identify <redacted>'
+
+register:
+    pass: '<redacted>'
+    email: 'sam@tehsvk.net'
+    
+urbandictionary:
+    disabledchans:
+        - '#teenagers'
+
+db:
+    path: 'James.db'
+    
+github_auth:
+    github_user: 'JamesIRC'
+    github_pass: 'reallycooldude99'
+
+admins:
+    list:
+        - "Lion"
+        - "svkampen"
+
+cmdchar: '.' # Command character.
+adminpwd: 'derpsquid'
+ownernick: 'svkampen'
