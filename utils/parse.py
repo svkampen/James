@@ -1,5 +1,5 @@
 """ 
-IRC parser - parse.py
+IRC Parser - parse.py
 """
 
 def parse(msg):

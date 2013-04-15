@@ -12,8 +12,8 @@ class Command():
         self.function = function
         self.hooks = hooks
 
-    def __call__(self):
-        return self.function()
+    def __call__(self, bot, nick, chan, arg):
+        return self.function(bot, nick, chan, arg)
 
     def get_function(self):
         """Get the function associated with this command"""

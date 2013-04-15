@@ -2,11 +2,10 @@
 The Command handler
 """
 import command
-from straight.plugin import load
 
 class CommandHandler():
     def __init__(self, plugins):
-        self.commands = command.plugins_to_commands(load(plugins)._plugins)
+        self.commands = command.plugins_to_commands(plugins._plugins)
         if self.commands == []:
             raise RuntimeError("No commands found!")
 
