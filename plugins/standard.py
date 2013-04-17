@@ -5,3 +5,7 @@ import sys
 def quitbot(bot, nick, chan, arg):
     bot.gracefully_terminate()
     sys.exit()
+
+@command('login')
+def login(bot, nick, chan, arg):
+    bot.login(nick)
