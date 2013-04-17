@@ -5,6 +5,7 @@ IRC - irc.py
 from straight.plugin import load
 import utils
 import sys
+import traceback
 
 config = {}
 is_debugging = False
@@ -59,17 +60,20 @@ class IRC():
         msg = msg["arg"].split(' ', 1)[1][1:]
         print("[%s] <%s> %s" % (chan, nick, msg))
         if msg.startswith(config["cmdchar"]):
-            cmd_splitmsg = msg.split(" ", 1)
-            cmd_name = cmd_splitmsg[0][1:]
-            if len(cmd_splitmsg) > 1:
-                cmd_args = cmd_splitmsg[1]
-            else:
-                cmd_args = ''
-            callback = self.cmdhandler.trigger(cmd_name)
-            if callback == False:
-                self._msg(nick, "Unknown command.")
-            else:
-                callback(self, nick, chan, cmd_args)
+            try:
+                cmd_splitmsg = msg.split(" ", 1)
+                cmd_name = cmd_splitmsg[0][1:]
+                if len(cmd_splitmsg) > 1:
+                    cmd_args = cmd_splitmsg[1]
+                else:
+                    cmd_args = ''
+                callback = self.cmdhandler.trigger(cmd_name)
+                if callback == False:
+                    self._msg(nick, "Unknown command.")
+                else:
+                    callback(self, nick, chan, cmd_args)
+            except:
+                traceback.print_exc()
 
     def nick(self, msg):
         oldnick = msg["host"].split('!')[0]
