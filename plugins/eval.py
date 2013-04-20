@@ -2,12 +2,12 @@ from util.decorators import command, require_admin
 
 @require_admin
 @command('eval', short=">>> ")
-def evaluateExpression(bot, nick, chan, arg):
+def evaluateExpression(self, nick, chan, arg):
     try:
         output = eval(arg)
         if output is not None:
-            bot.leo = output
-            bot._msg(chan, str(output))
+            self.leo = output
+            self._msg(chan, str(output))
     except:
         try:
             exec(arg, globals())
