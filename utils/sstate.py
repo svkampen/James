@@ -15,8 +15,21 @@ class Channel(object):
     def set_users(self, users):
         self.users = users
 
+    def set_user(self, olduser, user):
+        """ Set olduser to user """
+        temp_users = []
+        for currentuser in self.users:
+            if currentuser == olduser:
+                temp_users.append(user)
+            else:
+                temp_users.append(currentuser)
+        self.users = temp_users
+        return self.users
+        
+
     def add_user(self, user):
-        self.users += user
+        if not user in self.users:
+            self.users.append(user)
 
     def remove_user(self, ruser):
         [self.users.remove(ruser) for user in self.users if user == ruser]
@@ -32,6 +45,12 @@ class ServerState(object):
 
     def get_channels(self):
         return [chan.name for chan in self.channels]
+
+    def get_channel(self, channel):
+        return [chan for chan in self.channels if chan.name == channel]
+
+    def get_channels_for_user(self, user):
+        return [chan for chan in self.channels if user in chan.users]
 
     def del_admin(self, dnick):
         [self.admins.remove(nick) for nick in self.admins if nick == dnick]

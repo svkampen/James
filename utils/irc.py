@@ -3,6 +3,7 @@ IRC API - irc.py
 """
 
 import sys
+import re
 import buffer
 import parse
 import socket
@@ -29,7 +30,7 @@ class IRCHandler(object):
     def mainloop(self):
         loops = 0
         try:
-            while self.running and self.buff.append(self.sock.recv(1024)):
+            while self.running and self.buff.append(self.sock.recv(1024).decode('utf-8')):
                 if loops == 0:
                     self.sendnick()
                     self.senduser()
@@ -53,7 +54,7 @@ class IRCHandler(object):
     def _send(self, data, newline='\r\n', sock=None):
         if sock == None:
             sock = self.sock
-        sock.send(data+newline)
+        sock.send((data+newline).encode('utf-8'))
 
     def try_to_call(self, function, namespace=None, args=None, unpack=True):
         if not namespace:

@@ -23,6 +23,7 @@ def urban_lookup(bot, nick, chan, arg):
 
     output = output.strip()
     output = output.rstrip()
+    output = ' '.join(output.split())
 
     if len(output) > 200:
         tinyurl = bot.data['shortener'](bot, defs[0]['permalink'])
