@@ -1,11 +1,14 @@
 """ 
 The Command handler
 """
-import command
+from . import command
 
 class CommandHandler():
-    def __init__(self, plugins):
-        self.commands = command.plugins_to_commands(plugins._plugins)
+    def __init__(self, bot, plugins):
+        self.initializers = command.plugins_to_initializers(plugins)
+        for function in self.initializers:
+            function(bot)
+        self.commands = command.plugins_to_commands(plugins)
         if self.commands == []:
             raise RuntimeError("No commands found!")
 

@@ -29,7 +29,18 @@ def plugins_to_commands(plugins):
     if type(plugins) == type(sys.modules[__name__]):
         plugins = [plugins]
     for plugin in plugins:
-        for function in plugin.__dict__.itervalues():
+        for function in plugin.__dict__.values():
             if hasattr(function, "hook"):
                 commands.append(Command(function, function.hook))
     return commands
+
+def plugins_to_initializers(plugins):
+    """Turn a list of plugins into a list of initializers"""
+    initializers = []
+    if type(plugins) == type(sys.modules[__name__]):
+        plugins = [plugins]
+    for plugin in plugins:
+        for function in plugin.__dict__.values():
+            if hasattr(function, "_is_plugin_initializer"):
+                initializers.append(function)
+    return initializers

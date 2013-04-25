@@ -1,4 +1,4 @@
-from util.decorators import command
+from .util.decorators import command
 import sys
 
 @command('quit', 'exit')

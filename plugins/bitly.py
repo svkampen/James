@@ -1,5 +1,5 @@
 import requests, re
-from util.decorators import command
+from .util.decorators import command, initializer
 
 def _shorten(bot, url):
     login = bot.data['apikeys']['bit.ly']['user']
@@ -16,9 +16,11 @@ def _shorten(bot, url):
 
     return page.json()['data']['url']
 
+@initializer
+def plugin_initializer(bot):
+    bot.data['shortener'] = _shorten
 
 @command('shorten', 'bit.ly', 'bitly')
 def bitly(bot, nick, chan, arg):
-    bot.data['shortener'] = _shorten
     data = _shorten(bot, arg)
     bot._msg(chan, data)

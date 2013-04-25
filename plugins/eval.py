@@ -1,4 +1,4 @@
-from util.decorators import command, require_admin
+from .util.decorators import command, require_admin
 
 @require_admin
 @command('eval', short=">>> ")

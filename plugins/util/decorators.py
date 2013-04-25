@@ -18,6 +18,11 @@ def require_admin(funct):
     funct._requiresadmin = True
     return funct
 
+def initializer(funct):
+    """The decorator for plugin initializer functions."""
+    funct._is_plugin_initializer = True
+    return funct
+
 def command(*args, **kwargs):
     """The command decorator."""
     def decorator(funct):
@@ -27,7 +32,7 @@ def command(*args, **kwargs):
         for arg in args:
             hooks.append(arg)
         funct.hook = hooks
-        if 'short' in kwargs.iterkeys():
+        if 'short' in kwargs.keys():
             funct.shorthook = kwargs['short']
         return funct
     return decorator

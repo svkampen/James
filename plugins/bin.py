@@ -1,4 +1,4 @@
-from util.decorators import command
+from .util.decorators import command
 
 @command('bencode', 'binencode', 'binenc', 'benc', 'str2b')
 def binencode(bot, nick, chan, arg):

@@ -2,7 +2,6 @@
 James.py - main bot
 """
 
-from straight.plugin import load
 from utils.irc import IRCHandler
 import utils
 import traceback
@@ -11,6 +10,7 @@ import random
 import sys
 import os
 import yaml
+import plugins
 from utils import logging
 
 config = {}
@@ -20,12 +20,12 @@ class James(IRCHandler):
     def __init__(self, config):
         super(James, self).__init__(config)
         globals()['config'] = config
-        self.cmdhandler = utils.commandhandler.CommandHandler(load('plugins'))
         self.state = utils.ServerState()
         self.log = logging.Logger()
         self.data = {}
         self.data.update({'apikeys': yaml.safe_load(open('apikeys.conf'))})
         self.lastmsgof = {}
+        self.cmdhandler = utils.commandhandler.CommandHandler(self, plugins.get_plugins())
 
     def names(self, msg):
         chantype = re.match('(=|@|\*).*', msg['arg'].split(' ', 1)[1]).groups()[0]
@@ -87,7 +87,7 @@ class James(IRCHandler):
                     if nick in self.state.admins:
                         callback(self, nick, chan, cmd_args)
             except:
-                self._meditate(sys.exc_info(), chan)
+                #self._meditate(sys.exc_info(), chan)
                 traceback.print_exc()
                 
     def _meditate(self, exc_info, chan):
@@ -127,7 +127,7 @@ class James(IRCHandler):
             traceback.print_exc()
 
     def _msg(self, chan, msg):
-        self._send(u"PRIVMSG %s :%s" % (chan, msg))
+        self._send("PRIVMSG %s :%s" % (chan, msg))
 
     def login(self, nick):
         self.state.add_admin(nick)

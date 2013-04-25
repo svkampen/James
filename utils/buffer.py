@@ -8,7 +8,7 @@ class Buffer(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if "\n" not in self.buffer:
             raise StopIteration
         else:

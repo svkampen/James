@@ -4,10 +4,10 @@ IRC API - irc.py
 
 import sys
 import re
-import buffer
-import parse
+from . import buffer
+from . import parse
 import socket
-from num import num as numerics
+from .num import num as numerics
 
 config = {}
 is_debugging = False
