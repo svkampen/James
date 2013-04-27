@@ -1,3 +1,6 @@
+""" 
+Get definitions from urbandictionary
+"""
 from .util.decorators import command
 import requests
 
@@ -13,7 +16,6 @@ def urban_lookup(bot, nick, chan, arg):
 
     data = request.json()
     print(data)
-    return None
     defs = data['list']
     
     if data['result_type'] == 'no_results':
@@ -27,7 +29,8 @@ def urban_lookup(bot, nick, chan, arg):
 
     if len(output) > 200:
         tinyurl = bot.data['shortener'](bot, defs[0]['permalink'])
-        output = output[:output.rfind(' ', 0, 180)] + '...\r\nRead more: %s' % (tinyurl)
+        output = output[:output.rfind(' ', 0, 180)] + '...\r\nRead more: %s'\
+                 % (tinyurl)
         bot._msg(chan, "%s: %s" % (nick, output))
     
     else:

@@ -1,3 +1,6 @@
+""" 
+Wikipedia 'API' (using BeautifulSoup)
+"""
 from .util.decorators import command, initializer
 from bs4 import BeautifulSoup as soupify
 import re
@@ -6,11 +9,12 @@ from urllib.request import pathname2url as urlencode
 
 @initializer
 def initialize_plugin(bot):
-    bot.data['sentence_re'] = re.compile("((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
+    """ Initialize this plugin. """
+    bot.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
 
 @command('wiki')
 def wikipedia_get_first_sentence(bot, nick, chan, arg):
-    
+    """ Get the first sentence in a wikipedia article. """
     headers = {
         'User-Agent': 'Mozilla/5.0 (compatible) / JamesIRC'
     }

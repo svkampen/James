@@ -15,6 +15,7 @@
 # Quote: "<@NightLion> Dependency injection fuck yeah"
 
 def require_admin(funct):
+    """ Decorator for requiring admin privileges. """
     funct._requiresadmin = True
     return funct
 
@@ -33,6 +34,6 @@ def command(*args, **kwargs):
             hooks.append(arg)
         funct.hook = hooks
         if 'short' in kwargs.keys():
-            funct.shorthook = kwargs['short']
+            funct.shorthook = [kwargs['short']]
         return funct
     return decorator

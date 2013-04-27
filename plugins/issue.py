@@ -1,3 +1,6 @@
+""" 
+Integration with the James issue tracker.
+"""
 from .util.decorators import command, initializer
 import requests
 import json
@@ -16,16 +19,18 @@ def request_feature(bot, nick, chan, arg):
     auth_data = bot.data['apikeys']['github']
     auth = (auth_data['user'], auth_data['pass'])
     headers = {'Content-Type': 'application/json'}
-    payload = {'title': arg[0], 'body': arg[1], 'assignee': 'svkampen', 'labels': ['want']}
+    payload = {'title': arg[0], 'body': arg[1], 'assignee': 'svkampen', \
+               'labels': ['want']}
+    data = json.dumps(payload)
 
-    page = requests.post(github_url, data=json.dumps(payload), auth=auth, headers=headers)
+    page = requests.post(github_url, data=data, auth=auth, headers=headers)
     data = page.json()
     if page.status_code == 201:
         bot._msg(chan, "Posted request on issue tracker. URL: %s"\
                  % (bot.data['shortener'](bot, data['html_url'])))
     else:
-       bot._msg(chan, "Eh.. there was some sort of error. Status code: %d"
-                % (page.status_code))
+        bot._msg(chan, "Eh.. there was some sort of error. Status code: %d"
+                 % (page.status_code))
 
 @command('report.bug')
 def report_bug(bot, nick, chan, arg):
@@ -38,15 +43,19 @@ def report_bug(bot, nick, chan, arg):
     auth_data = bot.data['apikeys']['github']
     auth = (auth_data['user'], auth_data['pass'])
     headers = {'Content-Type': 'application/json'}
-    payload = {'title': arg[0], 'body': arg[1], 'assignee': 'svkampen', 'labels': ['bug']}
+    payload = {'title': arg[0], 'body': arg[1], 'assignee': 'svkampen', \
+               'labels': ['bug']}
+    data = json.dumps(payload)
 
-    page = requests.post(github_url, data=json.dumps(payload), auth=auth, headers=headers)
+    page = requests.post(github_url, data=data, auth=auth, headers=headers)
     data = page.json()
     if page.status_code == 201:
-        bot._msg(chan, "Posted bug report. URL: %s" % (bot.data['shortener'](bot, data['html_url'])))
+        bot._msg(chan, "Posted bug report. URL: %s"\
+                 % (bot.data['shortener'](bot, data['html_url'])))
 
 @initializer
 def initialize_plugin(bot):
+    """ Initialize this plugin. """
     pass
 #    if not 'github' in bot.data['apikeys'].keys():
 #        del globals()['request_feature']

@@ -1,3 +1,6 @@
+""" 
+A buffer for the input stream from sockets. Iterable.
+"""
 class Buffer(object):
     """ 
     Represents an iterable buffer that returns completed lines.
@@ -16,5 +19,10 @@ class Buffer(object):
             return data
 
     def append(self, data):
+        """ Append data to the buffer """
         self.buffer += data
         return data
+
+    def get_buffer(self):
+        """ Make pylint shut up """ 
+        print(self.buffer)

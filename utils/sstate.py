@@ -1,8 +1,9 @@
 """ 
-Blah things
+Channel and ServerState objects
 """
 
 class Channel(object):
+    """ An IRC channel. """
     def __init__(self, name, users, topic=None):
         self.identifier = name
         self.name = name
@@ -10,9 +11,11 @@ class Channel(object):
         self.topic = topic
 
     def set_topic(self, topic):
+        """ Set the channel topic. """
         self.topic = topic
 
     def set_users(self, users):
+        """ Set the users in the channel. """
         self.users = users
 
     def set_user(self, olduser, user):
@@ -28,45 +31,62 @@ class Channel(object):
         
 
     def add_user(self, user):
+        """ Add a user to the users list. """
         if not user in self.users:
             self.users.append(user)
 
     def remove_user(self, ruser):
+        """ Remove a user from the user list. """
         [self.users.remove(ruser) for user in self.users if user == ruser]
     
 
 class ServerState(object):
+    """ A class that holds the active channels and admins. """
     def __init__(self):
         self.channels = []
         self.admins = ['svkampen', 'Lion']
     
     def add_admin(self, nick):
+        """ Add an admin to the admin list. """
         self.admins.append(nick)
 
     def get_channels(self):
+        """ Get all channels, in string form. """
         return [chan.name for chan in self.channels]
 
     def get_channel(self, channel):
+        """ Get a channel. """
         return [chan for chan in self.channels if chan.name == channel]
 
     def get_channels_for_user(self, user):
+        """ Get every chan that contains user """
         return [chan for chan in self.channels if user in chan.users]
 
     def del_admin(self, dnick):
-        [self.admins.remove(nick) for nick in self.admins if nick == dnick]
+        """ Remove an admin from the admin list. """
+        self.admins = [nick for nick in self.admins if nick != dnick]
     
     def add_channel(self, identifier, users, topic=None):
+        """ Add a channel to the channel list. """
         self.channels.append(Channel(identifier, users, topic=topic))
         return self.channels[-1]
 
     def rm_channel(self, identifier):
-        [self.channels.remove(c) for c in self.channels if c.name == identifier]
+        """ Remove a channel from the channel list. """
+        self.channels = [c for c in self.channels if c.name != identifier]
 
     def del_channel(self, identifier):
+        """ Remove a channel from the channel list. """
         self.rm_channel(identifier)
 
-    def set_channel_users(self, channel, users):
-        [chan.set_users(users) for chan in self.channels if chan.name == channel]
+    def set_channel_users(self, chan_, users):
+        """ Set the users for a channel. """
+        for chan in self.channels:
+            if chan.name == chan_:
+                chan.set_users(users)
 
-    def set_channel_topic(self, channel, topic):
-        [chan.set_topic(topic) for chan in self.channels if chan.name == channel]
+    def set_channel_topic(self, chan_, topic):
+        """ Set topic for a channel. """
+        for chan in self.channels:
+            if chan.name == chan_:
+                chan.set_topic(topic)
