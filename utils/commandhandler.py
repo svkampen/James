@@ -12,6 +12,7 @@ class CommandHandler():
         self.commands = command.plugins_to_commands(plugins)
         if self.commands == []:
             raise RuntimeError("No commands found!")
+        print("%d commands initialized." % (len(self.commands)))
 
     def trigger(self, trigger):
         """ Try to trigger a command with hook <trigger> """

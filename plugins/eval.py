@@ -12,7 +12,7 @@ def evaluate_expression(self, nick, chan, arg):
         if output is not None:
             self.leo = output
             self._msg(chan, str(output))
-    except NameError:
+    except (NameError, SyntaxError):
         try:
             exec(arg, globals())
         except NameError:

@@ -44,6 +44,7 @@ class Command():
 def plugins_to_commands(plugins):
     """Turn a list of plugins into a list of commands"""
     commands = []
+    has_hook=False
     if type(plugins) == type(sys.modules[__name__]):
         plugins = [plugins]
     try:
@@ -56,6 +57,7 @@ def plugins_to_commands(plugins):
                     new_command.set_shorthooks(function.shorthook)
                 if has_hook:
                     commands.append(new_command)
+                    has_hook = False
     except BaseException:
         traceback.print_exc()
 

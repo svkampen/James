@@ -11,11 +11,13 @@ import yaml
 import plugins
 from utils import logging
 from utils.commandhandler import CommandHandler
+from utils.decorators import startinfo
 
 CONFIG = {}
 
 class James(IRCHandler):
     """ James main bot executable thingy class """
+    @startinfo('3.2.2')
     def __init__(self, config):
         super(James, self).__init__(config)
         globals()['CONFIG'] = config

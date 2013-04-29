@@ -31,7 +31,13 @@ class IRCHandler(object):
         loops = 0
         try:
             while self.running:
-                self.buff.append(self.sock.recv(1024).decode('utf-8'))
+                try:
+                    self.buff.append(self.sock.recv(1024).decode('utf-8'))
+                except UnicodeDecodeError:
+                    try:
+                        self.buff.append(self.sock.recv(1024).decode('utf-16'))
+                    except:
+                        pass
                 if loops == 0:
                     self.sendnick()
                     self.senduser()

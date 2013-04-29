@@ -28,7 +28,6 @@ def command(*args, **kwargs):
     """The command decorator."""
     def decorator(funct):
         """The actual command decorator."""
-        print("Decorating %s" % (funct))
         hooks = []
         for arg in args:
             hooks.append(arg)
