@@ -16,7 +16,7 @@
 
 def require_admin(funct):
     """ Decorator for requiring admin privileges. """
-    funct._requiresadmin = True
+    funct._require_admin = True
     return funct
 
 def initializer(funct):

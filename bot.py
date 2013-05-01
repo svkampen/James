@@ -8,10 +8,11 @@ import traceback
 import re
 import os
 import yaml
+import json
 import plugins
 from utils import logging
 from utils.commandhandler import CommandHandler
-from utils.decorators import startinfo
+from utils.decorators import startinfo, sethook
 
 CONFIG = {}
 
@@ -27,6 +28,10 @@ class James(IRCHandler):
         self.data.update({'apikeys': yaml.safe_load(open('apikeys.conf'))})
         self.lastmsgof = {}
         self.cmdhandler = CommandHandler(self, plugins.get_plugins())
+
+    def welcome(self, msg):
+        """ welcome(msg) - handles on-login actions """
+        self.msg(CONFIG['identify_service'], 'identify %s' % (CONFIG['ident_pass']))
 
     def names(self, msg):
         """ Executed on NAMES reply """
@@ -69,11 +74,12 @@ class James(IRCHandler):
         nick = msg['host'].split('!')[0]
         chan = msg['arg'].split()[0]
         msg = msg['arg'].split(' ', 1)[1][1:]
-        self.log.log("[%s] <%s> %s" % (chan, nick, msg))
+        self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
         if msg.startswith('s/') and msg.count('/') == 3:
             if nick in self.lastmsgof.keys():
                 sed_cmd = "echo \"%s\" | sed \"%s\""
                 newmsg = os.popen(sed_cmd % (self.lastmsgof[nick], msg))
+                newmsg = newmsg.read()
                 self._msg(chan, "<%s> %s" % (nick, newmsg))
         self.lastmsgof[nick] = msg
 
@@ -86,11 +92,12 @@ class James(IRCHandler):
                     cmd_args = cmd_splitmsg[1]
                 else:
                     cmd_args = ''
-                if not hasattr(triggered_short, "_requireadmin"):
-                    triggered_short(self, nick, chan, cmd_args)
-                else:
+
+                if hasattr(triggered_short.function, "_require_admin"):
                     if nick in self.state.admins:
                         triggered_short(self, nick, chan, cmd_args)
+                else:
+                    triggered_short(self, nick, chan, cmd_args)
 
             except BaseException:
                 traceback.print_exc()
@@ -108,12 +115,13 @@ class James(IRCHandler):
                     cmd_args = ''
                 callback = self.cmdhandler.trigger(cmd_name)
                 if not callback:
-                    self._msg(nick, "Unknown Command.")
-                elif not hasattr(callback, '_requireadmin'):
-                    callback(self, nick, chan, cmd_args)
-                else:
+                    return self._msg(nick, "Unknown Command.")
+                
+                if hasattr(callback.function, '_require_admin'):
                     if nick in self.state.admins:
                         callback(self, nick, chan, cmd_args)
+                else:
+                    callback(self, nick, chan, cmd_args)
             except BaseException:
                 #self._meditate(sys.exc_info(), chan)
                 traceback.print_exc()
@@ -148,7 +156,7 @@ class James(IRCHandler):
         channel = msg['arg'][1:].strip()
         if user != CONFIG['nick']:
             self.state.get_channel(channel)[0].add_user(user)
-        self.log.log("%s joined %s." % (user, channel))
+        self.log.log("[%s] JOIN %s" % (channel, user))
 
     def part(self, msg):
         """ Handles people parting channels """
@@ -156,7 +164,7 @@ class James(IRCHandler):
         user = msg['host'].split('!')[0].strip()
         try:
             self.state.get_channel(channel)[0].remove_user(user)
-            self.log.log("%s left %s." % (user, channel))
+            self.log.log("[%s] PART %s" % (channel, user))
         except BaseException:
             traceback.print_exc()
 
@@ -182,9 +190,6 @@ class James(IRCHandler):
 
 
 if __name__ == '__main__':
-    CONFIG = {'server': 'irc.awfulnet.org:6667', 'nick':\
-              'James3', 'real': "James3 - the most amazing bot on the net", \
-              'user': 'james', 'plugdir': 'plugins', 'joinchans':\
-              ['#teenagers'], 'cmdchar': '+'}
+    CONFIG = json.loads(open('config.json', 'r').readline())
     BOT = James(CONFIG)
     BOT.connect()

@@ -2,6 +2,10 @@
 The Command handler
 """
 from . import command
+try:
+    import command
+except:
+    pass
 
 class CommandHandler():
     """ The command handler object - handles triggering commands """
@@ -10,6 +14,7 @@ class CommandHandler():
         for function in self.initializers:
             function(bot)
         self.commands = command.plugins_to_commands(plugins)
+        self.command_names = [command.main_hook for command in self.commands]
         if self.commands == []:
             raise RuntimeError("No commands found!")
         print("%d commands initialized." % (len(self.commands)))

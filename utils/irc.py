@@ -7,6 +7,7 @@ from .buffer import Buffer
 from . import parse
 import socket
 from .num import NUM as numerics
+import time
 
 CONFIG = {}
 
@@ -31,6 +32,7 @@ class IRCHandler(object):
         loops = 0
         try:
             while self.running:
+                time.sleep(0.1)
                 try:
                     self.buff.append(self.sock.recv(1024).decode('utf-8'))
                 except UnicodeDecodeError:

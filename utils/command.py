@@ -7,7 +7,7 @@
 import sys
 import traceback
 
-class Command():
+class Command(object):
     """Command(Object function, List<str> hooks=[], List<str> shorthooks=[])"""
     def __init__(self, function, hooks=None, shorthooks=None):
         self.function = function
@@ -17,6 +17,7 @@ class Command():
             shorthooks = []
         self.hooks = hooks
         self.short_hooks = shorthooks
+        self.main_hook = self.hooks[0]
 
     def __call__(self, bot, nick, chan, arg):
         """ Call the function embedded in the command """

@@ -5,7 +5,10 @@ from .util.decorators import command, initializer
 from bs4 import BeautifulSoup as soupify
 import re
 import requests
-from urllib.request import pathname2url as urlencode
+try:
+    from urllib.request import pathname2url as urlencode
+except:
+    from urllib import pathname2url as urlencode
 
 @initializer
 def initialize_plugin(bot):
@@ -26,7 +29,8 @@ def wikipedia_get_first_sentence(bot, nick, chan, arg):
     response = requests.get(url, headers=headers)
 
     soup = soupify(response.text)
-    [s.extract() for s in soup.findAll('table', {'class': 'infobox'})]
+    for s in soup.findAll('table', {'class': 'infobox'}):
+        s.extract()
     paragraphs = soup.findAll('p')
     first_paragraph = paragraphs[0].getText()
     first_sentence = bot.data['sentence_re'].match("%s" % (first_paragraph))

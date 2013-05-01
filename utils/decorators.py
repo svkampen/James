@@ -15,6 +15,14 @@ def sethook(*args):
         return wrapper
     return decorator
             
+def hook_into(*args):
+    def decorator(funct):
+        bot = args[0]
+        hook_name = args[1]
+        bot.data['hooks'][hook_name].append(funct)
+        @wraps(funct)
+        def wrapper(*args, **kwargs):
+            return funct(*args, **kwargs)
 
 def startinfo(*args):
     def decorator(funct):

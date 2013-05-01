@@ -1,8 +1,12 @@
 """ 
 Standard functions like quit, part, join, etc.
 """
-from .util.decorators import command
+from .util.decorators import command, require_admin
 import sys
+
+@command('help')
+def help_me(bot, nick, chan, arg):
+    bot.msg(chan, "%s: %s" % (nick, bot.cmdhandler.command_names))
 
 @command('quit', 'exit')
 def quitbot(bot, nick, chan, arg):
