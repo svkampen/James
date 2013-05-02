@@ -8,6 +8,7 @@ James requires the following libraries (all supplied by pip)
 
 * Requests
 * BeautifulSoup 4
+* PyYAML 3.10 (will be obsolete soon, I think.. maybe.. possibly)
 
 ### Starting James
 Create a config file with `makeconfig.py`, then start the bot with `python3 bot.py`
