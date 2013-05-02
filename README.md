@@ -7,7 +7,10 @@ It is completely Unicode-proof (for as far as I know)
 James requires the following libraries (all supplied by pip)
 
 * Requests
-* Straight Plugin
+* BeautifulSoup 4
+
+### Starting James
+Create a config file with `makeconfig.py`, then start the bot with `python3 bot.py`
 
 ### Legal mumbojumbo
 You can consider James effectively licensed under the MIT License as far as code re-use goes,
