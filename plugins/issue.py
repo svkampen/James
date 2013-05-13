@@ -7,7 +7,7 @@ import json
 
 @command('request.feature', 'reqfeature')
 def request_feature(bot, nick, chan, arg):
-    ''' Request a feature on the James issue tracker. '''
+    """ Request a feature on the James issue tracker. """
     print('test')
     if not arg:
         return bot._msg(chan, "Usage: requestfeat title: description")

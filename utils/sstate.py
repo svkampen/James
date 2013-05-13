@@ -41,10 +41,11 @@ class Channel(object):
     
 
 class ServerState(object):
-    """ A class that holds the active channels and admins. """
+    """ A class that holds the active channels and admins and some more things about the bot that are server-specific. """
     def __init__(self):
         self.channels = []
         self.admins = ['svkampen', 'Lion']
+        self.nick = 'James'
     
     def add_admin(self, nick):
         """ Add an admin to the admin list. """

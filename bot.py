@@ -7,6 +7,7 @@ import utils
 import traceback
 import re
 import os
+import sys
 import yaml
 import json
 import plugins
@@ -19,8 +20,8 @@ CONFIG = {}
 class James(IRCHandler):
     """ James main bot executable thingy class """
     @startinfo('3.2.2')
-    def __init__(self, config):
-        super(James, self).__init__(config)
+    def __init__(self, config, verbose=False):
+        super(James, self).__init__(config, verbose=verbose)
         globals()['CONFIG'] = config
         self.state = utils.ServerState()
         self.log = logging.Logger()
@@ -43,8 +44,7 @@ class James(IRCHandler):
         modes = ['+', '%', '@', '&', '~']
 
         
-        userswithoutstatus = [u for u in users if not u[:1] in modes]
-        users = userswithoutstatus + [u[1:] for u in users if u[:1] in modes]
+        users = [u for u in users if not u[:1] in modes] + [u[1:] for u in users if u[:1] in modes]
         
         if not channel in self.state.get_channels():
             self.state.add_channel(channel, users)
@@ -100,6 +100,7 @@ class James(IRCHandler):
                     triggered_short(self, nick, chan, cmd_args)
 
             except BaseException:
+                self._meditate(sys.exc_info(), chan)
                 traceback.print_exc()
 
         self.check_for_command(msg, cmd_splitmsg, nick, chan)
@@ -123,13 +124,13 @@ class James(IRCHandler):
                 else:
                     callback(self, nick, chan, cmd_args)
             except BaseException:
-                #self._meditate(sys.exc_info(), chan)
+                self._meditate(sys.exc_info(), chan)
                 traceback.print_exc()
                 
     def _meditate(self, exc_info, chan):
         """ Prints GURU MEDITATION messages - at least, it used to. """
-        exc_name = str(exc_info[0]).split("'")[1].split(".")[1]
-        exc_args = exc_info[1].message
+        exc_name = str(exc_info[0]).split("'")[1]
+        exc_args = exc_info[1].args[0]
         if exc_args:
             self._msg(chan, \
                       "[\x02\x034GURU\x03 MEDITATION\x034 E:\x03 %s\x02] %s"\
@@ -170,7 +171,11 @@ class James(IRCHandler):
 
     def _msg(self, chan, msg):
         """ _msg(string chan, string msg) - Sends a PRIVMSG. """
-        self._send("PRIVMSG %s :%s" % (chan, msg))
+        if '\n' in msg:
+            for item in msg.split('\n'):
+                self._send("PRIVMSG %s :%s" % (chan, item))
+        else:
+            self._send("PRIVMSG %s :%s" % (chan, msg))
 
     def msg(self, chan, msg):
         """ msg(string chan, string msg) - Sends a PRIVMSG. """
@@ -190,6 +195,11 @@ class James(IRCHandler):
 
 
 if __name__ == '__main__':
+    ARGS = sys.argv[1:]
+    print(ARGS)
     CONFIG = json.loads(open('config.json', 'r').readline())
-    BOT = James(CONFIG)
+    if '--verbose' in ARGS:
+        BOT = James(CONFIG, verbose=True)
+    else:
+        BOT = James(CONFIG)
     BOT.connect()

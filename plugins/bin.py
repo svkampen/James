@@ -12,7 +12,7 @@ def binencode(bot, nick, chan, arg):
 
 @command('bdecode', 'bindecode', 'bindec', 'bdec', 'b2str')
 def bindecode(bot, nick, chan, arg):
-    """ Decode a binary number. """
+    """Decode a binary number."""
     arg = arg.split()
     arg = ''.join(arg)
     ascii_chrs = [int(arg[i:i+8], 2) for i in range(0, len(arg), 8)]

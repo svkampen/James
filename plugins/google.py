@@ -6,7 +6,7 @@ import requests
 
 @command('google')
 def google(bot, nick, chan, arg):
-    """ Google for argument. """
+    """ Return the first google result for <argument>. """
     if not arg:
         return bot._msg(chan, "Usage: google [query]")
     url = 'http://ajax.googleapis.com/ajax/services/search/web'

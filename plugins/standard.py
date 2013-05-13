@@ -6,7 +6,10 @@ import sys
 
 @command('help')
 def help_me(bot, nick, chan, arg):
-    bot.msg(chan, "%s: %s" % (nick, bot.cmdhandler.command_names))
+    if not arg:
+        return bot.msg(chan, "commands: %s." % (', '.join(bot.cmdhandler.command_names)))
+    return bot.msg(chan, "%s: %s" % (arg, bot.cmdhandler.trigger(arg).function.__doc__.lstrip()))
+        
 
 @command('quit', 'exit')
 def quitbot(bot, nick, chan, arg):

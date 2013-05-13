@@ -13,12 +13,13 @@ CONFIG = {}
 
 class IRCHandler(object):
     """ IRCHandler(Dict<string, object> config) - a standard IRC handler """
-    def __init__(self, bconfig):
+    def __init__(self, bconfig, verbose=False):
         globals()["CONFIG"] = bconfig
         self.sock = socket.socket()
-        
+        self.verbose = verbose
         self.running = True
         self.buff = Buffer()
+        self.outbuff = Buffer()
         self.is_welcome = False
 
     def connect(self):
@@ -32,6 +33,7 @@ class IRCHandler(object):
         loops = 0
         try:
             while self.running:
+
                 time.sleep(0.1)
                 try:
                     self.buff.append(self.sock.recv(1024).decode('utf-8'))
@@ -40,10 +42,14 @@ class IRCHandler(object):
                         self.buff.append(self.sock.recv(1024).decode('utf-16'))
                     except:
                         pass
+
                 if loops == 0:
                     self.sendnick()
                     self.senduser()
+
                 for msg in self.buff:
+                    if self.verbose:
+                        print('>>> '+msg)
                     pmsg = parse.parse(msg)
                     if pmsg['method'] == 'PING':
                         self._send("PONG "+pmsg["arg"])
@@ -57,15 +63,19 @@ class IRCHandler(object):
                             func = numerics.get(pmsg['method'], False)
                             if func:
                                 self.try_to_call(func, args=pmsg)
+
                 loops += 1
         except KeyboardInterrupt:
             sys.exit()
 
     def _send(self, data, newline='\r\n', sock=None):
         """ Send data through the socket and append CRLF. """
-        if sock == None:
-            sock = self.sock
-        sock.send((data+newline).encode('utf-8'))
+        self.outbuff.append(data+newline)
+        for msg in self.outbuff:
+            if self.verbose:
+                print('<<< '+msg)
+            self.sock.send((msg+newline).encode('utf-8'))
+            time.sleep(1)
 
     def try_to_call(self, function, namespace=None, args=None, unpack=True):
         """ Try to call a function. """
