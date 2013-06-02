@@ -16,7 +16,7 @@ def request_feature(bot, nick, chan, arg):
     # arg[0] = title, arg[1] = description.
 
     github_url = 'https://api.github.com/repos/svkampen/James/issues'
-    auth_data = bot.data['apikeys']['github']
+    auth_data = bot.state.data['apikeys']['github']
     auth = (auth_data['user'], auth_data['pass'])
     headers = {'Content-Type': 'application/json'}
     payload = {'title': arg[0], 'body': arg[1], 'assignee': 'svkampen', \

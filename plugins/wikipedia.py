@@ -38,6 +38,6 @@ def wikipedia_get_first_sentence(bot, nick, chan, arg):
         first_sentence = first_sentence.groups()[0]
     else:
         if len(first_paragraph.split(". ")[0]) > 15:
-            bot._msg(chan, "%s -- read more: %s" % (first_paragraph.split(". ")[0], bot.data['shortener'](bot, url)))
+            bot._msg(chan, "%s -- read more: %s" % (first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
             return
     bot._msg(chan, "%s -- read more: %s" % (first_sentence, bot.state.data['shortener'](bot, url)))

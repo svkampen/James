@@ -3,8 +3,8 @@ from functools import wraps
 def sethook(*args):
     def decorator(funct):
         bot = args[0]
-        if bot.data['hooks'].get(args[1], None) == None:
-            bot.data['hooks'][args[1]] = []
+        if bot.state.data['hooks'].get(args[1], None) == None:
+            bot.state.data['hooks'][args[1]] = []
         hook_name = args[1]
         @wraps(funct)
         def wrapper(*args, **kwargs):
