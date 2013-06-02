@@ -1,3 +1,5 @@
+import traceback
+
 StandardEvents = [
     'WelcomeEvent',
     'JoinEvent',
@@ -14,8 +16,11 @@ class Event():
         return self
 
     def fire(self, *args, **kwargs):
-        for handler in self.handlers:
-            handler(*args, **kwargs)
+        try:
+            for handler in self.handlers:
+                handler(*args, **kwargs)
+        except:
+            traceback.print_exc()
 
     def unhandle(self, handler):
         try:
