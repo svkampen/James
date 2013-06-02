@@ -5,3 +5,6 @@ __pycache__
 *.db
 *.sublime-project
 *.sublime-workspace
+james.log
+apikeys.conf
+config.json
