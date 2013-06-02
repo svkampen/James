@@ -21,12 +21,25 @@ def translationparty(bot, nick, chan, arg):
     if iters > 10:
         return bot.msg(chan, "Maximum iterations is 10!")
     strings = [' '.join(args[2:])]
-    url = "http://api.mymemory.translated.net/get"
-    for i in range(iters*2):
-        params = {'q': strings[i-1], 'langpair': langpair[i%2], 'de': 'sam@tehsvk.net'}
-        response = requests.get(url, headers=headers, params=params)
-        data = response.json()
-        if 'INVALID TARGET LANGUAGE' in data['responseData']['translatedText']:
-            return bot.msg(chan, "%s: Invalid target language." % (nick))
-        strings.append(data['responseData']['translatedText'])
-        bot.msg(chan, "%s: %d - %s" % (nick, i, strings[i-1]))
+    tpThread(bot, nick, chan, langpair, iters, strings).start()
+
+class tpThread(Thread):
+    def __init__(self, bot, nick, chan, langpair, iters, strings):
+        Thread.__init__(self)
+        self.bot = bot
+        self.nick = nick
+        self.chan = chan
+        self.langpair = langpair
+        self.iters = iters
+        self.strings = strings
+
+    def run(self):
+        url = "http://api.mymemory.translated.net/get"
+        for i in range(self.iters*2):
+            params = {'q': self.strings[i-1], 'langpair': self.langpair[i%2], 'de': 'sam@tehsvk.net'}
+            response = requests.get(url, headers=headers, params=params)
+            data = response.json()
+            if 'INVALID TARGET LANGUAGE' in data['responseData']['translatedText']:
+                return self.bot.msg(self.chan, "%s: Invalid target language." % (self.nick))
+            self.strings.append(data['responseData']['translatedText'])
+            self.bot.msg(self.chan, "%s: %d - %s" % (self.nick, i, self.strings[i-1]))
