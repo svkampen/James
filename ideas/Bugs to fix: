@@ -1,0 +1,7 @@
+Bugs to fix:
+  #19: Channel management
+
+Design ideas:
+  bot.state -> contains all the things that do stuff with state. Channels, events, admins, etc.
+  bot -> contains all static methods: _send, _msg, etc.
+  
