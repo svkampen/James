@@ -28,7 +28,5 @@ def translationparty(bot, nick, chan, arg):
         data = response.json()
         if 'INVALID TARGET LANGUAGE' in data['responseData']['translatedText']:
             return bot.msg(chan, "%s: Invalid target language." % (nick))
-        if 'INVALID SOURCE LANGUAGE' in data['responseData']['translatedText']:
-            return bot.msg(chan, "%s: Invalid source language." % (nick))
         strings.append(data['responseData']['translatedText'])
         bot.msg(chan, "%s: %d - %s" % (nick, i, strings[i-1]))
