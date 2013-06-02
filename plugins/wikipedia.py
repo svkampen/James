@@ -22,6 +22,10 @@ def wikipedia_get_first_sentence(bot, nick, chan, arg):
         'User-Agent': 'Mozilla/5.0 (compatible) / JamesIRC'
     }
 
+    if arg.startswith("@"):
+        args = arg.split(" ")
+        nick = args[0][1:]
+        arg = " ".join(args[1:])
     arg = arg.replace(" ", "_")
     arg = urlencode(arg)
 
@@ -38,6 +42,6 @@ def wikipedia_get_first_sentence(bot, nick, chan, arg):
         first_sentence = first_sentence.groups()[0]
     else:
         if len(first_paragraph.split(". ")[0]) > 15:
-            bot._msg(chan, "%s -- read more: %s" % (first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
+            bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
             return
-    bot._msg(chan, "%s -- read more: %s" % (first_sentence, bot.state.data['shortener'](bot, url)))
+    bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_sentence, bot.state.data['shortener'](bot, url)))
