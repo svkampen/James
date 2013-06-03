@@ -48,8 +48,9 @@ class James(IRCHandler):
 
     def welcome(self, msg: dict):
         """ welcome(msg) - handles on-login actions """
-        self.msg(CONFIG['identify_service'], 'identify %s' % (CONFIG['ident_pass']))
-        self._send("MODE JamesNext +B")
+        if CONFIG['ident_pass']:
+            self.msg(CONFIG['identify_service'], 'identify %s' % (CONFIG['ident_pass']))
+        self._send("MODE %s +B" % (self.state.nick))
         self.state.events['WelcomeEvent'].fire(self)
 
     def notice(self, msg):
