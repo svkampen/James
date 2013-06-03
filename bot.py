@@ -112,8 +112,8 @@ class James(IRCHandler):
                         msg = ' '.join(msg.split()[:-1])
                     else:
                         nick_ = nick
-                    sed_cmd = "echo \"%s\" | sed \"%s\""
-                    newmsg = os.popen(sed_cmd % (self.lastmsgof[nick_], msg.split(';')[0]))
+                    sed_cmd = "echo \"%s\" | sed \"%s\"" # Why not manual stdin, or <<< if it works? Wastes a process
+                    newmsg = os.popen(sed_cmd % (self.lastmsgof[nick_], msg.split(';')[0])) # What's with ;?
                     newmsg = newmsg.read()
                     self._msg(chan, "<%s> %s" % (nick_, newmsg))
         else:
