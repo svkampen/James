@@ -98,18 +98,20 @@ class James(IRCHandler):
         chan = msg['arg'].split()[0]
         msg = msg['arg'].split(' ', 1)[1][1:]
         self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
-        if msg.startswith('s/') and msg.count('/') == 3 and not '$' in msg:
-            if nick in self.lastmsgof.keys() or msg.split()[-1] in self.lastmsgof.keys():
-                if msg.split()[-1] in self.lastmsgof.keys():
-                    nick_ = msg.split()[-1]
-                    msg = ' '.join(msg.split()[:-1])
-                else:
-                    nick_ = nick
-                sed_cmd = "echo \"%s\" | sed \"%s\""
-                newmsg = os.popen(sed_cmd % (self.lastmsgof[nick_], msg.split(';')[0]))
-                newmsg = newmsg.read()
-                self._msg(chan, "<%s> %s" % (nick_, newmsg))
-        self.lastmsgof[nick] = msg
+        if msg.startswith('s/'):
+            if msg.count('/') == 3 and not '$' in msg:
+                if nick in self.lastmsgof.keys() or msg.split()[-1] in self.lastmsgof.keys():
+                    if msg.split()[-1] in self.lastmsgof.keys():
+                        nick_ = msg.split()[-1]
+                        msg = ' '.join(msg.split()[:-1])
+                    else:
+                        nick_ = nick
+                    sed_cmd = "echo \"%s\" | sed \"%s\""
+                    newmsg = os.popen(sed_cmd % (self.lastmsgof[nick_], msg.split(';')[0]))
+                    newmsg = newmsg.read()
+                    self._msg(chan, "<%s> %s" % (nick_, newmsg))
+        else:
+            self.lastmsgof[nick] = msg
 
         cmd_splitmsg = msg.split(" ", 1)
 
