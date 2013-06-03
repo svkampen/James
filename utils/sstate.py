@@ -48,7 +48,7 @@ class ServerState(object):
     """ A class that holds the active channels and admins and some more things about the bot that are server-specific. """
     def __init__(self):
         self.channels = []
-        self.admins = ['svkampen', 'lion', 'kvasir']
+        self.admins = []
         self.nick = 'JamesNext'
         self.notices = []
     
