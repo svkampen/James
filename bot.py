@@ -98,6 +98,8 @@ class James(IRCHandler):
         """ Handles Messages """
         nick = msg['host'].split('!')[0]
         chan = msg['arg'].split()[0]
+        if chan == self.state.nick:
+            chan = nick
         msg = msg['arg'].split(' ', 1)[1][1:]
         target = msg.split(':')[0]
         if target in self.lastmsgof.keys():
@@ -141,15 +143,6 @@ class James(IRCHandler):
 
         self.check_for_command(msg, cmd_splitmsg, nick, chan)
         self.state.events['MessageEvent'].fire(self, nick, chan, msg)
-
-   # _____ ___________ _____    ______ _______   __  _____ _   _ _____ _____ 
-   #|_   _|  _  |  _  \  _  |_  |  ___|_   _\ \ / / |_   _| | | |_   _/  ___|
-    # | | | | | | | | | | | (_) | |_    | |  \ V /    | | | |_| | | | \ `--. 
-    # | | | | | | | | | | | |   |  _|   | |  /   \    | | |  _  | | |  `--. \
-    # | | \ \_/ / |/ /\ \_/ /_  | |    _| |_/ /^\ \   | | | | | |_| |_/\__/ /
-    # \_/  \___/|___/  \___/(_) \_|    \___/\/   \/   \_/ \_| |_/\___/\____/ 
-                                                                        
-
 
     def check_for_command(self, msg, cmd_splitmsg, nick, chan):
         """ Check for a normal command starting with the command char. """
