@@ -99,6 +99,10 @@ class James(IRCHandler):
         nick = msg['host'].split('!')[0]
         chan = msg['arg'].split()[0]
         msg = msg['arg'].split(' ', 1)[1][1:]
+        target = msg.split(':')[0]
+        if target in self.lastmsgof.keys():
+            msg = msg.split(':')[1][1:]
+            nick = target
         self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
         if msg.startswith('s/'):
             if msg.count('/') == 3 and not '$' in msg:
