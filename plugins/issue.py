@@ -16,7 +16,7 @@ def request_feature(bot, nick, chan, arg):
     # arg[0] = title, arg[1] = description.
 
     github_url = 'https://api.github.com/repos/svkampen/James/issues'
-    auth_data = bot.state.data['apikeys']['github']
+    auth_data = bot.state.apikeys.get('github', {'user':False, 'pass':False})
     auth = (auth_data['user'], auth_data['pass'])
     headers = {'Content-Type': 'application/json'}
     payload = {'title': arg[0], 'body': arg[1], 'assignee': 'svkampen', \
@@ -27,7 +27,7 @@ def request_feature(bot, nick, chan, arg):
     data = page.json()
     if page.status_code == 201:
         bot._msg(chan, "Posted request on issue tracker. URL: %s"\
-                 % (bot.data['shortener'](bot, data['html_url'])))
+                 % (bot.state.data['shortener'](bot, data['html_url'])))
     else:
         bot._msg(chan, "Eh.. there was some sort of error. Status code: %d"
                  % (page.status_code))
@@ -40,7 +40,7 @@ def report_bug(bot, nick, chan, arg):
 
     arg = arg.split(": ")
     github_url = 'http://api.github.com/repos/svkampen/James/issues'
-    auth_data = bot.data['apikeys']['github']
+    auth_data = bot.state.apikeys.get('github', {'user':False, 'pass':False})
     auth = (auth_data['user'], auth_data['pass'])
     headers = {'Content-Type': 'application/json'}
     payload = {'title': arg[0], 'body': arg[1], 'assignee': 'svkampen', \
@@ -51,15 +51,15 @@ def report_bug(bot, nick, chan, arg):
     data = page.json()
     if page.status_code == 201:
         bot._msg(chan, "Posted bug report. URL: %s"\
-                 % (bot.data['shortener'](bot, data['html_url'])))
+                 % (bot.state.data['shortener'](bot, data['html_url'])))
 
 @initializer
 def initialize_plugin(bot):
     """ Initialize this plugin. """
     pass
-#    if not 'github' in bot.data['apikeys'].keys():
+#    if not 'github' in bot.state.data['apikeys'].keys():
 #        del globals()['request_feature']
 #        del globals()['report_bug']
-#    if not 'shortener' in bot.data.keys():
+#    if not 'shortener' in bot.state.data.keys():
 #        del globals()['request_feature']
 #        del globals()['report_bug']

@@ -28,7 +28,7 @@ def urban_lookup(bot, nick, chan, arg):
     output = ' '.join(output.split())
 
     if len(output) > 200:
-        tinyurl = bot.data['shortener'](bot, defs[0]['permalink'])
+        tinyurl = bot.state.data['shortener'](bot, defs[0]['permalink'])
         output = output[:output.rfind(' ', 0, 180)] + '...\r\nRead more: %s'\
                  % (tinyurl)
         bot._msg(chan, "%s: %s" % (nick, output))
