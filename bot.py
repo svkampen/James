@@ -58,6 +58,7 @@ class James(IRCHandler):
         actualargs = msg['arg'].split(' ',1)[1][1:]
         sender = msg['host'].split('!')[0]
         self.state.notices.append({'sender': sender, 'message': actualargs})
+        self.log.log(u"-%s- %s" % (sender, actualargs))
         
 
     def names(self, msg):
