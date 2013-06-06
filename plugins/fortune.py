@@ -8,6 +8,6 @@ import os
 @command('fortune')
 def bash(bot, nick, chan, arg):
     """Get a fortune cookie"""
-    cookie = os.popen("fortune.sh").read().strip().replaceall("	", "    ")
+    cookie = os.popen("fortune -as").read().strip().replace('\t', "    ")
     if cookie:
         bot.msg(chan, cookie)

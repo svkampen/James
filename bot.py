@@ -105,12 +105,15 @@ class James(IRCHandler):
         msg = msg_['arg'].split(':', 1)[1]
         #self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
         
-        if utils.parse.check_for_sed(self, nick, msg):
-            parsed_msg = utils.parse.parse_sed(self, msg, self.lastmsgof[nick])
-            new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'])
-            self._msg(chan, "<%s> %s" % (nick, new_msg))
+        try:
+            if utils.parse.check_for_sed(self, nick, msg):
+                parsed_msg = utils.parse.parse_sed(self, msg, self.lastmsgof[chan][nick])
+                new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'])
+                self._msg(chan, "<%s> %s" % (nick, new_msg))
 
-        self.oldprivmsg(msg_)
+            self.oldprivmsg(msg_)
+        except KeyError:
+            self.lastmsgof[chan] = {}
 
     def oldprivmsg(self, msg):
         """ Handles Messages """
@@ -121,7 +124,7 @@ class James(IRCHandler):
         msg = msg['arg'].split(' ', 1)[1][1:]
         if ':' in msg:
             target = msg.split(':')[0]
-            if target in self.lastmsgof.keys():
+            if target in self.lastmsgof[chan].keys():
                 msg = msg.split(':', 1)[1].lstrip()
                 nick = target
         self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
@@ -146,7 +149,7 @@ class James(IRCHandler):
                 traceback.print_exc()
 
         self.check_for_command(msg, cmd_splitmsg, nick, chan)
-        self.lastmsgof[nick] = msg
+        self.lastmsgof[chan][nick] = msg
         self.state.events['MessageEvent'].fire(self, nick, chan, msg)
 
     def check_for_command(self, msg, cmd_splitmsg, nick, chan):
