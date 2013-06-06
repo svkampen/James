@@ -106,7 +106,7 @@ class James(IRCHandler):
         #self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
         
         if utils.parse.check_for_sed(self, nick, msg):
-            parsed_msg = utils.parse.parse_sed(self, self.lastmsgof[nick])
+            parsed_msg = utils.parse.parse_sed(self, msg, self.lastmsgof[nick])
             new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'])
             self._msg(chan, "<%s> %s" % (nick, new_msg))
 

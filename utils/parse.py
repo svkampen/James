@@ -27,9 +27,9 @@ class Parse(object):
         if 's/' in msg and msg.count('/') > 2:
             return True
 
-    def parse_sed(self, bot, msg):
-        split_msg = msg.split('/')[1:][:-1]
-        return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg}
+    def parse_sed(self, bot, sedmsg, oldmsg):
+        split_msg = sedmsg.split('/')[1:][:-1]
+        return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': oldmsg}
 
     def copy(self):
         """ Copy this Parse instance """
