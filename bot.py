@@ -103,26 +103,29 @@ class James(IRCHandler):
         if chan == self.state.nick:
             chan = nick
         msg = msg['arg'].split(' ', 1)[1][1:]
-        if ':' in msg:
-            target = msg.split(':')[0]
-            if target in self.lastmsgof.keys():
-                msg = msg.split(':', 1)[1].lstrip()
-                nick = target
-        self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
-        if msg.startswith('s/'):
-            if msg.count('/') == 3 and not '$' in msg:
-                if nick in self.lastmsgof.keys() or msg.split()[-1] in self.lastmsgof.keys():
-                    if msg.split()[-1] in self.lastmsgof.keys():
-                        nick_ = msg.split()[-1]
-                        msg = ' '.join(msg.split()[:-1])
-                    else:
-                        nick_ = nick
-                    sed_cmd = "echo \"%s\" | sed \"%s\"" # Why not manual stdin, or <<< if it works? Wastes a process
-                    newmsg = os.popen(sed_cmd % (self.lastmsgof[nick_], msg.split(';')[0])) # What's with ;?
-                    newmsg = newmsg.read()
-                    self._msg(chan, "<%s> %s" % (nick_, newmsg))
-        else:
-            self.lastmsgof[nick] = msg
+        try:
+            if ':' in msg:
+                target = msg.split(':')[0]
+                if target in self.lastmsgof[chan].keys():
+                    msg = msg.split(':', 1)[1].lstrip()
+                    nick = target
+            self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
+            if msg.startswith('s/'):
+                if msg.count('/') == 3 and not '$' in msg:
+                    if nick in self.lastmsgof[chan].keys() or msg.split()[-1] in self.lastmsgof.get(chan, {}).keys():
+                        if msg.split()[-1] in self.lastmsgof[chan].keys():
+                            nick_ = msg.split()[-1]
+                            msg = ' '.join(msg.split()[:-1])
+                        else:
+                            nick_ = nick
+                        sed_cmd = "echo \"%s\" | sed \"%s\"" # Why not manual stdin, or <<< if it works? Wastes a process
+                        newmsg = os.popen(sed_cmd % (self.lastmsgof[chan][nick_], msg.split(';')[0])) # What's with ;?
+                        newmsg = newmsg.read()
+                        self._msg(chan, "<%s> %s" % (nick_, newmsg))
+            else:
+                self.lastmsgof[chan][nick] = msg
+        except KeyError:
+            self.lastmsgof[chan] = {}
 
         cmd_splitmsg = msg.split(" ", 1)
 
