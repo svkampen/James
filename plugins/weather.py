@@ -35,7 +35,7 @@ class WeatherThread(Thread):
         for entry in self.data['list']:
             name = u"%s, %s" % (entry['name'], entry['sys']['country'])
             main = entry['main']
-            # This is nesty
+            # This is nasty
             try:
                 feel = "%d%% cloudy, %s" % (main['clouds']['all'], main['weather']['description'])
             except:

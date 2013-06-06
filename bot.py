@@ -96,7 +96,23 @@ class James(IRCHandler):
         else:
             self.state.add_channel(channel, [''], topic=topic)
 
-    def privmsg(self, msg):
+    def privmsg(self, msg_):
+        """ Handles messages """
+        nick = msg_['host'].split('!')[0]
+        chan = msg_['arg'].split()[0]
+        if chan == self.state.nick:
+            chan = nick
+        msg = msg_['arg'].split(':', 1)[1]
+        #self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
+        
+        if utils.parse.check_for_sed(self, nick, msg):
+            parsed_msg = utils.parse.parse_sed(self, self.lastmsgof[nick])
+            new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'])
+            self._msg(chan, "<%s> %s" % (nick, new_msg))
+
+        self.oldprivmsg(msg_)
+
+    def oldprivmsg(self, msg):
         """ Handles Messages """
         nick = msg['host'].split('!')[0]
         chan = msg['arg'].split()[0]
@@ -109,21 +125,6 @@ class James(IRCHandler):
                 msg = msg.split(':', 1)[1].lstrip()
                 nick = target
         self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
-        if msg.startswith('s/'):
-            if msg.count('/') == 3 and not '$' in msg:
-                if nick in self.lastmsgof.keys() or msg.split()[-1] in self.lastmsgof.keys():
-                    if msg.split()[-1] in self.lastmsgof.keys():
-                        nick_ = msg.split()[-1]
-                        msg = ' '.join(msg.split()[:-1])
-                    else:
-                        nick_ = nick
-                    sed_cmd = "echo \"%s\" | sed \"%s\"" # Why not manual stdin, or <<< if it works? Wastes a process
-                    newmsg = os.popen(sed_cmd % (self.lastmsgof[nick_], msg.split(';')[0])) # What's with ;?
-                    newmsg = newmsg.read()
-                    self._msg(chan, "<%s> %s" % (nick_, newmsg))
-        else:
-            self.lastmsgof[nick] = msg
-
         cmd_splitmsg = msg.split(" ", 1)
 
         triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
