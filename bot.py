@@ -102,10 +102,16 @@ class James(IRCHandler):
         chan = msg_['arg'].split()[0]
         if chan == self.state.nick:
             chan = nick
+        chan = chan.lower()
         msg = msg_['arg'].split(':', 1)[1]
-        #self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
-        
         try:
+            if ':' in msg: # need this clause for directional substitution, until there's a better one
+                target = msg.split(':')[0]
+                if target in self.lastmsgof[chan].keys():
+                    msg = msg.split(':', 1)[1].lstrip()
+                    nick = target
+            #self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
+
             if utils.parse.check_for_sed(self, nick, msg):
                 parsed_msg = utils.parse.parse_sed(self, msg, self.lastmsgof[chan][nick])
                 new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'])
@@ -121,6 +127,7 @@ class James(IRCHandler):
         chan = msg['arg'].split()[0]
         if chan == self.state.nick:
             chan = nick
+        chan = chan.lower()
         msg = msg['arg'].split(' ', 1)[1][1:]
         if ':' in msg:
             target = msg.split(':')[0]
