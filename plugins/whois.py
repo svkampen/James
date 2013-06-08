@@ -13,7 +13,7 @@ def whois(bot, nick, chan, arg):
     if not 'is' in arg or \
        len(arg.split(' ', 1)) < 2:
         return # invalid
-    arg = arg.split('is ',1)[1]
+    arg = arg.split(' is ',1)[1]
     if "?" in arg:
         arg = arg.split("?",1)[0]
     if arg.lower() == 'i':
