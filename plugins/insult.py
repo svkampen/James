@@ -11,7 +11,7 @@ except:
     from urllib import pathname2url as urlencode
 
 @command('insult')
-def wikipedia_get_first_sentence(bot, nick, chan, arg):
+def insult(bot, nick, chan, arg):
     """ Get an insult. """
     headers = {
         'User-Agent': 'Mozilla/5.0 (compatible) / JamesIRC'
