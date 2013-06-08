@@ -156,7 +156,8 @@ class James(IRCHandler):
                 traceback.print_exc()
 
         self.check_for_command(msg, cmd_splitmsg, nick, chan)
-        self.lastmsgof[chan][nick] = msg
+        if not utils.parse.check_for_sed(self, nick, msg):
+            self.lastmsgof[chan][nick] = msg
         self.state.events['MessageEvent'].fire(self, nick, chan, msg)
 
     def check_for_command(self, msg, cmd_splitmsg, nick, chan):
