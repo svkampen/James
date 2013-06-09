@@ -32,7 +32,7 @@ json_dict['plugdir'] = input("Plugin dir (default=plugins): ")
 if not json_dict['plugdir']:
     json_dict['plugdir'] = 'plugins'
 
-json_dict['admins'] = input("Initial admin username:")
+json_dict['admins'] = [input("Initial admin username:")]
 
 json_dict['cmdchar'] = input("Command character (default='+'): ")
 if not json_dict['cmdchar']:
