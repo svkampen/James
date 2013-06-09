@@ -144,7 +144,7 @@ class James(IRCHandler):
         self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
         cmd_splitmsg = msg.split(" ", 1)
 
-        triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
+        triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0][1:])
         if triggered_short:
             try:
                 if len(cmd_splitmsg) > 1:

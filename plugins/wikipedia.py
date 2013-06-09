@@ -37,11 +37,11 @@ def wikipedia_get_first_sentence(bot, nick, chan, arg):
         s.extract()
     paragraphs = soup.findAll('p')
     first_paragraph = paragraphs[0].getText()
-    first_sentence = bot.state.data['sentence_re'].match("%s" % (first_paragraph))
-    if first_sentence:
-        first_sentence = first_sentence.groups()[0]
-    else:
+    found = bot.state.data['sentence_re'].findall(first_paragraph)
+    found = [i[0] for i in found]
+    first_sentence = found[0]
+    if not first_sentence:
         if len(first_paragraph.split(". ")[0]) > 15:
             bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
             return
-    bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_sentence, bot.state.data['shortener'](bot, url)))
+    bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_sentence+found[1], bot.state.data['shortener'](bot, url.split('?')[0])))
