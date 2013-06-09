@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ 
 James.py - main bot
 """
