@@ -177,8 +177,6 @@ class James(IRCHandler):
                 else:
                     cmd_args = ''
                 callback = self.cmdhandler.trigger(cmd_name)
-                if not callback:
-                    return self._msg(nick, "Unknown Command.")
                 
                 if hasattr(callback.function, '_require_admin'):
                     if nick.lower() in self.state.admins:
