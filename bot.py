@@ -11,6 +11,7 @@ import sys
 import yaml
 import json
 import plugins
+from collections import deque
 from utils import logging
 from utils.commandhandler import CommandHandler
 from utils.events import Event
@@ -36,7 +37,7 @@ class James(IRCHandler):
         self.state.events = self.initialize_events()
         self.state.apikeys = yaml.safe_load(open('apikeys.conf'))
         self.state.data = {'autojoin_channels': ['#programming']}
-        self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
+        #self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
         self.state.admins.extend(CONFIG['admins'])
         self.state.nick = CONFIG['nick']
 
@@ -98,37 +99,42 @@ class James(IRCHandler):
 
     def privmsg(self, msg_):
         """ Handles messages """
-        nick = msg_['host'].split('!')[0]
+        nick = onick = msg_['host'].split('!')[0]
         chan = msg_['arg'].split()[0]
         if chan == self.state.nick:
             chan = nick
         chan = chan.lower()
-        msg = msg_['arg'].split(':', 1)[1]
+        msg = omsg = msg_['arg'].split(':', 1)[1]
         try:
             if ':' in msg: # need this clause for directional substitution, until there's a better one
                 target = msg.split(':')[0]
                 if target in self.lastmsgof[chan].keys():
                     msg = msg.split(':', 1)[1].lstrip()
                     nick = target
-            #self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
 
             if utils.parse.check_for_sed(self, nick, msg):
                 parsed_msg = utils.parse.parse_sed(self, msg, self.lastmsgof[chan][nick])
-                new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'])
-                self._msg(chan, "<%s> %s" % (nick, new_msg))
+                if parsed_msg is -1:
+                    self._msg(chan, "%s: No matches found" % (onick))
+                else:
+                    new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'])
+                    self._msg(chan, "<%s> %s" % (nick, new_msg))
 
             self.oldprivmsg(msg_)
         except KeyError:
-            self.lastmsgof[chan] = {}
+            if chan in self.lastmsgof.keys():
+                self.lastmsgof[chan][onick] = deque([omsg], 16)
+            else:
+                self.lastmsgof[chan] = {onick: deque([omsg], 16)}
 
     def oldprivmsg(self, msg):
         """ Handles Messages """
-        nick = msg['host'].split('!')[0]
+        nick = onick = msg['host'].split('!')[0]
         chan = msg['arg'].split()[0]
         if chan == self.state.nick:
             chan = nick
         chan = chan.lower()
-        msg = msg['arg'].split(' ', 1)[1][1:]
+        msg = omsg = msg['arg'].split(' ', 1)[1][1:]
         if ':' in msg:
             target = msg.split(':')[0]
             if target in self.lastmsgof[chan].keys():
@@ -157,7 +163,7 @@ class James(IRCHandler):
 
         self.check_for_command(msg, cmd_splitmsg, nick, chan)
         if not utils.parse.check_for_sed(self, nick, msg):
-            self.lastmsgof[chan][nick] = msg
+            self.lastmsgof[chan][onick].appendleft(omsg)
         self.state.events['MessageEvent'].fire(self, nick, chan, msg)
 
     def check_for_command(self, msg, cmd_splitmsg, nick, chan):

@@ -2,7 +2,7 @@
 IRC Parser - parse.py
 """
 
-import sys, re
+import sys
 
 def parse(msg):
     """ Parse placeholder """
@@ -28,9 +28,14 @@ class Parse(object):
         if msg.startswith('s/') and msg.count('/') > 2:
             return True
 
-    def parse_sed(self, bot, sedmsg, oldmsg):
-        split_msg = sedmsg.split('/')[1:][:-1]
-        return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': oldmsg}
+    def parse_sed(self, bot, sedmsg, oldmsgs):
+        import re
+        split_msg = sedmsg.split('/')[1:]
+        regex = re.compile(split_msg[0])
+        for msg in reversed(oldmsgs):
+            if regex.search(msg) is not None:
+                return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg, 'args': split_msg[2]}
+        return -1
 
     def copy(self):
         """ Copy this Parse instance """

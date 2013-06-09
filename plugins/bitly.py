@@ -8,7 +8,7 @@ def _shorten(bot, url):
     """ Shorten an url with bit.ly """
     login = bot.state.apikeys['bit.ly']['user']
     key = bot.state.apikeys['bit.ly']['key']
-    if not url or not re.match(r"^((https?)?...)(\w+)\.([A-z]+).?[A-z]*", url):
+    if not url or not re.match(r"^((https?)?...)(\S+)\.([A-z]+).?[A-z]*", url):
         return "Usage: bitly <VALID url>"
     if not re.match(r"^(https?)\://.+", url):
         url = 'http://' + url

@@ -19,7 +19,7 @@ def urban_lookup(bot, nick, chan, arg):
     defs = data['list']
     
     if data['result_type'] == 'no_results':
-        bot._msg(nick, "No definition found.")
+        return bot._msg(chan, "%s: No definition found for %s." % (nick, arg))
 
     output = defs[0]['word'] + ': ' + defs[0]['definition']
 
@@ -27,7 +27,7 @@ def urban_lookup(bot, nick, chan, arg):
     output = output.rstrip()
     output = ' '.join(output.split())
 
-    if len(output) > 200:
+    if len(output) > 300:
         tinyurl = bot.state.data['shortener'](bot, defs[0]['permalink'])
         output = output[:output.rfind(' ', 0, 180)] + '...\r\nRead more: %s'\
                  % (tinyurl)
@@ -35,3 +35,9 @@ def urban_lookup(bot, nick, chan, arg):
     
     else:
         bot._msg(chan, "%s: %s" % (nick, output))
+
+@command('urbanrandom', 'urbandictionaryrandom', 'udr')
+def urban_random(bot, nick, chan, arg):
+    ''' Random UrbanDictionary lookup. '''
+    word = requests.get("http://api.urbandictionary.com/v0/random").json()['list'][0]['word']
+    urban_lookup(bot, nick, chan, word)
