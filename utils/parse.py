@@ -24,15 +24,15 @@ class Parse(object):
         return info
 
     def check_for_sed(self, bot, nick, msg):
-        #match = re.match("^(\w+: )?s/.+/.+(/[g]?)?$", msg)
-        if msg.startswith('s/') and msg.count('/') > 2:
+        import re
+        if re.match("^(\w+: )?s/.+/.+(/[g]?)?$", msg):
             return True
 
     def parse_sed(self, bot, sedmsg, oldmsgs):
         import re
         split_msg = sedmsg.split('/')[1:]
         regex = re.compile(split_msg[0])
-        for msg in reversed(oldmsgs):
+        for msg in oldmsgs:
             if regex.search(msg) is not None:
                 return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg, 'args': split_msg[2]}
         return -1
