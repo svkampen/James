@@ -32,7 +32,7 @@ class Parse(object):
         import re
         split_msg = sedmsg.split('/')[1:]
         regex = re.compile(split_msg[0])
-        for msg in reversed(oldmsgs):
+        for msg in oldmsgs:
             if regex.search(msg) is not None:
                 return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg, 'args': split_msg[2]}
         return -1
