@@ -24,8 +24,8 @@ class Parse(object):
         return info
 
     def check_for_sed(self, bot, nick, msg):
-        #match = re.match("^(\w+: )?s/.+/.+(/[g]?)?$", msg)
-        if msg.startswith('s/') and msg.count('/') > 2:
+        import re
+        if re.match("^(\w+: )?s/.+/.+(/[g]?)?$", msg):
             return True
 
     def parse_sed(self, bot, sedmsg, oldmsgs):
