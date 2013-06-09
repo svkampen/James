@@ -31,10 +31,17 @@ class Parse(object):
     def parse_sed(self, bot, sedmsg, oldmsgs):
         import re
         split_msg = sedmsg.split('/')[1:]
+        glob = False
+        flags = 0
+        if len(split_msg) == 3:
+            if 'g' in split_msg[2]:
+                glob = True
+            if 'i' in split_msg[2]:
+                flags = flags or re.I
         regex = re.compile(split_msg[0])
         for msg in oldmsgs:
             if regex.search(msg) is not None:
-                return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg, 'args': split_msg[2]}
+                return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg, 'glob': glob, 'flags': flags}
         return -1
 
     def copy(self):
