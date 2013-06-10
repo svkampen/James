@@ -178,6 +178,8 @@ class James(IRCHandler):
                     cmd_args = ''
                 callback = self.cmdhandler.trigger(cmd_name)
                 
+                if not callback: return
+
                 if hasattr(callback.function, '_require_admin'):
                     if nick.lower() in self.state.admins:
                         callback(self, nick, chan, cmd_args)
