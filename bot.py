@@ -114,12 +114,12 @@ class James(IRCHandler):
                     nick = target
 
             if utils.parse.check_for_sed(self, nick, msg):
-                parsed_msg = utils.parse.parse_sed(self, msg, self.lastmsgof[chan][nick])
+                parsed_msg = utils.parse.parse_sed(self, msg.replace("\/", "\13"), self.lastmsgof[chan][nick])
                 if parsed_msg is -1:
                     self._msg(chan, "%s: No matches found" % (onick))
                 else:
                     new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1, parsed_msg['flags'])
-                    self._msg(chan, "<%s> %s" % (nick, new_msg))
+                    self._msg(chan, "<%s> %s" % (nick, new_msg.replace("\13", "/")))
 
             self.oldprivmsg(msg_)
         except KeyError:
