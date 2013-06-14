@@ -135,7 +135,7 @@ class James(IRCHandler):
         if chan == self.state.nick:
             chan = nick
         chan = chan.lower()
-        msg = omsg = msg['arg'].split(' ', 1)[1][1:]
+        msg = omsg = msg['arg'].split(' ', 1)[1]
         if ':' in msg:
             target = msg.split(':')[0]
             if target in self.lastmsgof[chan].keys():
