@@ -118,7 +118,7 @@ class James(IRCHandler):
                 if parsed_msg is -1:
                     self._msg(chan, "%s: No matches found" % (onick))
                 else:
-                    new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1, parsed_msg['flags'])
+                    new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1)
                     self._msg(chan, "<%s> %s" % (nick, new_msg.replace("&", parsed_msg['to_replace']).replace("\13", "/")))
 
             self.oldprivmsg(msg_)
