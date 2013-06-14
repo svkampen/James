@@ -60,7 +60,7 @@ class James(IRCHandler):
         actualargs = msg['arg'].split(' ',1)[1][1:]
         sender = msg['host'].split('!')[0]
         self.state.notices.append({'sender': sender, 'message': actualargs})
-        self.log.log(u"-%s- %s" % (sender, actualargs))
+        self.log.log("-%s- %s" % (sender, actualargs))
         
 
     def names(self, msg):
@@ -135,16 +135,16 @@ class James(IRCHandler):
         if chan == self.state.nick:
             chan = nick
         chan = chan.lower()
-        msg = omsg = msg['arg'].split(' ', 1)[1]
+        msg = omsg = msg['arg'].split(' ', 1)[1][1:]
         if ':' in msg:
             target = msg.split(':')[0]
             if target in self.lastmsgof[chan].keys():
                 msg = msg.split(':', 1)[1].lstrip()
                 nick = target
-        self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
+        self.log.log("[%s] <%s> %s" % (chan, nick, msg))
         cmd_splitmsg = msg.split(" ", 1)
 
-        triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0][1:])
+        triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
         if triggered_short:
             try:
                 if len(cmd_splitmsg) > 1:

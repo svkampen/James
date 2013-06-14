@@ -24,7 +24,7 @@ def whereis(bot, nick, chan, arg):
         return bot.msg(chan, "%s: Invalid location." % (nick))
     names = []
     for entry in data['list']:
-        name = u"%s: %s" % (entry['name'], entry['sys']['country'])
+        name = "%s: %s" % (entry['name'], entry['sys']['country'])
         if name != '':
             names.append(name)
     bot.msg(chan, ", ".join(names))
