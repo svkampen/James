@@ -60,7 +60,7 @@ class James(IRCHandler):
         actualargs = msg['arg'].split(' ',1)[1][1:]
         sender = msg['host'].split('!')[0]
         self.state.notices.append({'sender': sender, 'message': actualargs})
-        self.log.log(u"-%s- %s" % (sender, actualargs))
+        self.log.log("-%s- %s" % (sender, actualargs))
         
 
     def names(self, msg):
@@ -119,7 +119,7 @@ class James(IRCHandler):
                     self._msg(chan, "%s: No matches found" % (onick))
                 else:
                     new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1, parsed_msg['flags'])
-                    self._msg(chan, "<%s> %s" % (nick, new_msg.replace("\13", "/")))
+                    self._msg(chan, "<%s> %s" % (nick, new_msg.replace("&", parsed_msg['to_replace']).replace("\13", "/")))
 
             self.oldprivmsg(msg_)
         except KeyError:
@@ -141,10 +141,10 @@ class James(IRCHandler):
             if target in self.lastmsgof[chan].keys():
                 msg = msg.split(':', 1)[1].lstrip()
                 nick = target
-        self.log.log(u"[%s] <%s> %s" % (chan, nick, msg))
+        self.log.log("[%s] <%s> %s" % (chan, nick, msg))
         cmd_splitmsg = msg.split(" ", 1)
 
-        triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0][1:])
+        triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
         if triggered_short:
             try:
                 if len(cmd_splitmsg) > 1:
