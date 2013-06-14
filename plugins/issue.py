@@ -18,13 +18,13 @@ def request_feature(bot, nick, chan, arg):
     github_url = 'https://api.github.com/repos/svkampen/James/issues'
     auth_data = bot.state.apikeys.get('github', {'user':False, 'pass':False})
     auth = (auth_data['user'], auth_data['pass'])
+    print(auth)
     headers = {'Content-Type': 'application/json'}
     payload = {'title': arg[0], 'body': arg[1], 'assignee': 'svkampen', \
                'labels': ['want']}
     data = json.dumps(payload)
 
     page = requests.post(github_url, data=data, auth=auth, headers=headers)
-    print(page.text)
     data = page.json()
     if page.status_code == 201:
         bot._msg(chan, "Posted request on issue tracker. URL: %s"\
@@ -40,7 +40,7 @@ def report_bug(bot, nick, chan, arg):
         return bot._msg(chan, "Usage: report.bug title: description")
 
     arg = arg.split(": ")
-    github_url = 'http://api.github.com/repos/svkampen/James/issues'
+    github_url = 'https://api.github.com/repos/svkampen/James/issues'
     auth_data = bot.state.apikeys.get('github', {'user':False, 'pass':False})
     auth = (auth_data['user'], auth_data['pass'])
     headers = {'Content-Type': 'application/json'}
