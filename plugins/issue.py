@@ -24,6 +24,7 @@ def request_feature(bot, nick, chan, arg):
     data = json.dumps(payload)
 
     page = requests.post(github_url, data=data, auth=auth, headers=headers)
+    print(page.text)
     data = page.json()
     if page.status_code == 201:
         bot._msg(chan, "Posted request on issue tracker. URL: %s"\
@@ -48,6 +49,7 @@ def report_bug(bot, nick, chan, arg):
     data = json.dumps(payload)
 
     page = requests.post(github_url, data=data, auth=auth, headers=headers)
+    print(page.text)
     data = page.json()
     if page.status_code == 201:
         bot._msg(chan, "Posted bug report. URL: %s"\
