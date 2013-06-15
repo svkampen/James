@@ -7,7 +7,7 @@ import functools
 @require_admin
 @command('eval', short=">>>")
 def eval_it(bot, nick, chan, arg):
-    self.msg(chan, evaluate_expression(arg))
+    bot.msg(chan, evaluate_expression(arg))
 
 def evaluate_expression(self, msg):
     """ Evaluate python code. """
