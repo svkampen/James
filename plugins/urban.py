@@ -22,7 +22,6 @@ def urban_lookup(bot, nick, chan, arg):
     request = requests.get(url, params=params)
 
     data = request.json()
-    print(data)
     defs = None
     output = ""
     try:
