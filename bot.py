@@ -9,7 +9,6 @@ import traceback
 import re
 import os
 import sys
-import yaml
 import json
 import plugins
 from collections import deque
@@ -36,7 +35,7 @@ class James(IRCHandler):
 
         # state.
         self.state.events = self.initialize_events()
-        self.state.apikeys = yaml.safe_load(open('apikeys.conf'))
+        self.state.apikeys = json.loads(open('apikeys.conf').read())
         self.state.data = {'autojoin_channels': ['#programming']}
         self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
         self.state.admins.extend(CONFIG['admins'])
