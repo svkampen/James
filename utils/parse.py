@@ -54,13 +54,12 @@ class Parse(object):
                 glob = True
             if 'i' in split_msg[2]:
                 case = True
+        if case:
+            split_msg[0] = "(?i)"+split_msg[0]
         regex = re.compile(split_msg[0])
         for msg in oldmsgs:
             if regex.search(msg) is not None:
-                if case:
-                    return {'to_replace': "(?i)"+split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg, 'glob': glob}
-                else:
-                    return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg, 'glob': glob}
+                return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg, 'glob': glob}
         return -1
 
     def copy(self):
