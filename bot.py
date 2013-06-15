@@ -125,6 +125,7 @@ class James(IRCHandler):
                         print("Hey it's an action")
                         self._msg(chan, "*%s %s*" % (nick, new_msg.replace("&", parsed_msg['to_replace']).replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
 
+
             self.oldprivmsg(msg_)
         except KeyError:
             if chan in self.lastmsgof.keys():
