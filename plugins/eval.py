@@ -6,7 +6,7 @@ import functools
 
 @require_admin
 @command('eval', short=">>>")
-def eval_it(self, nick, chan, arg):
+def eval_it(self, nick, target, chan, arg):
     self.msg(chan, evaluate_expression(self, nick, chan, arg))
 
 def evaluate_expression(self, nick, chan, msg):

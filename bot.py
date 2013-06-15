@@ -107,12 +107,12 @@ class James(IRCHandler):
     def privmsg(self, msg):
         """ Handles messages """
         # Split msg_ into parts
-        nick = msg_['host'].split('!')[0] #get sender
-        chan = msg_['arg'].split()[0] #get chan
+        nick = msg['host'].split('!')[0] #get sender
+        chan = msg['arg'].split()[0] #get chan
         if chan == self.state.nick:
             chan = nick #if chan is us, file under them
         chan = chan.lower()
-        rawmsg = msg_['arg'].split(':', 1)[1] #get msg
+        rawmsg = msg['arg'].split(':', 1)[1] #get msg
         msg = rawmsg
         target = nick #failsafe
 
