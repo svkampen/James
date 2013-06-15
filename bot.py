@@ -119,7 +119,11 @@ class James(IRCHandler):
                     self._msg(chan, "%s: No matches found" % (onick))
                 else:
                     new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1, parsed_msg['flags'])
-                    self._msg(chan, "<%s> %s" % (nick, new_msg.replace("&", parsed_msg['to_replace']).replace("\13", "/")))
+                    if not '\x01' in new_msg:
+                        self._msg(chan, "<%s> %s" % (nick, new_msg.replace("&", parsed_msg['to_replace']).replace("\13", "/")))
+                    else:
+                        print("Hey it's an action")
+                        self._msg(chan, "*%s %s*" % (nick, new_msg.replace("&", parsed_msg['to_replace']).replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
 
             self.oldprivmsg(msg_)
         except KeyError:
@@ -236,6 +240,7 @@ class James(IRCHandler):
 
     def _msg(self, chan, msg):
         """ _msg(string chan, string msg) - Sends a PRIVMSG. """
+        msg = str(msg)
         if '\n' in msg:
             for item in msg.split('\n'):
                 self._send("PRIVMSG %s :%s" % (chan, item))
