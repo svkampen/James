@@ -11,6 +11,7 @@ import os
 import sys
 import json
 import plugins
+import functools
 from collections import deque
 from utils import logging
 from utils.commandhandler import CommandHandler
@@ -18,12 +19,12 @@ from utils.events import Event
 from utils.decorators import startinfo, sethook
 
 CONFIG = {}
-VERSION = "3.5-a1"
+VERSION = "3.5 prerelease"
 
 class James(IRCHandler):
     """ James main bot executable thingy class """
     @startinfo(VERSION)
-    def __init__(self, config: dict, verbose: bool=False):
+    def __init__(self, config, verbose=False):
         super(James, self).__init__(config, verbose=verbose)
         globals()['CONFIG'] = config
 
@@ -46,6 +47,10 @@ class James(IRCHandler):
         self.cmdhandler = CommandHandler(self, plugins.get_plugins())
         self.leo = object() # Last eval output
         
+        self.set_up_partials()
+
+    def set_up_partials(self):
+        utils.parse.inline_python = functools.partial(utils.parse.inline_python, self)
 
     def initialize_events(self):
         return {item:Event() for item in utils.events.StandardEvents}
@@ -116,14 +121,13 @@ class James(IRCHandler):
 
             if utils.parse.check_for_sed(self, nick, msg):
                 parsed_msg = utils.parse.parse_sed(self, msg.replace("\/", "\13"), self.lastmsgof[chan][nick])
-                if parsed_msg is -1:
+                if parsed_msg == -1:
                     self._msg(chan, "%s: No matches found" % (onick))
                 else:
                     new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1, parsed_msg['flags'])
                     if not '\x01' in new_msg:
                         self._msg(chan, "<%s> %s" % (nick, new_msg.replace("&", parsed_msg['to_replace']).replace("\13", "/")))
                     else:
-                        print("Hey it's an action")
                         self._msg(chan, "*%s %s*" % (nick, new_msg.replace("&", parsed_msg['to_replace']).replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
 
 
@@ -142,6 +146,10 @@ class James(IRCHandler):
             chan = nick
         chan = chan.lower()
         msg = omsg = msg['arg'].split(' ', 1)[1][1:]
+
+        
+        msg = utils.parse.inline_python(msg)
+
         if ':' in msg:
             target = msg.split(':')[0]
             if target in self.lastmsgof[chan].keys():

@@ -23,6 +23,21 @@ class Parse(object):
                     splitmsg[2]}
         return info
 
+    def inline_python(self, bot, msg):
+        import inspect
+        import re
+        pieces_of_python = re.findall("`([^`]+)`", msg)
+        evaluate_expression = inspect.getmodule(bot.cmdhandler.trigger('eval').function).evaluate_expression
+        pieces = []
+        if pieces_of_python == []:
+            return msg
+        for piece in pieces_of_python:
+            msg = msg.replace(piece, evaluate_expression(piece))
+        return msg.replace('`', '')
+
+
+
+
     def check_for_sed(self, bot, nick, msg):
         import re
         if re.match("^(\w+: )?s/.+/.+(/([gi]?){2})?$", msg):

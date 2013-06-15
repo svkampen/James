@@ -1,28 +1,36 @@
 """ 
 Dynamically evaluate python code - James.three plugin
 """
-from .util.decorators import command, require_admin
+from .util.decorators import command, require_admin, initializer
+import functools
 
 @require_admin
 @command('eval', short=">>>")
-def evaluate_expression(self, nick, chan, arg):
+def eval_it(bot, nick, chan, arg):
+    self.msg(chan, evaluate_expression(arg))
+
+def evaluate_expression(self, msg):
     """ Evaluate python code. """
     try:
-        output = eval(arg)
+        output = eval(msg)
         if output is not None:
             self.leo = output
             if type(self.leo) == tuple:
                 self.leo = list(self.leo)
                 output = list(output)
-            self._msg(chan, "%s" % (output))
+            return output
     except (NameError, SyntaxError):
         try:
-            exec(arg, globals())
+            exec(msg, globals())
         except:
             try:
-                exec(arg, locals())
+                exec(msg, locals())
             except:
                 try:
-                    exec(arg,globals(),locals())
+                    exec(msg,globals(),locals())
                 except:
-                    exec(arg,locals(),globals())
+                    exec(msg,locals(),globals())
+
+@initializer
+def _initialize_plugin(bot):
+    globals()['evaluate_expression'] = functools.partial(globals()['evaluate_expression'], bot)
