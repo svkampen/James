@@ -6,7 +6,7 @@ import os
 
 @require_admin
 @command('bash', short='$')
-def bash(bot, nick, chan, arg):
+def bash(bot, nick, target, chan, arg):
     """Execute a bash command - bash <command>"""
     data = os.popen("""%s""" % (arg)).read().rstrip()
     if data:

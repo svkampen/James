@@ -104,104 +104,94 @@ class James(IRCHandler):
         else:
             self.state.add_channel(channel, [''], topic=topic)
 
-    def privmsg(self, msg_):
+    def privmsg(self, msg):
         """ Handles messages """
-        nick = onick = msg_['host'].split('!')[0]
-        chan = msg_['arg'].split()[0]
+        # Split msg_ into parts
+        nick = msg_['host'].split('!')[0] #get sender
+        chan = msg_['arg'].split()[0] #get chan
         if chan == self.state.nick:
-            chan = nick
+            chan = nick #if chan is us, file under them
         chan = chan.lower()
-        msg = omsg = msg_['arg'].split(':', 1)[1]
-        try:
-            if ':' in msg: # need this clause for directional substitution, until there's a better one
-                target = msg.split(':')[0]
-                if target in self.lastmsgof[chan].keys():
-                    msg = msg.split(':', 1)[1].lstrip()
-                    nick = target
+        rawmsg = msg_['arg'].split(':', 1)[1] #get msg
+        msg = rawmsg
+        target = nick #failsafe
 
-            if utils.parse.check_for_sed(self, nick, msg):
-                parsed_msg = utils.parse.parse_sed(self, msg.replace("\/", "\13"), self.lastmsgof[chan][nick])
+        # Test for target
+        try:
+            if ':' in rawmsg:
+                target = rawmsg.split(':')[0]
+                if target in self.lastmsgof[chan].keys():
+                    msg = rawmsg.split(':', 1)[1].lstrip()
+        except KeyError:
+            if chan in self.lastmsgof.keys():
+                self.lastmsgof[chan][nick] = deque([rawmsg], 16)
+            else:
+                self.lastmsgof[chan] = {nick: deque([rawmsg], 16)}
+
+        self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
+        self.handlemsg(nick, chan, msg, target, rawmsg)
+
+    def handlemsg(self, nick, chan, msg, target, rawmsg):
+        """ Handles Messages """
+        # Test for inline code
+        msg = utils.parse.inline_python(msg)
+
+        # Test for sed
+        try:
+            if utils.parse.check_for_sed(self, msg):
+                parsed_msg = utils.parse.parse_sed(self, msg.replace("\/", "\13"), self.lastmsgof[chan][target])
                 if parsed_msg == -1:
-                    self._msg(chan, "%s: No matches found" % (onick))
+                    self._msg(chan, "%s: No matches found" % (nick))
                 else:
                     new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1, parsed_msg['flags'])
                     if not '\x01' in new_msg:
-                        self._msg(chan, "<%s> %s" % (nick, new_msg.replace("&", parsed_msg['to_replace']).replace("\13", "/")))
+                        self._msg(chan, "<%s> %s" % (target, new_msg.replace("&", parsed_msg['to_replace']).replace("\13", "/")))
                     else:
-                        self._msg(chan, "*%s %s*" % (nick, new_msg.replace("&", parsed_msg['to_replace']).replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
-
-
-            self.oldprivmsg(msg_)
+                        self._msg(chan, "*%s %s*" % (target, new_msg.replace("&", parsed_msg['to_replace']).replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
         except KeyError:
             if chan in self.lastmsgof.keys():
-                self.lastmsgof[chan][onick] = deque([omsg], 16)
+                self.lastmsgof[chan][nick] = deque([rawmsg], 16)
             else:
-                self.lastmsgof[chan] = {onick: deque([omsg], 16)}
+                self.lastmsgof[chan] = {nick: deque([rawmsg], 16)}
 
-    def oldprivmsg(self, msg):
-        """ Handles Messages """
-        nick = onick = msg['host'].split('!')[0]
-        chan = msg['arg'].split()[0]
-        if chan == self.state.nick:
-            chan = nick
-        chan = chan.lower()
-        msg = omsg = msg['arg'].split(' ', 1)[1][1:]
+        # Test for command
+        self.check_for_command(msg, nick, target, chan)
 
-        
-        msg = utils.parse.inline_python(msg)
+        # Some paperwork...
+        if not utils.parse.check_for_sed(self, msg):
+            self.lastmsgof[chan][nick].appendleft(rawmsg)
+        self.state.events['MessageEvent'].fire(self, nick, target, chan, msg)
 
-        if ':' in msg:
-            target = msg.split(':')[0]
-            if target in self.lastmsgof[chan].keys():
-                msg = msg.split(':', 1)[1].lstrip()
-                nick = target
-        self.log.log("[%s] <%s> %s" % (chan, nick, msg))
+    def check_for_command(self, msg, nick, target, chan):
+        """ Check for a normal command starting with the command char. """
         cmd_splitmsg = msg.split(" ", 1)
+        try:
+            if len(cmd_splitmsg) > 1:
+                cmd_args = cmd_splitmsg[1]
+            else:
+                cmd_args = ''
 
-        triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
-        if triggered_short:
-            try:
-                if len(cmd_splitmsg) > 1:
-                    cmd_args = cmd_splitmsg[1]
-                else:
-                    cmd_args = ''
-
+            triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
+            if triggered_short:
                 if hasattr(triggered_short.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
-                        triggered_short(self, nick, chan, cmd_args)
+                        triggered_short(self, nick, target, chan, cmd_args)
                 else:
-                    triggered_short(self, nick, chan, cmd_args)
-
-            except BaseException:
-                self._meditate(sys.exc_info(), chan)
-                traceback.print_exc()
-
-        self.check_for_command(msg, cmd_splitmsg, nick, chan)
-        if not utils.parse.check_for_sed(self, nick, msg):
-            self.lastmsgof[chan][onick].appendleft(omsg)
-        self.state.events['MessageEvent'].fire(self, nick, chan, msg)
-
-    def check_for_command(self, msg, cmd_splitmsg, nick, chan):
-        """ Check for a normal command starting with the command char. """
-        if msg.startswith(CONFIG['cmdchar']):
-            try:
+                    triggered_short(self, nick, target, chan, cmd_args)
+            if msg.startswith(CONFIG['cmdchar']):
                 cmd_name = cmd_splitmsg[0][1:]
-                if len(cmd_splitmsg) > 1:
-                    cmd_args = cmd_splitmsg[1]
-                else:
-                    cmd_args = ''
                 callback = self.cmdhandler.trigger(cmd_name)
                 
                 if not callback: return
 
                 if hasattr(callback.function, '_require_admin'):
                     if nick.lower() in self.state.admins:
-                        callback(self, nick, chan, cmd_args)
+                        callback(self, nick, target, chan, cmd_args)
                 else:
-                    callback(self, nick, chan, cmd_args)
-            except BaseException:
-                self._meditate(sys.exc_info(), chan)
-                traceback.print_exc()
+                    callback(self, nick, target, chan, cmd_args)
+        except BaseException:
+            self._meditate(sys.exc_info(), chan)
+            traceback.print_exc()
                 
     def _meditate(self, exc_info, chan):
         """ Prints GURU MEDITATION messages - at least, it used to. """

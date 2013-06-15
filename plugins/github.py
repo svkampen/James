@@ -11,7 +11,7 @@ def getpercentage(part, whole):
     return 100 * float(part)/float(whole)
 
 @command('github.what.is')
-def what_the_fuck_is_this(bot, nick, chan, arg):
+def what_the_fuck_is_this(bot, nick, target, chan, arg):
     auth_data = bot.state.apikeys['github']
     auth = (auth_data['user'], auth_data['pass'])
     response = requests.get("https://api.github.com/repos/%s" % (arg), headers=headers, auth=auth)
@@ -21,7 +21,7 @@ def what_the_fuck_is_this(bot, nick, chan, arg):
         return bot.msg(chan, "\x02Unknown repository\x02 %s" % (arg))
 
 @command('github.stats_for')
-def repostats(bot, nick, chan, arg):
+def repostats(bot, nick, target, chan, arg):
     auth_data = bot.state.apikeys['github']
     auth = (auth_data['user'], auth_data['pass'])
     c_response = requests.get("https://api.github.com/repos/%s/stats/contributors" % (arg), headers=headers, auth=auth)

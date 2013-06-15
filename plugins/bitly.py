@@ -26,7 +26,7 @@ def plugin_initializer(bot):
     bot.state.data['shortener'] = _shorten
 
 @command('shorten', 'bit.ly', 'bitly')
-def bitly(bot, nick, chan, arg):
+def bitly(bot, nick, target, chan, arg):
     """ Shorten a url using bit.ly """
     url = _shorten(bot, arg)
     bot._msg(chan, url)

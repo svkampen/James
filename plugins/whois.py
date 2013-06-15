@@ -8,7 +8,7 @@ import time
 import threading
 
 @command(str(random.randint(0,10000)), short='who')
-def whois(bot, nick, chan, arg):
+def whois(bot, nick, target, chan, arg):
     """ Whois a certain user. """
     if not 'is' in arg or \
        len(arg.split(' ', 1)) < 2:

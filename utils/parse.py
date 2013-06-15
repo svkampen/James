@@ -42,7 +42,7 @@ class Parse(object):
 
 
 
-    def check_for_sed(self, bot, nick, msg):
+    def check_for_sed(self, bot, msg):
         import re
         if re.match("^(\w+: )?s/.+/.+(/([gi]?){2})?$", msg):
             return True

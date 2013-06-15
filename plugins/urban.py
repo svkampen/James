@@ -6,7 +6,7 @@ import requests
 import traceback
 
 @command('urban', 'urbandictionary', 'ud')
-def urban_lookup(bot, nick, chan, arg):
+def urban_lookup(bot, nick, target, chan, arg):
     ''' UrbanDictionary lookup. '''
     if not arg:
         return bot._msg(chan, "Usage: urban [phrase] [index?]")
@@ -49,7 +49,7 @@ def urban_lookup(bot, nick, chan, arg):
         bot._msg(chan, "%s: %s" % (nick, output))
 
 @command('urbanrandom', 'urbandictionaryrandom', 'udr')
-def urban_random(bot, nick, chan, arg):
+def urban_random(bot, nick, target, chan, arg):
     ''' Random UrbanDictionary lookup. '''
     word = requests.get("http://api.urbandictionary.com/v0/random").json()['list'][0]['word']
-    urban_lookup(bot, nick, chan, word)
+    urban_lookup(bot, nick, target, chan, word)
