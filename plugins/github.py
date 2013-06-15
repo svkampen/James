@@ -12,7 +12,7 @@ def getpercentage(part, whole):
 
 @command('github.what.is')
 def what_the_fuck_is_this(bot, nick, chan, arg):
-    auth_data = bot.state.data['apikeys']['github']
+    auth_data = bot.state.apikeys['github']
     auth = (auth_data['user'], auth_data['pass'])
     response = requests.get("https://api.github.com/repos/%s" % (arg), headers=headers, auth=auth)
     if response.status_code == 200:
@@ -22,10 +22,10 @@ def what_the_fuck_is_this(bot, nick, chan, arg):
 
 @command('github.stats_for')
 def repostats(bot, nick, chan, arg):
-    auth_data = bot.state.data['apikeys']['github']
+    auth_data = bot.state.apikeys['github']
     auth = (auth_data['user'], auth_data['pass'])
     c_response = requests.get("https://api.github.com/repos/%s/stats/contributors" % (arg), headers=headers, auth=auth)
-    if c_response.status_code in (200,):
+    if c_response.status_code in (200,202):
         json = c_response.json()
         commits = [i['total'] for i in json]
         commits = sum(commits)
@@ -53,7 +53,8 @@ def repostats(bot, nick, chan, arg):
         watchers = 0
         master_branch = 'master'
 
-    langout = ["%s (%s%%)" % (k,v) for k,v in sorted(langs_percents.items())]
+    #langs_percents = {k:v for k,v in zip(langs_percents.keys(), sorted(langs_percents.values())[::-1])}
+    langout = ["%s (%s%%)" % (k,v) for k,v in langs_percents.items()]
     output = "Statistics for: \x02%s\x02\n" % (arg)
     output += "Commit count: %s -  Master Branch: %s\nLanguages: " % (str(commits), master_branch)
     langout = ', '.join(langout)
