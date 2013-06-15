@@ -149,10 +149,12 @@ class James(IRCHandler):
                     else:
                         self._msg(chan, "*%s %s*" % (target, new_msg.replace("&", parsed_msg['to_replace']).replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
         except KeyError:
-            if chan in self.lastmsgof.keys():
-                self.lastmsgof[chan][nick] = deque([rawmsg], 16)
-            else:
-                self.lastmsgof[chan] = {nick: deque([rawmsg], 16)}
+            pass
+
+        if chan in self.lastmsgof.keys():
+            pass
+        else:
+            self.lastmsgof[chan] = {nick: deque([rawmsg], 16)}
 
         # Test for command
         self.check_for_command(msg, nick, target, chan)
