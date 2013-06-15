@@ -113,14 +113,14 @@ class James(IRCHandler):
             chan = nick #if chan is us, file under them
         chan = chan.lower()
         rawmsg = msg['arg'].split(':', 1)[1] #get msg
-        msg = rawmsg
         target = nick #failsafe
 
         # Test for target
+        msg = rawmsg
         try:
             if ':' in rawmsg:
                 target = rawmsg.split(':')[0]
-                if target in self.lastmsgof[chan].keys():
+                if target.lower() in self.lastmsgof[chan].keys():
                     msg = rawmsg.split(':', 1)[1].lstrip()
         except KeyError:
             if chan in self.lastmsgof.keys():
