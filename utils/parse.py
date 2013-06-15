@@ -39,9 +39,6 @@ class Parse(object):
                 traceback.print_exc()
         return msg.replace('`', '')
 
-
-
-
     def check_for_sed(self, bot, msg):
         import re
         if re.match("^(\w+: )?s/.+/.+(/([gi]?){2})?$", msg):

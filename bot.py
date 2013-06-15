@@ -38,7 +38,7 @@ class James(IRCHandler):
         self.state.events = self.initialize_events()
         self.state.apikeys = json.loads(open('apikeys.conf').read())
         self.state.data = {'autojoin_channels': []}
-        self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
+        self.state.data = {'autojoin_channels': ["#programming"]}#self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
         self.state.admins.extend(CONFIG['admins'])
         self.state.nick = CONFIG['nick']
 
@@ -106,13 +106,13 @@ class James(IRCHandler):
 
     def privmsg(self, msg):
         """ Handles messages """
-        # Split msg_ into parts
-        nick = msg_['host'].split('!')[0] #get sender
-        chan = msg_['arg'].split()[0] #get chan
+        # Split msg into parts
+        nick = msg['host'].split('!')[0] #get sender
+        chan = msg['arg'].split()[0] #get chan
         if chan == self.state.nick:
             chan = nick #if chan is us, file under them
         chan = chan.lower()
-        rawmsg = msg_['arg'].split(':', 1)[1] #get msg
+        rawmsg = msg['arg'].split(':', 1)[1] #get msg
         msg = rawmsg
         target = nick #failsafe
 
@@ -143,11 +143,14 @@ class James(IRCHandler):
                 if parsed_msg == -1:
                     self._msg(chan, "%s: No matches found" % (nick))
                 else:
-                    new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1, parsed_msg['flags'])
+                    new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1)
                     if not '\x01' in new_msg:
                         self._msg(chan, "<%s> %s" % (target, new_msg.replace("&", parsed_msg['to_replace']).replace("\13", "/")))
                     else:
                         self._msg(chan, "*%s %s*" % (target, new_msg.replace("&", parsed_msg['to_replace']).replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
+            else:
+                self.lastmsgof[chan][nick].appendleft(rawmsg)
+
         except KeyError:
             if chan in self.lastmsgof.keys():
                 self.lastmsgof[chan][nick] = deque([rawmsg], 16)
@@ -157,9 +160,6 @@ class James(IRCHandler):
         # Test for command
         self.check_for_command(msg, nick, target, chan)
 
-        # Some paperwork...
-        if not utils.parse.check_for_sed(self, msg):
-            self.lastmsgof[chan][nick].appendleft(rawmsg)
         self.state.events['MessageEvent'].fire(self, nick, target, chan, msg)
 
     def check_for_command(self, msg, nick, target, chan):
