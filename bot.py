@@ -233,8 +233,6 @@ class James(IRCHandler):
         channel = msg['arg'][1:].strip().lower()
         if user != CONFIG['nick'].lower():
             self.state.get_channel(channel)[0].add_user(user)
-            print(self.state.get_channel(channel))
-            print(self.state.get_channels())
         self.state.events['JoinEvent'].fire(self, user, channel)
         self.log.log("[%s] JOIN %s" % (channel, user))
 
