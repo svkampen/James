@@ -58,9 +58,9 @@ class Parse(object):
         for msg in oldmsgs:
             if regex.search(msg) is not None:
                 if case:
-                    return {'to_replace': "(?i)"+split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg, 'glob': glob}
+                    return {'to_replace': "(?i)"+split_msg[0], 'replacement': lambda match: split_msg[1].replace("&", match.group(0)), 'oldmsg': msg, 'glob': glob}
                 else:
-                    return {'to_replace': split_msg[0], 'replacement': split_msg[1], 'oldmsg': msg, 'glob': glob}
+                    return {'to_replace': split_msg[0], 'replacement': lambda match: split_msg[1].replace("&", match.group(0)), 'oldmsg': msg, 'glob': glob}
         return -1
 
     def copy(self):
