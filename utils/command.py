@@ -19,9 +19,9 @@ class Command(object):
         self.short_hooks = shorthooks
         self.main_hook = self.hooks[0]
 
-    def __call__(self, bot, nick, target, chan, arg):
+    def __call__(self, *args):
         """ Call the function embedded in the command """
-        return self.function(bot, nick, target, chan, arg)
+        return self.function(*args)
 
     def get_function(self):
         """Get the function associated with this command"""

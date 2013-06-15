@@ -2,12 +2,25 @@
 Channel and ServerState objects
 """
 
+class UserList():
+    def __init__(self, users):
+        self.list = list(set(users))
+    def __set__(self, instance, value):
+        
+        if self.list == []:
+            self.list = list(set(value))
+        else:
+            self.list += value
+
+    def __get__(self, x,y):
+        return self.list
+
 class Channel(object):
     """ An IRC channel. """
     def __init__(self, name, users, topic=None):
         self.identifier = name.lower()
         self.name = name.lower()
-        self.users = users
+        self.users = UserList(users)
         self.topic = topic
 
     def __repr__(self):

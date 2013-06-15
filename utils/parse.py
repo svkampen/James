@@ -23,7 +23,7 @@ class Parse(object):
                     splitmsg[2]}
         return info
 
-    def inline_python(self, bot, msg):
+    def inline_python(self, bot, nick, chan, msg):
         import inspect
         import traceback
         import re
@@ -34,7 +34,7 @@ class Parse(object):
             return msg
         for piece in pieces_of_python:
             try:
-                msg = msg.replace(piece, evaluate_expression(piece))
+                msg = msg.replace(piece, evaluate_expression(bot, nick, chan, piece))
             except:
                 traceback.print_exc()
         return msg.replace('`', '')

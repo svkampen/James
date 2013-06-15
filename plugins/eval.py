@@ -6,10 +6,10 @@ import functools
 
 @require_admin
 @command('eval', short=">>>")
-def eval_it(bot, nick, chan, arg):
-    bot.msg(chan, evaluate_expression(arg))
+def eval_it(self, nick, target, chan, arg):
+    self.msg(chan, evaluate_expression(self, nick, chan, arg))
 
-def evaluate_expression(self, msg):
+def evaluate_expression(self, nick, chan, msg):
     """ Evaluate python code. """
     try:
         output = eval(msg)
@@ -31,6 +31,3 @@ def evaluate_expression(self, msg):
                 except:
                     exec(msg,locals(),globals())
 
-@initializer
-def _initialize_plugin(bot):
-    globals()['evaluate_expression'] = functools.partial(globals()['evaluate_expression'], bot)

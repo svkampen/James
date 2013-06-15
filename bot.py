@@ -134,7 +134,7 @@ class James(IRCHandler):
     def handlemsg(self, nick, chan, msg, target, rawmsg):
         """ Handles Messages """
         # Test for inline code
-        msg = utils.parse.inline_python(msg)
+        msg = utils.parse.inline_python(nick, chan, msg)
 
         # Test for sed
         try:
