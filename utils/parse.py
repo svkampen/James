@@ -54,7 +54,7 @@ class Parse(object):
                 glob = True
             if 'i' in split_msg[2]:
                 case = True
-        regex = re.compile(split_msg[0])
+        regex = re.compile(split_msg[0], re.I if case else 0)
         for msg in oldmsgs:
             if regex.search(msg) is not None:
                 if case:
