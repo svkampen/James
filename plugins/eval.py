@@ -30,3 +30,4 @@ def evaluate_expression(self, nick, chan, msg):
                     exec(msg,globals(),locals())
                 except:
                     exec(msg,locals(),globals())
+

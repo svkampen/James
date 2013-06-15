@@ -6,7 +6,7 @@ import requests
 import json
 
 @command('request.feature', 'reqfeature')
-def request_feature(bot, nick, chan, arg):
+def request_feature(bot, nick, target, chan, arg):
     """ Request a feature on the James issue tracker. """
     print('test')
     if not arg:
@@ -34,7 +34,7 @@ def request_feature(bot, nick, chan, arg):
                  % (page.status_code))
 
 @command('report.bug')
-def report_bug(bot, nick, chan, arg):
+def report_bug(bot, nick, target, chan, arg):
     """ Report a bug on the James issue tracker. """
     if not arg:
         return bot._msg(chan, "Usage: report.bug title: description")

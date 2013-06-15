@@ -16,16 +16,12 @@ def initialize_plugin(bot):
     bot.state.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
 
 @command('wiki')
-def wikipedia_get_first_sentence(bot, nick, chan, arg):
+def wikipedia_get_first_sentence(bot, nick, target, chan, arg):
     """ Get the first sentence in a wikipedia article. """
     headers = {
         'User-Agent': 'Mozilla/5.0 (compatible) / JamesIRC'
     }
 
-    if arg.startswith("@"):
-        args = arg.split(" ")
-        nick = args[0][1:]
-        arg = " ".join(args[1:])
     arg = arg.replace(" ", "_")
     arg = urlencode(arg)
 
@@ -42,6 +38,6 @@ def wikipedia_get_first_sentence(bot, nick, chan, arg):
     first_sentence = found[0]
     if not first_sentence:
         if len(first_paragraph.split(". ")[0]) > 15:
-            bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
+            bot._msg(chan, "%s: %s -- read more: %s" % (target, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
             return
-    bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_sentence+found[1], bot.state.data['shortener'](bot, url.split('?')[0])))
+    bot._msg(chan, "%s: %s -- read more: %s" % (target, first_sentence+found[1], bot.state.data['shortener'](bot, url.split('?')[0])))

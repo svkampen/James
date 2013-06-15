@@ -25,6 +25,7 @@ class Parse(object):
 
     def inline_python(self, bot, msg):
         import inspect
+        import traceback
         import re
         pieces_of_python = re.findall("`([^`]+)`", msg)
         evaluate_expression = inspect.getmodule(bot.cmdhandler.trigger('eval').function).evaluate_expression
@@ -32,13 +33,16 @@ class Parse(object):
         if pieces_of_python == []:
             return msg
         for piece in pieces_of_python:
-            msg = msg.replace(piece, evaluate_expression(piece))
+            try:
+                msg = msg.replace(piece, evaluate_expression(piece))
+            except:
+                traceback.print_exc()
         return msg.replace('`', '')
 
 
 
 
-    def check_for_sed(self, bot, nick, msg):
+    def check_for_sed(self, bot, msg):
         import re
         if re.match("^(\w+: )?s/.+/.+(/([gi]?){2})?$", msg):
             return True

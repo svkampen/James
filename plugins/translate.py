@@ -7,11 +7,8 @@ import requests
 from .util.data import www_headers as headers
 
 @command('translate')
-def translate(bot, nick, chan, arg):
+def translate(bot, nick, target, chan, arg):
     args = arg.split()
-    if args[0].startswith("@"):
-        nick = args[0][1:]
-        args = args[1:]
     langpair = args[0].replace('-', '|').replace('#', '-')
     word = ' '.join(args[1:])
     url = "http://api.mymemory.translated.net/get"
@@ -19,6 +16,6 @@ def translate(bot, nick, chan, arg):
     response = requests.get(url, headers=headers, params=params)
     data = response.json()
     if 'INVALID TARGET LANGUAGE' in data['responseData']['translatedText']:
-        return bot.msg(chan, "%s: Invalid target language." % (nick))
+        return bot.msg(chan, "%s: Invalid target language." % (target))
     print(data)
-    bot.msg(chan, "%s: %s" % (nick, data['responseData']['translatedText']))
+    bot.msg(chan, "%s: %s" % (target, data['responseData']['translatedText']))

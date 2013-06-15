@@ -12,7 +12,7 @@ def fixindent(quoteobj):
 	return '\n'.join(quoteobj)
 
 @command("quote.get")
-def get_quote(bot, nick, chan, arg):
+def get_quote(bot, nick, target, chan, arg):
 	if not arg:
 		return bot.msg(chan, "Usage: quote.get #<quotenum>\nExample: quote.get #10")
 	quotedb_url = "http://awfulnet.org/quotes/?%s" % (arg.split("#")[1])

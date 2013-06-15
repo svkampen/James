@@ -6,10 +6,10 @@ from .util.decorators import command
 import os
 
 @command('fortune')
-def fortune(bot, nick, chan, arg):
+def fortune(bot, nick, target, chan, arg):
     """Get a fortune cookie"""
     cookie = os.popen("fortune -as").read().strip().replace('\t', "    ")
     if cookie:
         if cookie.count("\n") > 5:
-            return fortune(bot, nick, chan, arg)
+            return fortune(bot, nick, target, chan, arg)
         bot.msg(chan, cookie)

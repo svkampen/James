@@ -10,7 +10,7 @@ import re
 from bs4 import BeautifulSoup as soupify
 
 @command('web.title')
-def get_title(bot, nick, chan, arg):
+def get_title(bot, nick, target, chan, arg):
     """ Get the title of a web page. """
     if not arg:
         return bot.msg(chan, "Usage: web.title <url>")
