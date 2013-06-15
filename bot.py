@@ -37,7 +37,7 @@ class James(IRCHandler):
         # state.
         self.state.events = self.initialize_events()
         self.state.apikeys = json.loads(open('apikeys.conf').read())
-        self.state.data = {'autojoin_channels': ['#programming']}
+        self.state.data = {'autojoin_channels': []}
         self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
         self.state.admins.extend(CONFIG['admins'])
         self.state.nick = CONFIG['nick']
