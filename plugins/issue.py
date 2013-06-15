@@ -27,8 +27,8 @@ def request_feature(bot, nick, chan, arg):
     page = requests.post(github_url, data=data, auth=auth, headers=headers)
     data = page.json()
     if page.status_code == 201:
-        bot._msg(chan, "Posted request on issue tracker. URL: %s"\
-                 % (bot.state.data['shortener'](bot, data['html_url'])))
+        bot._msg(chan, "Posted request #%s. URL: %s"\
+                 % (data['number'], bot.state.data['shortener'](bot, data['html_url'])))
     else:
         bot._msg(chan, "Eh.. there was some sort of error. Status code: %d"
                  % (page.status_code))
@@ -52,8 +52,8 @@ def report_bug(bot, nick, chan, arg):
     print(page.text)
     data = page.json()
     if page.status_code == 201:
-        bot._msg(chan, "Posted bug report. URL: %s"\
-                 % (bot.state.data['shortener'](bot, data['html_url'])))
+        bot._msg(chan, "Posted bug report #%s URL: %s"\
+                 % (data['number'], bot.state.data['shortener'](bot, data['html_url'])))
 
 @initializer
 def initialize_plugin(bot):

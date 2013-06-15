@@ -44,6 +44,8 @@ class James(IRCHandler):
         # Various things
         self.lastmsgof = {}
         self.cmdhandler = CommandHandler(self, plugins.get_plugins())
+        self.leo = object() # Last eval output
+        
 
     def initialize_events(self):
         return {item:Event() for item in utils.events.StandardEvents}

@@ -100,5 +100,5 @@ class IRCHandler(object):
 
     def gracefully_terminate(self):
         """ Gracefully terminate the bot. """
-        self._send("QUIT :SocketIRC v%s" % (self.version))
+        self._send("QUIT :The James IRC Framework v%s" % (self.version))
         self.running = False
