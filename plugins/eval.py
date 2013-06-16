@@ -7,7 +7,9 @@ import functools
 @require_admin
 @command('eval', short=">>>")
 def eval_it(self, nick, target, chan, arg):
-    self.msg(chan, evaluate_expression(self, nick, chan, arg))
+    output = evaluate_expression(self, nick, chan, arg)
+    if output is not None:
+        self.msg(chan, output)
 
 def evaluate_expression(self, nick, chan, msg):
     """ Evaluate python code. """
