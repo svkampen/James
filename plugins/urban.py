@@ -13,7 +13,7 @@ def urban_lookup(bot, nick, target, chan, arg):
 
     url = 'http://www.urbandictionary.com/iphone/search/define'
     args = arg.split()
-    params = {'term': args[:-1]}
+    params = {'term': ' '.join(args[:-1])}
     index = 0
     try:
         index = int(args[-1]) - 1
