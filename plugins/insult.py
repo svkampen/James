@@ -1,7 +1,9 @@
 """ 
 Insult 'API' (using BeautifulSoup)
 """
+
 from .util.decorators import command, initializer
+from .util.data import www_headers as headers
 from bs4 import BeautifulSoup as soupify
 import re
 import requests
@@ -12,10 +14,9 @@ except:
 
 @command('insult')
 def insult(bot, nick, target, chan, arg):
-    """ Get an insult. """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (compatible) / JamesIRC'
-    }
+    """ Get an insult. Usage: insult <user> """
+    if not arg:
+        return bot.msg(chan, insult.__doc__.strip())
 
     url = 'http://www.randominsults.net/'
     response = requests.get(url, headers=headers)
