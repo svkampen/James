@@ -79,7 +79,10 @@ class ServerState(object):
 
     def get_channels_for_user(self, user):
         """ Get every chan that contains user """
-        return [chan for chan in self.channels if user in chan.users]
+        try:
+            return [chan for chan in self.channels if user in chan.users]
+        except TypeError:
+            return []
 
     def del_admin(self, dnick):
         """ Remove an admin from the admin list. """

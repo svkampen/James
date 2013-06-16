@@ -28,12 +28,12 @@ def urban_lookup(bot, nick, target, chan, arg):
         defs = data['list']
 
         if data['result_type'] == 'no_results':
-            return bot._msg(chan, "%s: No definition found for %s." % (nick, args[0]))
+            return bot._msg(chan, "%s: No definition found for %s." % (nick, ' '.join(args[:-1])))
 
         output = defs[index]['word'] + ' [' + str(index+1) + ']: ' + defs[index]['definition']
     except:
         traceback.print_exc()
-        return bot._msg(chan, "%s: No definition found for %s." % (nick, args[0]))
+        return bot._msg(chan, "%s: No definition found for %s." % (nick, ' '.join(args[:-1])))
 
     output = output.strip()
     output = output.rstrip()
