@@ -171,6 +171,7 @@ class James(IRCHandler):
 
     def _msg(self, chan, msg):
         """ _msg(string chan, string msg) - Sends a PRIVMSG. """
+        msg = str(msg)
         if '\n' in msg:
             for item in msg.split('\n'):
                 self._send("PRIVMSG %s :%s" % (chan, item))
