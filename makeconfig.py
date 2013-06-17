@@ -22,15 +22,17 @@ if not json_dict['port']:
 
 json_dict['server'] = "%s:%d" % (json_dict['server'], json_dict['port'])
 
-json_dict['nick'] = input("Username (default=James3): ")
+json_dict['nick'] = input("Username (default=James): ")
 if not json_dict['nick']:
-    json_dict['nick'] = 'James3'
+    json_dict['nick'] = 'James'
 
 json_dict['real'] = 'James3 - the most amazing bot on the net'
 json_dict['user'] = 'james'
 json_dict['plugdir'] = input("Plugin dir (default=plugins): ")
 if not json_dict['plugdir']:
     json_dict['plugdir'] = 'plugins'
+
+json_dict['admins'] = [input("Initial admin username:")]
 
 json_dict['cmdchar'] = input("Command character (default='+'): ")
 if not json_dict['cmdchar']:
@@ -41,6 +43,10 @@ if not json_dict['identify_service']:
     json_dict['identify_service'] = 'NickServ'
 
 json_dict['ident_pass'] = input("Password to identify with: ")
+json_dict['autojoin'] = []
+
+for item in input("Channels to automatically join, seperated by ',': ").split(','):
+    json_dict['autojoin'].append(item)
 
 json_dict.pop('port')
 

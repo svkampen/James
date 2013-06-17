@@ -13,10 +13,10 @@ except:
 @initializer
 def initialize_plugin(bot):
     """ Initialize this plugin. """
-    bot.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
+    bot.state.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
 
 @command('wiki')
-def wikipedia_get_first_sentence(bot, nick, chan, arg):
+def wikipedia_get_first_sentence(bot, nick, target, chan, arg):
     """ Get the first sentence in a wikipedia article. """
     headers = {
         'User-Agent': 'Mozilla/5.0 (compatible) / JamesIRC'
@@ -33,11 +33,11 @@ def wikipedia_get_first_sentence(bot, nick, chan, arg):
         s.extract()
     paragraphs = soup.findAll('p')
     first_paragraph = paragraphs[0].getText()
-    first_sentence = bot.data['sentence_re'].match("%s" % (first_paragraph))
-    if first_sentence:
-        first_sentence = first_sentence.groups()[0]
-    else:
+    found = bot.state.data['sentence_re'].findall(first_paragraph)
+    found = [i[0] for i in found]
+    first_sentence = found[0]
+    if not first_sentence:
         if len(first_paragraph.split(". ")[0]) > 15:
-            bot._msg(chan, first_paragraph.split(". ")[0])
+            bot._msg(chan, "%s: %s -- read more: %s" % (target, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
             return
-    bot._msg(chan, first_sentence)
+    bot._msg(chan, "%s: %s -- read more: %s" % (target, first_sentence+found[1], bot.state.data['shortener'](bot, url.split('?')[0])))

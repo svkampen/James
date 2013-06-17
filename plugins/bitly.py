@@ -6,9 +6,9 @@ from .util.decorators import command, initializer
 
 def _shorten(bot, url):
     """ Shorten an url with bit.ly """
-    login = bot.data['apikeys']['bit.ly']['user']
-    key = bot.data['apikeys']['bit.ly']['key']
-    if not url or not re.match(r"^((https?)?...)(\w+)\.([A-z]+).?[A-z]*", url):
+    login = bot.state.apikeys['bit.ly']['user']
+    key = bot.state.apikeys['bit.ly']['key']
+    if not url or not re.match(r"^((https?)?...)(\S+)\.([A-z]+).?[A-z]*", url):
         return "Usage: bitly <VALID url>"
     if not re.match(r"^(https?)\://.+", url):
         url = 'http://' + url
@@ -23,10 +23,10 @@ def _shorten(bot, url):
 @initializer
 def plugin_initializer(bot):
     """ Initialize this plugin. """
-    bot.data['shortener'] = _shorten
+    bot.state.data['shortener'] = _shorten
 
 @command('shorten', 'bit.ly', 'bitly')
-def bitly(bot, nick, chan, arg):
+def bitly(bot, nick, target, chan, arg):
     """ Shorten a url using bit.ly """
-    data = _shorten(bot, arg)
-    bot._msg(chan, data)
+    url = _shorten(bot, arg)
+    bot._msg(chan, url)

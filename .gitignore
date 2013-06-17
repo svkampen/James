@@ -3,3 +3,8 @@ __pycache__
 *.pyc
 */*.pyc
 *.db
+*.sublime-project
+*.sublime-workspace
+james.log
+apikeys.conf
+config.json

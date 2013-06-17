@@ -3,13 +3,13 @@ from functools import wraps
 def sethook(*args):
     def decorator(funct):
         bot = args[0]
-        if bot.data['hooks'].get(args[1], None) == None:
-            bot.data['hooks'][args[1]] = []
+        if bot.state.data['hooks'].get(args[1], None) == None:
+            bot.state.data['hooks'][args[1]] = []
         hook_name = args[1]
         @wraps(funct)
         def wrapper(*args, **kwargs):
             return_value = funct(*args, **kwargs)
-            for hook in bot.data['hooks'][hook_name]:
+            for hook in bot.state.data['hooks'][hook_name]:
                 hook(*args)
             return return_value
         return wrapper
@@ -19,7 +19,7 @@ def hook_into(*args):
     def decorator(funct):
         bot = args[0]
         hook_name = args[1]
-        bot.data['hooks'][hook_name].append(funct)
+        bot.state.data['hooks'][hook_name].append(funct)
         @wraps(funct)
         def wrapper(*args, **kwargs):
             return funct(*args, **kwargs)
