@@ -5,6 +5,7 @@ from .util.decorators import command, initializer
 from bs4 import BeautifulSoup as soupify
 import re
 import requests
+import traceback
 try:
     from urllib.request import pathname2url as urlencode
 except:
@@ -40,4 +41,8 @@ def wikipedia_get_first_sentence(bot, nick, target, chan, arg):
         if len(first_paragraph.split(". ")[0]) > 15:
             bot._msg(chan, "%s: %s -- read more: %s" % (target, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
             return
-    bot._msg(chan, "%s: %s -- read more: %s" % (target, first_sentence+found[1], bot.state.data['shortener'](bot, url.split('?')[0])))
+    try:
+        bot._msg(chan, "%s: %s -- read more: %s" % (target, first_sentence+found[1], bot.state.data['shortener'](bot, url.split('?')[0])))
+    except IndexError: # Strange bug
+        traceback.print_exc()
+        bot._msg(chan, "%s: %s -- read more: %s" % (target, first_sentence, bot.state.data['shortener'](bot, url.split('?')[0])))
