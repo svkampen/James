@@ -43,10 +43,10 @@ def urban_lookup(bot, nick, target, chan, arg):
         tinyurl = bot.state.data['shortener'](bot, defs[index]['permalink'])
         output = output[:output.rfind(' ', 0, 180)] + '...\r\nRead more: %s'\
                  % (tinyurl)
-        bot._msg(chan, "%s: %s" % (nick, output))
+        bot._msg(chan, "%s: %s" % (target, output))
     
     else:
-        bot._msg(chan, "%s: %s" % (nick, output))
+        bot._msg(chan, "%s: %s" % (target, output))
 
 @command('urbanrandom', 'urbandictionaryrandom', 'udr')
 def urban_random(bot, nick, target, chan, arg):
