@@ -48,8 +48,11 @@ class Channel(object):
 
     def add_user(self, user):
         """ Add a user to the users list. """
-        if not user.lower() in self.users:
-            self.users.append(user.lower())
+        try:
+            if not user.lower() in self.users:
+                self.users.append(user.lower())
+        except TypeError:
+            pass
 
     def remove_user(self, ruser):
         """ Remove a user from the user list. """
