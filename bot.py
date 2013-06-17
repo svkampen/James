@@ -118,9 +118,15 @@ class James(IRCHandler):
         # Test for target
         msg = rawmsg
         try:
+            if ',' in rawmsg:
+                preamb = rawmsg.split(',')[0]
+                if preamb.lower() in self.lastmsgof[chan].keys(): # CHANGE THIS - Hackish solution
+                    target = preamb
+                    msg = rawmsg.split(',', 1)[1].lstrip()
             if ':' in rawmsg:
-                target = rawmsg.split(':')[0]
-                if target.lower() in self.lastmsgof[chan].keys():
+                preamb = rawmsg.split(':')[0]
+                if preamb.lower() in self.lastmsgof[chan].keys(): # These should check user lists, not lastmsgof keys
+                    target = preamb
                     msg = rawmsg.split(':', 1)[1].lstrip()
         except KeyError:
             if chan in self.lastmsgof.keys():
