@@ -9,6 +9,18 @@ def lineify(data, max_size=400):
     for item in lines:
         if len(item) > max_size:
             index = lines.index(item)
-            lines[index] = item[:item.rfind(' ',0,300)]
-            lines.insert(index+1, item[item.rfind(' ',0,300)+1:])
+            lines[index] = item[:item.rfind(' ', 0, 300)]
+            lines.insert(index+1, item[item.rfind(' ', 0, 300)+1:])
     return lines
+
+class Descriptor(object):
+    def __init__(self, value):
+        self.var = value
+
+    def __get__(self, instance, owner):
+        print("Accessing value in instance %r" % (instance))
+        return self.var
+
+    def __set__(self, instance, value):
+        print("Updating value in instance %r" % (instance))
+        self.var = value

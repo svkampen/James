@@ -68,42 +68,6 @@ class James(IRCHandler):
         self.state.notices.append({'sender': sender, 'message': actualargs})
         self.log.log("-%s- %s" % (sender, actualargs))
         
-
-    def names(self, msg):
-        """ Executed on NAMES reply """
-        chantype = re.match(r'(=|@|\*).*', msg['arg'].split(' ', 1)[1])
-        chantype = chantype.groups()[0]
-        args = msg['arg'].split(chantype)[1]
-        channel = args.split(':')[0][:-1].strip().lower()
-        users = args.split(':')[1].split()
-        modes = ['+', '%', '@', '&', '~']
-
-        
-        users = [u for u in users if not u[:1] in modes] + [u[1:] for u in users if u[:1] in modes]
-        
-        if not channel in self.state.get_channels():
-            print(self.state.add_channel(channel, users))
-        else:
-            self.state.set_channel_users(channel, users)
-
-    def topic(self, msg):
-        """ Executed when someone changes the topic """
-        channel = msg['arg'].split()[0].lower()
-        user = msg['host'].split('!')[0]
-        topic = msg['arg'].split(' ', 1)[1][1:]
-        self.state.set_channel_topic(channel, topic)
-        self.log.log("%s set topic of %s to %s" % (user, channel, topic))
-
-    def newtopic(self, msg):
-        """ Executed when you join a new channel """
-        args = msg['arg']
-        topic = args.split(' ', 2)[2][1:]
-        channel = args.split()[1].strip().lower()
-        if len(self.state.get_channel(channel)) > 0:
-            self.state.get_channel(channel)[0].set_topic(topic)
-        else:
-            self.state.add_channel(channel, [''], topic=topic)
-
     def privmsg(self, msg):
         """ Handles messages """
         # Split msg into parts
@@ -216,19 +180,13 @@ class James(IRCHandler):
         """ Handles nickchanges """
         oldnick = msg['host'].split('!')[0]
         newnick = msg['arg'][1:]
-        containers = self.state.get_channels_for_user(oldnick)
         if oldnick in self.state.admins:
             self.state.admins[self.state.admins.index(oldnick)] = newnick
-        if containers:
-            for container in containers:
-                container.set_user(oldnick, newnick)
 
     def join(self, msg):
         """ Handles people joining channels """
         user = msg['host'].split('!')[0].strip().lower()
         channel = msg['arg'][1:].strip().lower()
-        if user != CONFIG['nick'].lower():
-            self.state.get_channel(channel)[0].add_user(user)
         self.state.events['JoinEvent'].fire(self, user, channel)
         self.log.log("[%s] JOIN %s" % (channel, user))
 
@@ -237,7 +195,6 @@ class James(IRCHandler):
         channel = msg['arg'].split()[0].strip().lower()
         user = msg['host'].split('!')[0].strip().lower()
         try:
-            self.state.get_channel(channel)[0].remove_user(user)
             self.log.log("[%s] PART %s" % (channel, user))
         except BaseException:
             traceback.print_exc()
