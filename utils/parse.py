@@ -45,6 +45,7 @@ class Parse(object):
             return True
 
     def parse_sed(self, bot, sedmsg, oldmsgs):
+        import traceback
         import re
         split_msg = sedmsg.split('/')[1:]
         glob = False
@@ -54,13 +55,17 @@ class Parse(object):
                 glob = True
             if 'i' in split_msg[2]:
                 case = True
-        regex = re.compile(split_msg[0], re.I if case else 0)
-        for msg in oldmsgs:
-            if regex.search(msg) is not None:
-                if case:
-                    return {'to_replace': "(?i)"+split_msg[0], 'replacement': lambda match: split_msg[1].replace("&", match.group(0)), 'oldmsg': msg, 'glob': glob}
-                else:
-                    return {'to_replace': split_msg[0], 'replacement': lambda match: split_msg[1].replace("&", match.group(0)), 'oldmsg': msg, 'glob': glob}
+        try:
+            regex = re.compile(split_msg[0], re.I if case else 0)
+            for msg in oldmsgs:
+                if regex.search(msg) is not None:
+                    if case:
+                        return {'to_replace': "(?i)"+split_msg[0], 'replacement': lambda match: split_msg[1].replace("&", match.group(0)), 'oldmsg': msg, 'glob': glob}
+                    else:
+                        return {'to_replace': split_msg[0], 'replacement': lambda match: split_msg[1].replace("&", match.group(0)), 'oldmsg': msg, 'glob': glob}
+        except:
+            traceback.print_exc()
+            pass
         return -1
 
     def copy(self):
