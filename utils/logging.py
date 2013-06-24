@@ -15,7 +15,10 @@ class Logger(object):
     def log(self, data):
         """ log and print data """
         timestamp = time.strftime("[%H:%M:%S] ")
-        print((timestamp+data).encode('utf-8').decode('utf-8'))
+        try:
+            print((timestamp+data).encode('utf-8').decode('utf-8'))
+        except:
+            pass
         self.logfile.write(timestamp+data+'\n')
 
     def close(self):
