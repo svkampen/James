@@ -5,7 +5,6 @@ from .util.decorators import command, initializer
 from bs4 import BeautifulSoup as soupify
 import re
 import requests
-import traceback
 try:
     from urllib.request import pathname2url as urlencode
 except:
@@ -23,6 +22,10 @@ def wikipedia_get_first_sentence(bot, nick, target, chan, arg):
         'User-Agent': 'Mozilla/5.0 (compatible) / JamesIRC'
     }
 
+    if arg.startswith("@"):
+        args = arg.split(" ")
+        nick = args[0][1:]
+        arg = " ".join(args[1:])
     arg = arg.replace(" ", "_")
     arg = urlencode(arg)
 
@@ -34,15 +37,11 @@ def wikipedia_get_first_sentence(bot, nick, target, chan, arg):
         s.extract()
     paragraphs = soup.findAll('p')
     first_paragraph = paragraphs[0].getText()
-    found = bot.state.data['sentence_re'].findall(first_paragraph)
-    found = [i[0] for i in found]
-    first_sentence = found[0]
-    if not first_sentence:
+    first_sentence = bot.state.data['sentence_re'].match("%s" % (first_paragraph))
+    if first_sentence:
+        first_sentence = first_sentence.groups()[0]
+    else:
         if len(first_paragraph.split(". ")[0]) > 15:
-            bot._msg(chan, "%s: %s -- read more: %s" % (target, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
+            bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
             return
-    try:
-        bot._msg(chan, "%s: %s -- read more: %s" % (target, first_sentence+found[1], bot.state.data['shortener'](bot, url.split('?')[0])))
-    except IndexError: # Strange bug
-        traceback.print_exc()
-        bot._msg(chan, "%s: %s -- read more: %s" % (target, first_sentence, bot.state.data['shortener'](bot, url.split('?')[0])))
+    bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_sentence, bot.state.data['shortener'](bot, url)))
