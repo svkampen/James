@@ -25,6 +25,6 @@ def insult(bot, nick, target, chan, arg):
     else:
         return bot.msg(chan, "USAGE: +ageme day month year [prec] [target]")
 
-    age = ("%."+prec+"f")%((time.time() - time.mktime(datetime.date(int(year), int(month), int(day)).timetuple()))/(60*60*24*365))
+    age = ("%."+prec+"f")%((time.time() - time.mktime(datetime.date(int(year), int(month), int(day)).timetuple()))/(60*60*24*365.242))
 
     bot._msg(chan, "*%s is %s years old*" % (nick, age))
