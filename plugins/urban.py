@@ -28,12 +28,12 @@ def urban_lookup(bot, nick, target, chan, arg):
         defs = data['list']
 
         if data['result_type'] == 'no_results':
-            return bot._msg(chan, "%s: No definition found for %s." % (nick, params['term']))
+            return bot._msg(chan, failmsg() % (nick, params['term']))
 
         output = defs[index]['word'] + ' [' + str(index+1) + ']: ' + defs[index]['definition']
     except:
         traceback.print_exc()
-        return bot._msg(chan, "%s: No definition found for %s." % (nick, params['term']))
+        return bot._msg(chan, failmsg() % (nick, params['term']))
 
     output = output.strip()
     output = output.rstrip()
@@ -47,6 +47,18 @@ def urban_lookup(bot, nick, target, chan, arg):
     
     else:
         bot._msg(chan, "%s: %s" % (target, output))
+
+def failmsg():
+    import random
+    return random.choice([
+        "%s: No definition found for %s.",
+        "%s: The heck is '%s'?!",
+        "%s: %s. wut.",
+        "%s: %s? I dunno...",
+        "%s: Stop searching weird things. What even is '%s'?",
+        "%s: Computer says no. '%s' not found.",
+        "*sigh* someone tell %s what '%s' means",
+        "Really %s? %s?"])
 
 @command('urbanrandom', 'urbandictionaryrandom', 'udr')
 def urban_random(bot, nick, target, chan, arg):
