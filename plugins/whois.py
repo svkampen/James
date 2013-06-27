@@ -13,13 +13,16 @@ def whois(bot, nick, target, chan, arg):
     if not 'is' in arg or \
        len(arg.split(' ', 1)) < 2:
         return # invalid
-    arg = arg.split(' is ',1)[1]
-    if "?" in arg:
-        arg = arg.split("?",1)[0]
-    if arg.lower() == 'i':
-        arg = nick
-    bot.msg('infobot', '!info %s' % (arg))
-    WhoisThread(bot, chan).start()
+    try:
+        arg = arg.split(' is ',1)[1]
+        if "?" in arg:
+            arg = arg.split("?",1)[0]
+        if arg.lower() == 'i':
+            arg = nick
+        bot.msg('infobot', '!info %s' % (arg))
+        WhoisThread(bot, chan).start()
+    except IndexError:
+        pass
 
 class WhoisThread(threading.Thread):
     def __init__(self, bot, chan):
