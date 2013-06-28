@@ -39,7 +39,8 @@ class James(IRCHandler):
         self.state.apikeys = json.loads(open('apikeys.conf').read())
         self.state.data = {'autojoin_channels': []}
         self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
-        self.state.admins.extend(CONFIG['admins'])
+        for entry in CONFIG['admins']:
+            self.state.admins.add(entry)
         self.state.nick = CONFIG['nick']
 
         # Various things
@@ -78,6 +79,9 @@ class James(IRCHandler):
         chan = chan.lower()
         rawmsg = msg['arg'].split(':', 1)[1] #get msg
         target = nick #failsafe
+
+        if nick.lower() in self.state.muted and chan.startswith('#'):
+            return self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
 
         # Test for target
         msg = rawmsg
