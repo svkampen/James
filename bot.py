@@ -186,6 +186,8 @@ class James(IRCHandler):
         newnick = msg['arg'][1:]
         if oldnick in self.state.admins:
             self.state.admins[self.state.admins.index(oldnick)] = newnick
+        if oldnick in self.state.muted:
+            self.state.muted[self.state.muted.index(oldnick)] = newnick
 
     def join(self, msg):
         """ Handles people joining channels """
@@ -215,10 +217,6 @@ class James(IRCHandler):
     def msg(self, chan, msg):
         """ msg(string chan, string msg) - Sends a PRIVMSG. """
         self._msg(chan, msg)
-
-    def login(self, nick):
-        """ login(string nick) - Login to the bot. """
-        self.state.add_admin(nick)
 
     def gracefully_terminate(self):
         """ Handles the quit routine, then exits. """
