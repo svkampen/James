@@ -98,9 +98,9 @@ class James(IRCHandler):
                     msg = rawmsg.split(':', 1)[1].lstrip()
         except KeyError:
             if chan in self.lastmsgof.keys():
-                self.lastmsgof[chan][nick] = deque([rawmsg], 16)
+                self.lastmsgof[chan.lower()][nick.lower()] = deque([rawmsg], 16)
             else:
-                self.lastmsgof[chan] = {nick: deque([rawmsg], 16)}
+                self.lastmsgof[chan.lower()] = {nick: deque([rawmsg], 16)}
 
         self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
         self.handlemsg(nick, chan, msg, target, rawmsg)
@@ -113,7 +113,7 @@ class James(IRCHandler):
         # Test for sed
         try:
             if utils.parse.check_for_sed(self, msg):
-                parsed_msg = utils.parse.parse_sed(self, msg.replace("\/", "\13"), self.lastmsgof[chan][target])
+                parsed_msg = utils.parse.parse_sed(self, msg.replace("\/", "\13"), self.lastmsgof[chan.lower()][target.lower()])
                 if parsed_msg == -1:
                     self._msg(chan, "%s: No matches found" % (nick))
                 else:
@@ -123,13 +123,13 @@ class James(IRCHandler):
                     else:
                         self._msg(chan, "*%s %s*" % (target, new_msg.replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
             else:
-                self.lastmsgof[chan][nick].appendleft(rawmsg)
+                self.lastmsgof[chan.lower()][nick.lower()].appendleft(rawmsg)
 
         except KeyError:
-            if chan in self.lastmsgof.keys():
-                self.lastmsgof[chan][nick] = deque([rawmsg], 16)
+            if chan.lower() in self.lastmsgof.keys():
+                self.lastmsgof[chan.lower()][nick.lower()] = deque([rawmsg], 16)
             else:
-                self.lastmsgof[chan] = {nick: deque([rawmsg], 16)}
+                self.lastmsgof[chan.lower()] = {nick: deque([rawmsg], 16)}
 
         # Test for command
         self.check_for_command(msg, nick, target, chan)
