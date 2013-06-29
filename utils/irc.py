@@ -26,9 +26,12 @@ class IRCHandler(object):
         """ Connect to the IRC server and start the main loop """
         server = CONFIG["server"].split("|")[0].split(":")
         self.sock.connect((server[0], int(server[1])))
-        passwd = CONFIG["server"].split("|", 1)[1]
-        if passwd:
-            self._send("PASS "+passwd)
+        try:
+            passwd = CONFIG["server"].split("|", 1)[1]
+            if passwd:
+                self._send("PASS "+passwd)
+        except:
+            pass
         self.mainloop()
 
     def mainloop(self):
