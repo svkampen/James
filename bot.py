@@ -40,7 +40,7 @@ class James(IRCHandler):
         self.state.data = {'autojoin_channels': []}
         self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
         for entry in CONFIG['admins']:
-            self.state.admins.add(entry)
+            self.state.admins.add(entry.lower())
         self.state.nick = CONFIG['nick']
 
         # Various things
@@ -184,10 +184,12 @@ class James(IRCHandler):
         """ Handles nickchanges """
         oldnick = msg['host'].split('!')[0]
         newnick = msg['arg'][1:]
-        if oldnick in self.state.admins:
-            self.state.admins[self.state.admins.index(oldnick)] = newnick
-        if oldnick in self.state.muted:
-            self.state.muted[self.state.muted.index(oldnick)] = newnick
+        if oldnick.lower() in self.state.admins:
+            self.admins.muted.remove(oldnick.lower())
+            self.admins.muted.add(newnick.lower())
+        if oldnick.lower() in self.state.muted:
+            self.state.muted.remove(oldnick.lower())
+            self.state.muted.add(newnick.lower())
 
     def join(self, msg):
         """ Handles people joining channels """
