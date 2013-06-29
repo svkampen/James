@@ -25,6 +25,12 @@ def insult(bot, nick, target, chan, arg):
     else:
         return bot.msg(chan, "USAGE: +ageme day month year [prec] [target]")
 
+    try:
+        int(month)
+    except ValueError:
+        if len(month) > 2 and month[:3].lower() in ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dev"]:
+            month = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dev"].index(month[:3].lower())+1
+
     age = ("%."+prec+"f")%((time.time() - time.mktime(datetime.date(int(year), int(month), int(day)).timetuple()))/(60*60*24*365.242))
 
     bot._msg(chan, "*%s is %s years old*" % (nick, age))
