@@ -13,7 +13,7 @@ import json
 import plugins
 import functools
 from collections import deque
-from utils import logging
+import utils.logging as logging
 from utils.commandhandler import CommandHandler
 from utils.events import Event
 from utils.decorators import startinfo, sethook
