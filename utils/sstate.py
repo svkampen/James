@@ -1,5 +1,5 @@
 """ 
-Channel and ServerState objects
+ServerState object
 """
 
 class ServerState(object):
