@@ -21,5 +21,6 @@ def lisp(bot, nick, target, chan, arg):
 		stderr=subprocess.STDOUT,
 		close_fds=True
 		)
+	output = p.stdout.read()
 	bot._msg(chan, "%s: %s" % (nick, output.rstrip()))
 	os.remove(os.path.abspath("temp.lisp"))
