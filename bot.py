@@ -21,6 +21,7 @@ from utils.decorators import startinfo, sethook
 CONFIG = {}
 VERSION = "3.5 prerelease"
 
+
 class James(IRCHandler):
     """ James main bot executable thingy class """
     @startinfo(VERSION)
@@ -46,7 +47,7 @@ class James(IRCHandler):
         # Various things
         self.lastmsgof = {}
         self.cmdhandler = CommandHandler(self, plugins.get_plugins())
-        self.leo = object() # Last eval output
+        self.leo = object()  # Last eval output
         
         self.set_up_partials()
 
@@ -54,7 +55,8 @@ class James(IRCHandler):
         utils.parse.inline_python = functools.partial(utils.parse.inline_python, self)
 
     def initialize_events(self):
-        return {item:Event() for item in utils.events.StandardEvents}
+        events = {item: Event() for item in utils.events.StandardEvents}
+        return events
 
     def welcome(self, msg: dict):
         """ welcome(msg) - handles on-login actions """
@@ -64,21 +66,21 @@ class James(IRCHandler):
         self.state.events['WelcomeEvent'].fire(self)
 
     def notice(self, msg):
-        actualargs = msg['arg'].split(' ',1)[1][1:]
+        actualargs = msg['arg'].split(' ', 1)[1][1:]
         sender = msg['host'].split('!')[0]
         self.state.notices.append({'sender': sender, 'message': actualargs})
         self.log.log("-%s- %s" % (sender, actualargs))
-        
+
     def privmsg(self, msg):
         """ Handles messages """
         # Split msg into parts
-        nick = msg['host'].split('!')[0] #get sender
-        chan = msg['arg'].split()[0] #get chan
+        nick = msg['host'].split('!')[0]  # get sender
+        chan = msg['arg'].split()[0]  # get chan
         if chan == self.state.nick:
-            chan = nick #if chan is us, file under them
+            chan = nick  # if chan is us, file under them
         chan = chan.lower()
-        rawmsg = msg['arg'].split(':', 1)[1] #get msg
-        target = nick #failsafe
+        rawmsg = msg['arg'].split(':', 1)[1]  # get msg
+        target = nick  # failsafe
 
         if nick.lower() in self.state.muted and chan.startswith('#'):
             return self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
@@ -155,8 +157,9 @@ class James(IRCHandler):
             if msg.startswith(CONFIG['cmdchar']):
                 cmd_name = cmd_splitmsg[0][1:]
                 callback = self.cmdhandler.trigger(cmd_name)
-                
-                if not callback: return
+
+                if not callback:
+                    return
 
                 if hasattr(callback.function, '_require_admin'):
                     if nick.lower() in self.state.admins:
@@ -166,18 +169,18 @@ class James(IRCHandler):
         except BaseException:
             self._meditate(sys.exc_info(), chan)
             traceback.print_exc()
-                
+
     def _meditate(self, exc_info, chan):
         """ Prints GURU MEDITATION messages - at least, it used to. """
         exc_name = str(exc_info[0]).split("'")[1]
         exc_args = exc_info[1].args
         if exc_args:
-            self._msg(chan, \
-                      "[\x02\x034GURU\x03 MEDITATION\x034\x03 %s\x02] %s"\
+            self._msg(chan,
+                      "[\x02\x034GURU\x03 MEDITATION\x034\x03 %s\x02] %s"
                       % (exc_name, exc_args[0]))
         else:
-            self._msg(chan, \
-                      "[\x02\x034GURU\x03 MEDITATION\x034\x03 %s\x02]"\
+            self._msg(chan,
+                      "[\x02\x034GURU\x03 MEDITATION\x034\x03 %s\x02]"
                       % (exc_name))
 
     def nick(self, msg):
@@ -239,4 +242,3 @@ if __name__ == '__main__':
     BOT.connect()
 else:
     my_globals = globals()
-
