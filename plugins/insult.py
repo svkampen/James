@@ -1,16 +1,12 @@
-""" 
+"""
 Insult 'API' (using BeautifulSoup)
 """
 
-from .util.decorators import command, initializer
+from .util.decorators import command
 from .util.data import www_headers as headers
 from bs4 import BeautifulSoup as soupify
-import re
 import requests
-try:
-    from urllib.request import pathname2url as urlencode
-except:
-    from urllib import pathname2url as urlencode
+
 
 @command('insult')
 def insult(bot, nick, target, chan, arg):

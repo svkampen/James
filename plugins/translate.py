@@ -1,10 +1,11 @@
-""" 
+"""
 Translate module.
 """
 
 from .util.decorators import command
 import requests
 from .util.data import www_headers as headers
+
 
 @command('translate')
 def translate(bot, nick, target, chan, arg):

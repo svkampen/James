@@ -1,19 +1,25 @@
-""" 
+"""
 Wikia 'API' (using BeautifulSoup)
 """
+
 from .util.decorators import command, initializer
 from bs4 import BeautifulSoup as soupify
-import re
 import requests
+import re
+
 try:
     from urllib.request import pathname2url as urlencode
 except:
     from urllib import pathname2url as urlencode
 
+
 @initializer
-def initialize_plugin(bot):
-    """ Initialize this plugin. """
-    bot.state.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
+def plugin_initializer(bot):
+    if not bot.state.data.get("sentence_re", None):
+        return
+    else:
+        bot.state.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
+
 
 @command('wikia')
 def wikia_get_first_sentence(bot, nick, target, chan, arg):
@@ -30,7 +36,7 @@ def wikia_get_first_sentence(bot, nick, target, chan, arg):
     arg = arg.replace(" ", "_")
     arg = urlencode(arg)
 
-    url = 'http://%s.wikia.com/wiki/%s?action=render' % (wiki,arg)
+    url = 'http://%s.wikia.com/wiki/%s?action=render' % (wiki, arg)
     response = requests.get(url, headers=headers)
 
     soup = soupify(response.text)
@@ -39,7 +45,7 @@ def wikia_get_first_sentence(bot, nick, target, chan, arg):
     paragraphs = soup.findAll('p')
     i = 0
     first_paragraph = None
-    while first_paragraph == None or len(first_paragraph) < 10:
+    while first_paragraph is None or len(first_paragraph) < 10:
         first_paragraph = paragraphs[i].getText()
         i += 1
     first_sentence = bot.state.data['sentence_re'].match("%s" % (first_paragraph))

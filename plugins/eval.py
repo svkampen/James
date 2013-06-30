@@ -1,8 +1,8 @@
-""" 
+"""
 Dynamically evaluate python code - James.three plugin
 """
-from .util.decorators import command, require_admin, initializer
-import functools
+from .util.decorators import command, require_admin
+
 
 @require_admin
 @command('eval', short=">>>")
@@ -10,6 +10,7 @@ def eval_it(self, nick, target, chan, arg):
     output = evaluate_expression(self, nick, chan, arg)
     if output is not None:
         self.msg(chan, output)
+
 
 def evaluate_expression(self, nick, chan, msg):
     """ Evaluate python code. """
@@ -29,7 +30,6 @@ def evaluate_expression(self, nick, chan, msg):
                 exec(msg, locals())
             except:
                 try:
-                    exec(msg,globals(),locals())
+                    exec(msg, globals(), locals())
                 except:
-                    exec(msg,locals(),globals())
-
+                    exec(msg, locals(), globals())

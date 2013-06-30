@@ -1,15 +1,14 @@
-""" 
+"""
 The Command handler
 """
 from . import command
-try:
-    import command
-except:
-    pass
+
 
 class CommandHandler():
     """ The command handler object - handles triggering commands """
     def __init__(self, bot, plugins):
+        global command
+
         self.initializers = command.plugins_to_initializers(plugins)
         for function in self.initializers:
             function(bot)
@@ -24,7 +23,7 @@ class CommandHandler():
         for command_ in self.commands:
             if command_.is_triggered_by(trigger):
                 return command_
-               
+
         return False
 
     def trigger_short(self, trigger):

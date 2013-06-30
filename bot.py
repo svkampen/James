@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" 
+"""
 James.py - main bot
 """
 
@@ -48,7 +48,7 @@ class James(IRCHandler):
         self.lastmsgof = {}
         self.cmdhandler = CommandHandler(self, plugins.get_plugins())
         self.leo = object()  # Last eval output
-        
+
         self.set_up_partials()
 
     def set_up_partials(self):
@@ -90,12 +90,12 @@ class James(IRCHandler):
         try:
             if ',' in rawmsg:
                 preamb = rawmsg.split(',')[0]
-                if preamb.lower() in self.lastmsgof[chan].keys(): # CHANGE THIS - Hackish solution
+                if preamb.lower() in self.lastmsgof[chan].keys():  # CHANGE THIS - Hackish solution
                     target = preamb
                     msg = rawmsg.split(',', 1)[1].lstrip()
             if ':' in rawmsg:
                 preamb = rawmsg.split(':')[0]
-                if preamb.lower() in self.lastmsgof[chan].keys(): # These should check user lists, not lastmsgof keys
+                if preamb.lower() in self.lastmsgof[chan].keys():  # These should check user lists, not lastmsgof keys
                     target = preamb
                     msg = rawmsg.split(':', 1)[1].lstrip()
         except KeyError:

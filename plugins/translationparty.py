@@ -1,12 +1,13 @@
-""" 
+"""
 Translationparty module.
 """
- 
+
 from .util.decorators import command
 import requests
 from .util.data import www_headers as headers
 from threading import Thread
- 
+
+
 @command('translationparty')
 def translationparty(bot, nick, target, chan, arg):
     if not arg:
@@ -23,6 +24,7 @@ def translationparty(bot, nick, target, chan, arg):
     strings = [' '.join(args[2:])]
     tpThread(bot, target, chan, langpair, iters, strings).start()
 
+
 class tpThread(Thread):
     def __init__(self, bot, target, chan, langpair, iters, strings):
         Thread.__init__(self)
@@ -36,7 +38,7 @@ class tpThread(Thread):
     def run(self):
         url = "http://api.mymemory.translated.net/get"
         for i in range(self.iters*2):
-            params = {'q': self.strings[i-1], 'langpair': self.langpair[i%2], 'de': 'sam@tehsvk.net'}
+            params = {'q': self.strings[i-1], 'langpair': self.langpair[i % 2], 'de': 'sam@tehsvk.net'}
             response = requests.get(url, headers=headers, params=params)
             data = response.json()
             if 'INVALID TARGET LANGUAGE' in data['responseData']['translatedText']:

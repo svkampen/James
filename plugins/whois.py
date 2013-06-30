@@ -1,28 +1,27 @@
-""" 
+"""
 Haha.. eh.. tiny little project here.
 """
 
-from .util.decorators import command
-import random
 import time
 import threading
 
-@command(str(random.randint(0,10000)), short='who')
+
 def whois(bot, nick, target, chan, arg):
     """ Whois a certain user. """
     if not 'is' in arg or \
        len(arg.split(' ', 1)) < 2:
-        return # invalid
+        return  # invalid
     try:
-        arg = arg.split(' is ',1)[1]
+        arg = arg.split(' is ', 1)[1]
         if "?" in arg:
-            arg = arg.split("?",1)[0]
+            arg = arg.split("?", 1)[0]
         if arg.lower() == 'i':
             arg = nick
         bot.msg('infobot', '!info %s' % (arg))
         WhoisThread(bot, chan).start()
     except IndexError:
         pass
+
 
 class WhoisThread(threading.Thread):
     def __init__(self, bot, chan):

@@ -1,8 +1,9 @@
-""" 
+"""
 Google for stuff - and google stuff, like +, etc.
 """
 from .util.decorators import command
 import requests
+
 
 @command('google')
 def google(bot, nick, target, chan, arg):

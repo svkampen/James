@@ -1,7 +1,8 @@
-""" 
+"""
 History
 """
 from .util.decorators import command
+
 
 @command('history')
 def history(bot, nick, target, chan, arg):
@@ -12,7 +13,6 @@ def history(bot, nick, target, chan, arg):
             return bot.msg(chan, "Usage: +history <nick> <1-16>")
         victim = args[0]
         num = int(args[1])
-        bot.msg(chan, "\n".join(reversed(["<"+victim+"> "+x for x in bot.lastmsgof[chan][victim]][0:num])))
+        bot.msg(chan, "\n".join(reversed(["<" + victim + "> " + x for x in bot.lastmsgof[chan][victim]][0:num])))
     except:
         bot.msg(chan, "Usage: +history <nick> <number>")
-

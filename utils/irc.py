@@ -1,4 +1,4 @@
-""" 
+"""
 IRC API - irc.py
 """
 
@@ -10,6 +10,7 @@ from .num import NUM as numerics
 import time
 
 CONFIG = {}
+
 
 class IRCHandler(object):
     """ IRCHandler(Dict<string, object> config) - a standard IRC handler """
@@ -91,7 +92,7 @@ class IRCHandler(object):
             if not args:
                 getattr(namespace, function)()
             else:
-                if type(args) not in (tuple, list) or unpack == False:
+                if type(args) not in (tuple, list) or not unpack:
                     getattr(namespace, function)(args)
                 else:
                     getattr(namespace, function)(*args)

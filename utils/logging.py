@@ -1,8 +1,8 @@
-""" 
+"""
 The logging class
 """
 import time
-from bs4 import UnicodeDammit
+
 
 class Logger(object):
     """ Logger """
@@ -24,4 +24,3 @@ class Logger(object):
     def close(self):
         """ close the logfile """
         self.logfile.close()
-    

@@ -1,9 +1,10 @@
 
-""" 
+"""
 Fortune plugin for James.three
 """
 from .util.decorators import command
 import os
+
 
 @command('fortune')
 def fortune(bot, nick, target, chan, arg):

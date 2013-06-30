@@ -7,6 +7,7 @@ StandardEvents = [
     'MessageEvent'
 ]
 
+
 class Event():
     def __init__(self):
         self.handlers = set()
@@ -28,8 +29,11 @@ class Event():
         except:
             raise EventError("Can't unhandle handler %s: handler %s does not hook into this event!" % (handler, handler))
 
+
 class EventError(BaseException):
+    """ EventError class - When something goes wrong in an event."""
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return self.value

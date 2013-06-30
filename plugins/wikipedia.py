@@ -1,4 +1,4 @@
-""" 
+"""
 Wikipedia 'API' (using BeautifulSoup)
 """
 from .util.decorators import command, initializer
@@ -10,10 +10,15 @@ try:
 except:
     from urllib import pathname2url as urlencode
 
+
 @initializer
 def initialize_plugin(bot):
     """ Initialize this plugin. """
-    bot.state.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
+    if not bot.state.data.get("sentence_re", None):
+        return
+    else:
+        bot.state.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
+
 
 @command('wiki')
 def wikipedia_get_first_sentence(bot, nick, target, chan, arg):

@@ -1,9 +1,10 @@
-""" 
+"""
 Get definitions from urbandictionary
 """
 from .util.decorators import command
 import requests
 import traceback
+
 
 @command('urban', 'urbandictionary', 'ud')
 def urban_lookup(bot, nick, target, chan, arg):
@@ -42,11 +43,12 @@ def urban_lookup(bot, nick, target, chan, arg):
     if len(output) > 300:
         tinyurl = bot.state.data['shortener'](bot, defs[index]['permalink'])
         output = output[:output.rfind(' ', 0, 180)] + '...\r\nRead more: %s'\
-                 % (tinyurl)
+            % (tinyurl)
         bot._msg(chan, "%s: %s" % (target, output))
-    
+
     else:
         bot._msg(chan, "%s: %s" % (target, output))
+
 
 def failmsg():
     import random
@@ -59,6 +61,7 @@ def failmsg():
         "%s: Computer says no. '%s' not found.",
         "*sigh* someone tell %s what '%s' means",
         "Really %s? %s?"])
+
 
 @command('urbanrandom', 'urbandictionaryrandom', 'udr')
 def urban_random(bot, nick, target, chan, arg):

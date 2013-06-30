@@ -1,6 +1,7 @@
-""" 
+"""
 ServerState object
 """
+
 
 class ServerState(object):
     """ A class that holds the active channels and admins and some more things about the bot that are server-specific. """
@@ -9,7 +10,7 @@ class ServerState(object):
         self.muted = set()
         self.nick = 'JamesNext'
         self.notices = []
-    
+
     def add_admin(self, nick):
         """ Add an user to the admin list. """
         self.admins.add(nick.lower())
@@ -17,7 +18,7 @@ class ServerState(object):
     def del_admin(self, dnick):
         """ Remove an user from the admin list. """
         self.admins.remove(dnick.lower())
-    
+
     def mute(self, nick):
         """ Add an user to the mute list. """
         self.muted.add(nick.lower())

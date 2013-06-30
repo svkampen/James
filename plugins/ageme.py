@@ -1,11 +1,10 @@
-""" 
+"""
 Age Calculator
 """
 
-from .util.decorators import command, initializer
+from .util.decorators import command
 import datetime
 import time
-import re
 
 
 @command('ageme')
@@ -28,9 +27,9 @@ def insult(bot, nick, target, chan, arg):
     try:
         int(month)
     except ValueError:
-        if len(month) > 2 and month[:3].lower() in ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]:
-            month = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].index(month[:3].lower())+1
+        if len(month) > 2 and month[:3].lower() in ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]:
+            month = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"].index(month[:3].lower())+1
 
-    age = ("%."+prec+"f")%((time.time() - time.mktime(datetime.date(int(year), int(month), int(day)).timetuple()))/(60*60*24*365.242))
+    age = ("%." + prec + "f") % ((time.time() - time.mktime(datetime.date(int(year), int(month), int(day)).timetuple())) / (60 * 60 * 24 * 365.242))
 
     bot._msg(chan, "*%s is %s years old*" % (nick, age))

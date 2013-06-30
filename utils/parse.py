@@ -1,15 +1,16 @@
-""" 
+"""
 IRC Parser - parse.py
 """
-
 import sys
+
 
 def parse(msg):
     """ Parse placeholder """
     return msg
 
+
 class Parse(object):
-    """ Parser """
+    """ Parser for IRC data."""
     def __call__(self, msg):
         return self.parse(msg)
 
@@ -19,7 +20,7 @@ class Parse(object):
             info = {'method': 'PING', 'arg': msg.split()[-1]}
         else:
             splitmsg = msg.split(' ', 2)
-            info = {'method': splitmsg[1], 'host': splitmsg[0][1:], 'arg':\
+            info = {'method': splitmsg[1], 'host': splitmsg[0][1:], 'arg':
                     splitmsg[2]}
         return info
 
@@ -29,7 +30,6 @@ class Parse(object):
         import re
         pieces_of_python = re.findall("`([^`]+)`", msg)
         evaluate_expression = inspect.getmodule(bot.cmdhandler.trigger('eval').function).evaluate_expression
-        pieces = []
         if pieces_of_python == []:
             return msg
         for piece in pieces_of_python:
@@ -72,4 +72,4 @@ class Parse(object):
         """ Copy this Parse instance """
         return self
 
-sys.modules[__name__]  = Parse()
+sys.modules[__name__] = Parse()
