@@ -14,10 +14,7 @@ except:
 @initializer
 def initialize_plugin(bot):
     """ Initialize this plugin. """
-    if not bot.state.data.get("sentence_re", None):
-        return
-    else:
-        bot.state.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
+    bot.state.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
 
 
 @command('wiki')
