@@ -25,7 +25,8 @@ def wikipedia_get_first_sentence(bot, nick, target, chan, arg):
     arg = arg.replace(" ", "_")
     arg = urlencode(arg)
 
-    url = 'http://en.wikipedia.org/wiki/%s?action=render' % (arg)
+    root = 'http://en.wikipedia.org/wiki/%s' % (arg)
+    url = root+'?action=render'
     response = requests.get(url, headers=headers)
 
     soup = soupify(response.text)
@@ -38,6 +39,6 @@ def wikipedia_get_first_sentence(bot, nick, target, chan, arg):
         first_sentence = first_sentence.groups()[0]
     else:
         if len(first_paragraph.split(". ")[0]) > 15:
-            bot._msg(chan, "%s: %s -- read more: %s" % (target, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, url)))
+            bot._msg(chan, "%s: %s -- read more: %s" % (target, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, root)))
             return
-    bot._msg(chan, "%s: %s -- read more: %s" % (target, first_sentence, bot.state.data['shortener'](bot, url)))
+    bot._msg(chan, "%s: %s -- read more: %s" % (target, first_sentence, bot.state.data['shortener'](bot, root)))
