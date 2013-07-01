@@ -12,6 +12,13 @@ def help_me(bot, nick, target, chan, arg):
     return bot.msg(chan, "%s: %s" % (arg, bot.cmdhandler.trigger(arg).function.__doc__.lstrip()))
 
 
+@command('say')
+def say(bot, nick, target, chan, arg):
+    if not arg:
+        return
+    bot.msg(chan, arg)
+
+
 @command('quit', 'exit')
 def quitbot(bot, nick, target, chan, arg):
     """ Quit the bot. """
