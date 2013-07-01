@@ -22,5 +22,5 @@ def lisp(bot, nick, target, chan, arg):
 		close_fds=True
 		)
 	output = p.stdout.read()
-	bot._msg(chan, "%s: %s" % (nick, output.decode('utf-8').strip()))
+	bot.msg(chan, "%s: %s" % (nick, output.decode('utf-8').strip()))
 	os.remove(os.path.abspath("temp.lisp"))
