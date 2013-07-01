@@ -34,7 +34,7 @@ class Parse(object):
             return msg
         for piece in pieces_of_python:
             try:
-                msg = msg.replace(piece, evaluate_expression(bot, nick, chan, piece))
+                msg = msg.replace(piece, str(evaluate_expression(bot, nick, chan, piece)))
             except:
                 traceback.print_exc()
         return msg.replace('`', '')

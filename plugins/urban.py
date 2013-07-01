@@ -10,7 +10,7 @@ import traceback
 def urban_lookup(bot, nick, target, chan, arg):
     ''' UrbanDictionary lookup. '''
     if not arg:
-        return bot._msg(chan, "Usage: urban [phrase] [index?]")
+        return bot.msg(chan, "Usage: urban [phrase] [index?]")
 
     url = 'http://www.urbandictionary.com/iphone/search/define'
     args = arg.split()
@@ -29,7 +29,7 @@ def urban_lookup(bot, nick, target, chan, arg):
         defs = data['list']
 
         if data['result_type'] == 'no_results':
-            return bot._msg(chan, failmsg() % (nick, params['term']))
+            return bot.msg(chan, failmsg() % (nick, params['term']))
 
         output = defs[index]['word'] + ' [' + str(index+1) + ']: ' + defs[index]['definition']
     except:
@@ -44,10 +44,10 @@ def urban_lookup(bot, nick, target, chan, arg):
         tinyurl = bot.state.data['shortener'](bot, defs[index]['permalink'])
         output = output[:output.rfind(' ', 0, 180)] + '...\r\nRead more: %s'\
             % (tinyurl)
-        bot._msg(chan, "%s: %s" % (target, output))
+        bot.msg(chan, "%s: %s" % (target, output))
 
     else:
-        bot._msg(chan, "%s: %s" % (target, output))
+        bot.msg(chan, "%s: %s" % (target, output))
 
 
 def failmsg():
