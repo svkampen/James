@@ -102,7 +102,7 @@ class James(IRCHandler):
             if chan in self.lastmsgof.keys():
                 self.lastmsgof[chan.lower()][nick.lower()] = deque([rawmsg], 16)
             else:
-                self.lastmsgof[chan.lower()] = {nick: deque([rawmsg], 16)}
+                self.lastmsgof[chan.lower()] = {'*all': deque([], 64), nick: deque([rawmsg], 16)}
 
         self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
         self.handlemsg(nick, chan, msg, target, rawmsg)
@@ -126,12 +126,13 @@ class James(IRCHandler):
                         self._msg(chan, "*%s %s*" % (target, new_msg.replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
             else:
                 self.lastmsgof[chan.lower()][nick.lower()].appendleft(rawmsg)
+                self.lastmsgof[chan.lower()]['*all'].appendleft("<%s> %s" % (nick, rawmsg))
 
         except KeyError:
             if chan.lower() in self.lastmsgof.keys():
                 self.lastmsgof[chan.lower()][nick.lower()] = deque([rawmsg], 16)
             else:
-                self.lastmsgof[chan.lower()] = {nick: deque([rawmsg], 16)}
+                self.lastmsgof[chan.lower()] = {'*all': deque([], 64), nick: deque([rawmsg], 16)}
 
         # Test for command
         self.check_for_command(msg, nick, target, chan)
