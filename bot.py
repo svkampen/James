@@ -189,8 +189,8 @@ class James(IRCHandler):
         oldnick = msg['host'].split('!')[0]
         newnick = msg['arg'][1:]
         if oldnick.lower() in self.state.admins:
-            self.admins.muted.remove(oldnick.lower())
-            self.admins.muted.add(newnick.lower())
+            self.state.admins.remove(oldnick.lower())
+            self.state.admins.add(newnick.lower())
         if oldnick.lower() in self.state.muted:
             self.state.muted.remove(oldnick.lower())
             self.state.muted.add(newnick.lower())
