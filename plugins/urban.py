@@ -20,12 +20,15 @@ def urban_lookup(bot, nick, target, chan, arg):
         index = int(args[-1]) - 1
     except ValueError:
         params = {'term': arg}
+    if len(args) == 1:
+        params = {'term': arg}
     request = requests.get(url, params=params)
 
     data = request.json()
     defs = None
     output = ""
     try:
+        print(data)
         defs = data['list']
 
         if data['result_type'] == 'no_results':
@@ -49,7 +52,6 @@ def urban_lookup(bot, nick, target, chan, arg):
     else:
         bot.msg(chan, "%s: %s" % (target, output))
 
-
 def failmsg():
     import random
     return random.choice([
@@ -60,8 +62,13 @@ def failmsg():
         "%s: Stop searching weird things. What even is '%s'?",
         "%s: Computer says no. '%s' not found.",
         "*sigh* someone tell %s what '%s' means",
+        "%s: This is a family channel. Don't look up '%s'",
+        "%s: Trust me, you don't want to know what '%s' means.",
+        "%s: %s [1]: Something looked up by n00bs.",
+        "%s: %s [1]: An obscure type of fish.",
+        "No %s, no '%s' for you.",
+        "Shh %s, nobody's meant to know about '%s'...",
         "Really %s? %s?"])
-
 
 @command('urbanrandom', 'urbandictionaryrandom', 'udr')
 def urban_random(bot, nick, target, chan, arg):
