@@ -28,7 +28,6 @@ def urban_lookup(bot, nick, target, chan, arg):
     defs = None
     output = ""
     try:
-        print(data)
         defs = data['list']
 
         if data['result_type'] == 'no_results':

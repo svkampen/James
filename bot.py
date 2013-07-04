@@ -76,8 +76,8 @@ class James(IRCHandler):
         # Split msg into parts
         nick = msg['host'].split('!')[0]  # get sender
         chan = msg['arg'].split()[0]  # get chan
-        if chan == self.state.nick:
-            chan = nick  # if chan is us, file under them
+        if not chan.startswith('#'):
+            chan = nick  # if chan is a private message, file under them
         chan = chan.lower()
         rawmsg = msg['arg'].split(':', 1)[1]  # get msg
         target = nick  # failsafe
