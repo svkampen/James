@@ -3,6 +3,7 @@ Wikipedia 'API' (using BeautifulSoup)
 """
 from .util.decorators import command, initializer
 from bs4 import BeautifulSoup as soupify
+from .util.data import www_headers as headers
 import re
 import requests
 try:
@@ -14,20 +15,16 @@ except:
 @initializer
 def initialize_plugin(bot):
     """ Initialize this plugin. """
-    bot.state.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
+    bot.state.data['sentence_re'] = re.compile(r"((Dr\.|Mrs\.|Miss\.|Mr\.)?(.*?)\.)")
 
 
 @command('wiki')
-def wikipedia_get_first_sentence(bot, nick, target, chan, arg):
+def wikipedia_get(bot, nick, target, chan, arg):
     """ Get the first sentence in a wikipedia article. """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (compatible) / JamesIRC'
-    }
+    term = arg.replace(" ", "_")
+    term = urlencode(term)
 
-    arg = arg.replace(" ", "_")
-    arg = urlencode(arg)
-
-    root = 'http://en.wikipedia.org/wiki/%s' % (arg)
+    root = 'http://en.wikipedia.org/wiki/%s' % (term)
     url = root+'?action=render'
     response = requests.get(url, headers=headers)
 
@@ -35,12 +32,31 @@ def wikipedia_get_first_sentence(bot, nick, target, chan, arg):
     for s in soup.findAll('table', {'class': 'infobox'}):
         s.extract()
     paragraphs = soup.findAll('p')
-    first_paragraph = paragraphs[0].getText()
-    first_sentence = bot.state.data['sentence_re'].match("%s" % (first_paragraph))
-    if first_sentence:
-        first_sentence = first_sentence.groups()[0]
-    else:
-        if len(first_paragraph.split(". ")[0]) > 15:
-            bot._msg(chan, "%s: %s -- read more: %s" % (target, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, root)))
-            return
-    bot._msg(chan, "%s: %s -- read more: %s" % (target, first_sentence, bot.state.data['shortener'](bot, root)))
+    i = 0
+    first_paragraph = ""
+    while len(first_paragraph) < 20:
+        if i < len(paragraphs): 
+            first_paragraph = paragraphs[i].getText()
+        else:
+            return bot.msg(chan, "%s: Sorry. Wikipedia does not have an article for '%s'." % (nick, arg))
+        i += 1
+
+    if len(first_paragraph) < 150:
+        if i < len(paragraphs): 
+            first_paragraph += paragraphs[i].getText()
+    first_paragraph = first_paragraph.replace('\n', ' ')
+
+    senreg = list(bot.state.data['sentence_re'].finditer("%s" % (first_paragraph)))
+    try:
+        if len(senreg) > 0:
+            sentences = ' '.join([x.groups()[0] for x in senreg[:2]])
+        else:
+            if (len(first_paragraph.split(". ")[0]) + len(first_paragraph.split(". ")[1])) > 32:
+                return bot._msg(chan, "%s: %s -- read more: %s" % (target, ' '.join(first_paragraph.split(". ")[:1]), bot.state.data['shortener'](bot, root)))
+    except:
+        if len(senreg) > 0:
+            sentences = senreg[0].groups()[0]
+        else:
+            if len(first_paragraph.split(". ")[0]) > 15:
+                return bot._msg(chan, "%s: %s -- read more: %s" % (target, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, root)))
+    bot._msg(chan, "%s: %s -- Read more: %s" % (target, sentences, bot.state.data['shortener'](bot, root)))

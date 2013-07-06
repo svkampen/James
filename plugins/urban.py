@@ -22,6 +22,7 @@ def urban_lookup(bot, nick, target, chan, arg):
         params = {'term': arg}
     if len(args) == 1:
         params = {'term': arg}
+        index = 0
     request = requests.get(url, params=params)
 
     data = request.json()
