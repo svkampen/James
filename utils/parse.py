@@ -3,12 +3,6 @@ IRC Parser - parse.py
 """
 import sys
 
-
-def parse(msg):
-    """ Parse placeholder """
-    return msg
-
-
 class Parse(object):
     """ Parser for IRC data."""
     def __call__(self, msg):

@@ -20,7 +20,11 @@ json_dict['port'] = input("Port (default=6667): ")
 if not json_dict['port']:
     json_dict['port'] = 6667
 
-json_dict['server'] = "%s:%d" % (json_dict['server'], json_dict['port'])
+json_dict['pass'] = input("Server password (default=none): ")
+if not json_dict['pass']:
+    json_dict['server'] = "%s:%s" % (json_dict['server'], json_dict['port'])
+else:
+    json_dict['server'] = "%s:%s|%s" % (json_dict['server'], json_dict['port'], json_dict['pass'])
 
 json_dict['nick'] = input("Username (default=James): ")
 if not json_dict['nick']:
@@ -28,11 +32,7 @@ if not json_dict['nick']:
 
 json_dict['real'] = 'James3 - the most amazing bot on the net'
 json_dict['user'] = 'james'
-json_dict['plugdir'] = input("Plugin dir (default=plugins): ")
-if not json_dict['plugdir']:
-    json_dict['plugdir'] = 'plugins'
-
-json_dict['admins'] = [input("Initial admin username:")]
+json_dict['admins'] = [input("Initial admin username: ")]
 
 json_dict['cmdchar'] = input("Command character (default='+'): ")
 if not json_dict['cmdchar']:

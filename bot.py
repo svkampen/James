@@ -7,7 +7,6 @@ from utils.irc import IRCHandler
 import utils
 import traceback
 import re
-import os
 import sys
 import json
 import plugins
@@ -16,7 +15,7 @@ from collections import deque
 import utils.logging as logging
 from utils.commandhandler import CommandHandler
 from utils.events import Event
-from utils.decorators import startinfo, sethook
+from utils.decorators import startinfo
 
 CONFIG = {}
 VERSION = "3.5 prerelease"
@@ -58,7 +57,7 @@ class James(IRCHandler):
         events = {item: Event() for item in utils.events.StandardEvents}
         return events
 
-    def welcome(self, msg: dict):
+    def welcome(self, msg):
         """ welcome(msg) - handles on-login actions """
         if CONFIG['ident_pass']:
             self.msg(CONFIG['identify_service'], 'identify %s' % (CONFIG['ident_pass']))
