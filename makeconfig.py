@@ -20,7 +20,7 @@ json_dict['port'] = input("Port (default=6667): ")
 if not json_dict['port']:
     json_dict['port'] = 6667
 
-json_dict['server'] = "%s:%d" % (json_dict['server'], json_dict['port'])
+json_dict['server'] = "%s:%s" % (json_dict['server'], json_dict['port'])
 
 json_dict['nick'] = input("Username (default=James): ")
 if not json_dict['nick']:
