@@ -35,7 +35,7 @@ class James(IRCHandler):
         self.log = logging.Logger()
 
         # state.
-        self.state.events = self.initialize_events()
+        self.state.events = {i: Event() for i in utils.events.Standard}
         self.state.apikeys = json.loads(open('apikeys.conf').read())
         self.state.data = {'autojoin_channels': []}
         self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
@@ -51,20 +51,20 @@ class James(IRCHandler):
         self.set_up_partials()
 
     def set_up_partials(self):
-        utils.parse.inline_python = functools.partial(utils.parse.inline_python, self)
+        """Set up partial functions"""
+        ip = utils.parse.inline_python
+        utils.parse.inline_python = functools.partial(ip, self)
 
-    def initialize_events(self):
-        events = {item: Event() for item in utils.events.StandardEvents}
-        return events
-
-    def welcome(self, msg):
+    def welcome(self, *args):
         """ welcome(msg) - handles on-login actions """
         if CONFIG['ident_pass']:
-            self.msg(CONFIG['identify_service'], 'identify %s' % (CONFIG['ident_pass']))
+            self.msg(CONFIG['identify_service'], 'identify %s'
+                % (CONFIG['ident_pass']))
         self._send("MODE %s +B" % (self.state.nick))
         self.state.events['WelcomeEvent'].fire(self)
 
     def notice(self, msg):
+        """ Handle notices """
         actualargs = msg['arg'].split(' ', 1)[1][1:]
         sender = msg['host'].split('!')[0]
         self.state.notices.append({'sender': sender, 'message': actualargs})
@@ -89,57 +89,79 @@ class James(IRCHandler):
         try:
             if ',' in rawmsg:
                 preamb = rawmsg.split(',')[0]
-                if preamb.lower() in self.lastmsgof[chan].keys():  # CHANGE THIS - Hackish solution
+                # this is a hackish solution, change it
+                if preamb.lower() in self.lastmsgof[chan].keys():
                     target = preamb
                     msg = rawmsg.split(',', 1)[1].lstrip()
             if ':' in rawmsg:
                 preamb = rawmsg.split(':')[0]
-                if preamb.lower() in self.lastmsgof[chan].keys():  # These should check user lists, not lastmsgof keys
+                if preamb.lower() in self.lastmsgof[chan].keys():
                     target = preamb
                     msg = rawmsg.split(':', 1)[1].lstrip()
         except KeyError:
             if chan in self.lastmsgof.keys():
                 self.lastmsgof[chan.lower()][nick.lower()] = deque([rawmsg], 16)
             else:
-                self.lastmsgof[chan.lower()] = {'*all': deque([], 64), nick: deque([rawmsg], 16)}
+                self.lastmsgof[chan.lower()] = {'*all': deque([], 64),
+                                                nick: deque([rawmsg], 16)}
 
         self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
         self.handlemsg(nick, chan, msg, target, rawmsg)
 
     def handlemsg(self, nick, chan, msg, target, rawmsg):
-        """ Handles Messages """
+        """ Handles Messages.. again """
         # Test for inline code
         msg = utils.parse.inline_python(nick, chan, msg)
 
         # Test for sed
         try:
             if utils.parse.check_for_sed(self, msg):
-                parsed_msg = utils.parse.parse_sed(self, msg.replace("\/", "\13"), self.lastmsgof[chan.lower()][target.lower()])
+
+                parsed_msg = utils.parse.parse_sed(self,
+                    msg.replace("\/", "\13"),
+                    self.lastmsgof[chan.lower()][target.lower()])
+
                 if parsed_msg == -1:
-                    parsed_msg = utils.parse.parse_sed(self, msg.replace("\/", "\13"), self.lastmsgof[chan.lower()]["*all"])
+                    parsed_msg = utils.parse.parse_sed(self,
+                        msg.replace("\/", "\13"),
+                        self.lastmsgof[chan.lower()]["*all"])
                     if parsed_msg == -1:
                         self._msg(chan, "%s: No matches found" % (nick))
                     else:
-                        new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1)
+                        new_msg = re.sub(parsed_msg['to_replace'],
+                            parsed_msg['replacement'], parsed_msg['oldmsg'],
+                            0 if parsed_msg['glob'] else 1)
+
                         if not '\x01' in new_msg:
-                            self._msg(chan, "<%s> %s" % (target, new_msg.replace("\13", "/")))
+                            self._msg(chan, "<%s> %s" % (target,
+                                new_msg.replace("\13", "/")))
                         else:
-                            self._msg(chan, "*%s %s*" % (target, new_msg.replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
+                            self._msg(chan, "*%s %s*" % (target,
+                                new_msg.replace('\13',
+                                '/').split('\x01')[1].split(' ', 1)[1]))
                 else:
-                    new_msg = re.sub(parsed_msg['to_replace'], parsed_msg['replacement'], parsed_msg['oldmsg'], 0 if parsed_msg['glob'] else 1)
+                    new_msg = re.sub(parsed_msg['to_replace'],
+                        parsed_msg['replacement'], parsed_msg['oldmsg'],
+                        0 if parsed_msg['glob'] else 1)
+
                     if not '\x01' in new_msg:
-                        self._msg(chan, "<%s> %s" % (target, new_msg.replace("\13", "/")))
+                        self._msg(chan, "<%s> %s" % (target,
+                            new_msg.replace("\13", "/")))
                     else:
-                        self._msg(chan, "*%s %s*" % (target, new_msg.replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
+                        self._msg(chan, "*%s %s*" % (target,
+                        new_msg.replace('\13',
+                            '/').split('\x01')[1].split(' ', 1)[1]))
             else:
                 self.lastmsgof[chan.lower()][nick.lower()].appendleft(rawmsg)
-                self.lastmsgof[chan.lower()]['*all'].appendleft("<%s> %s" % (nick, rawmsg))
+                self.lastmsgof[chan.lower()]['*all'].appendleft("<%s> %s"
+                    % (nick, rawmsg))
 
         except KeyError:
             if chan.lower() in self.lastmsgof.keys():
                 self.lastmsgof[chan.lower()][nick.lower()] = deque([rawmsg], 16)
             else:
-                self.lastmsgof[chan.lower()] = {'*all': deque([], 64), nick: deque([rawmsg], 16)}
+                self.lastmsgof[chan.lower()] = {'*all': deque([], 64),
+                    nick: deque([rawmsg], 16)}
 
         # Test for command
         self.check_for_command(msg, nick, target, chan)
@@ -248,5 +270,3 @@ if __name__ == '__main__':
     else:
         BOT = James(CONFIG)
     BOT.connect()
-else:
-    my_globals = globals()
