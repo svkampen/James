@@ -1,6 +1,6 @@
 from .util.decorators import command, initializer
 
-colors = ['\x034', '\x037', '\x038', '\x039', '\x032', '\x036']
+colors = ['\x0304', '\x0307', '\x0308', '\x0309', '\x0302', '\x0306']
 count = 0
 
 bad_chars = ['\n', '\t', '\r', ' ']
@@ -53,7 +53,7 @@ def rainbow_char(item):
         count = 0
     if item in bad_chars:
         return item
-    item = ('%s' % (colors[count]))+'\u200b'+item
+    item = ('%s' % (colors[count]))+item
     count += 1
     return item
 
@@ -70,4 +70,4 @@ def rainbow(arg):
 
 @command('rainbow')
 def rainbowify(bot, nick, target, chan, arg):
-    bot.msg(chan, '%s: %s' % (nick, rainbow(arg)))
+    bot.msg(chan, '%s: %s' % (target, rainbow(arg)))
