@@ -2,7 +2,7 @@
 IRC Parser - parse.py
 """
 
-def parse(self, msg):
+def parse(msg):
     """ blah """
     if msg.startswith("PING"):
         info = {'method': 'PING', 'arg': msg.split()[-1]}
@@ -12,7 +12,7 @@ def parse(self, msg):
                 splitmsg[2]}
     return info
 
-def inline_python(self, bot, nick, chan, msg):
+def inline_python(bot, nick, chan, msg):
     """ Execute inline python """
     import inspect
     import traceback
@@ -28,13 +28,13 @@ def inline_python(self, bot, nick, chan, msg):
             traceback.print_exc()
     return msg.replace('`', '')
 
-def check_for_sed(self, bot, msg):
+def check_for_sed(bot, msg):
     """ Check whether a message contains a (valid) sed statement """
     import re
     if re.match("^(\w+: )?s/.+/.+(/([gi]?){2})?$", msg):
         return True
 
-def parse_sed(self, bot, sedmsg, oldmsgs):
+def parse_sed(bot, sedmsg, oldmsgs):
     """ Parse a sed snippet """
     import traceback
     import re

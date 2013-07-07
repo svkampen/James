@@ -3,7 +3,7 @@ from functools import wraps
 def startinfo(*args):
     """ The startinfo decorator """
     def decorator(funct):
-        ""' The actual decorator """
+        """ The actual decorator """
         james_version = args[0]
 
         @wraps(funct)
