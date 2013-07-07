@@ -21,6 +21,7 @@ class Buffer(object):
             return data.rstrip()
 
     def next(self):
+        """ Next in Py3K """
         return self.__next__()
 
     def append(self, data):

@@ -7,13 +7,12 @@ from . import command
 class CommandHandler():
     """ The command handler object - handles triggering commands """
     def __init__(self, bot, plugins):
-        global command
 
         self.initializers = command.plugins_to_initializers(plugins)
         for function in self.initializers:
             function(bot)
         self.commands = command.plugins_to_commands(plugins)
-        self.command_names = [command.main_hook for command in self.commands]
+        self.command_names = [cmd.main_hook for cmd in self.commands]
         if self.commands == []:
             raise RuntimeError("No commands found!")
         print("%d commands initialized." % (len(self.commands)))
