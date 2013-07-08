@@ -1,10 +1,11 @@
 """
 Google for stuff - and google stuff, like +, etc.
 """
-from .util.decorators import command
+from .util.decorators import command, require_admin
 import requests
 
 
+@require_admin
 @command('google')
 def google(bot, nick, target, chan, arg):
     """ Return the first google result for <argument>. """

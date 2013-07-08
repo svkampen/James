@@ -10,7 +10,7 @@ import random
 def elect(bot, nick, target, chan, arg):
     """ Pick between a comma separated list of options """
     if not arg:
-        return bot.msg(chan, insult.__doc__.strip())
+        return bot.msg(chan, elect.__doc__.strip())
 
     choices = [x.strip() for x in arg.split(',')]
     if choices[-1].startswith('or '):
