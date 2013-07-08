@@ -12,13 +12,34 @@ def parse(msg):
                 splitmsg[2]}
     return info
 
+def evaluate_expression(self, nick, chan, msg):
+    """ Evaluate python code. """
+    try:
+        output = eval(msg, globals(), locals())
+        if output is not None:
+            self.leo = output
+            if type(self.leo) == tuple:
+                self.leo = list(self.leo)
+                output = list(output)
+            return output
+    except (NameError, SyntaxError):
+        try:
+            exec(msg, globals())
+        except:
+            try:
+                exec(msg, locals())
+            except:
+                try:
+                    exec(msg,globals(),locals())
+                except:
+                    exec(msg,locals(),globals())
+
 def inline_python(bot, nick, chan, msg):
     """ Execute inline python """
     import inspect
     import traceback
     import re
     pieces_of_python = re.findall("`([^`]+)`", msg)
-    evaluate_expression = inspect.getmodule(bot.cmdhandler.trigger('eval').function).evaluate_expression
     if pieces_of_python == []:
         return msg
     for piece in pieces_of_python:
