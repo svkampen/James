@@ -82,7 +82,7 @@ class IRCHandler(object):
             if self.verbose:
                 print('<<< '+msg)
             self.sock.send((msg+newline).encode('utf-8'))
-            time.sleep(1)
+            time.sleep(1.6)
 
     def try_to_call(self, function, namespace=None, args=None, unpack=True):
         """ Try to call a function. """
