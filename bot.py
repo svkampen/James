@@ -18,7 +18,7 @@ from utils.events import Event
 from utils.decorators import startinfo
 
 CONFIG = {}
-VERSION = "3.5 prerelease"
+VERSION = "4b1"
 
 
 class James(IRCHandler):
