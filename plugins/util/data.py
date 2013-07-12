@@ -2,6 +2,12 @@ www_headers = {
     'User-Agent': 'Mozilla/5.0 (compatible) (Python 3.3, en_US) James/3.2 IRC bot'
 }
 
+def sugar(arg):
+    arg = arg.replace('endclass', '')
+    arg = arg.replace('endfunction', '')
+    arg = arg.replace('function', 'def')
+    return arg
+
 def lineify(data, max_size=400):
     """ Split text up into IRC-safe lines. """
     

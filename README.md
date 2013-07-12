@@ -9,8 +9,10 @@ James requires the following libraries (all supplied by pip)
 * Requests
 * BeautifulSoup 4
 
+James also requires Python version 3.2 or higher.
+
 ### Starting James
-Create a config file with `makeconfig.py`, then start the bot with `python3 bot.py`
+Create a config file with `makeconfig.py`, then start the bot with `python3 bot.py`.
 
 ### Legal mumbojumbo
 You can consider James effectively licensed under the MIT License as far as code re-use goes,
