@@ -11,7 +11,7 @@ except:
     from urllib import pathname2url as urlencode
 
 @command('dict', 'dictionary')
-def urban_lookup(bot, nick, target, chan, arg):
+def dict_lookup(bot, nick, target, chan, arg):
     ''' Dictionary lookup. '''
     if not arg:
         return bot.msg(chan, "Usage: dict [query]")
