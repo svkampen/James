@@ -22,9 +22,11 @@ class IRCterpreter(code.InteractiveConsole):
         self.cache = []
 
     def run(self, nick, chan, code):
+        if not 'self' in self.locals.keys():
+            self.locals['self'] = self
         self.curnick = nick
         self.curchan = chan
-        sys.stdout = self
+        sys.stdout = sys.interp = self
         self.push(code)
         sys.stdout = sys.__stdout__
         self.flushbuf()
@@ -32,6 +34,9 @@ class IRCterpreter(code.InteractiveConsole):
 @initializer
 def initialize_plugin(bot):
     """ Initialize this plugin. """
+    import sys, os, inspect, plugins
+    message = lambda x: sys.interp.write("\x01ACTION %s\x01"%(x))
+    action = lambda x: sys.interp.write("\x01ACTION %s\x01"%(x))
     bot.state.interp = {'locals':locals()}
 
 @require_admin
