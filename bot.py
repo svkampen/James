@@ -133,9 +133,12 @@ class James(IRCHandler):
                             0 if parsed_msg['glob'] else 1)
 
                         if not '\x01' in new_msg:
-                            self._msg(chan, "%s" % (new_msg.replace("\13", "/")))
+                            self._msg(chan, "%s"
+                                % (new_msg.replace("\13", "/")))
                         else:
-                            self._msg(chan, "*%s*" % (new_msg[8:-1].replace('\13', '/').split('\x01')[1].split(' ', 1)[1]))
+                            self._msg(chan, "*%s*"
+                                % (new_msg[8:-1].replace('\13',
+                                    '/').split('\x01')[1].split(' ', 1)[1]))
                 else:
                     new_msg = re.sub(parsed_msg['to_replace'],
                         parsed_msg['replacement'], parsed_msg['oldmsg'],
@@ -261,7 +264,7 @@ class James(IRCHandler):
 
 if __name__ == '__main__':
     ARGS = sys.argv[1:]
-    CONFIG = json.loads(open('config.json', 'r').readline())
+    CONFIG = json.loads(open('config.json', 'r').read())
     if '--verbose' in ARGS:
         BOT = James(CONFIG, verbose=True)
     else:

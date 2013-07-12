@@ -3,6 +3,7 @@
 #
 
 import json
+from pprint import pformat as pprint
 
 json_dict = dict()
 config_file = open("config.json", "w+")
@@ -50,6 +51,5 @@ for item in input("Channels to automatically join, seperated by ',': ").split(',
 
 json_dict.pop('port')
 
-json_ = json.dumps(json_dict)
-config_file.write(json_)
+config_file.write(pprint(json_dict).replace("'", '"'))
 config_file.close()
