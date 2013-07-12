@@ -2,6 +2,7 @@
 Dynamically evaluate python code - James.three plugin
 """
 from .util.decorators import command, require_admin, initializer
+from .util.data import sugar
 import functools, code, sys
 
 class IRCterpreter(code.InteractiveConsole):
@@ -38,10 +39,12 @@ def initialize_plugin(bot):
     message = lambda x: sys.interp.write("\x01ACTION %s\x01"%(x))
     action = lambda x: sys.interp.write("\x01ACTION %s\x01"%(x))
     bot.state.interp = {'locals':locals()}
+    bot.state.interp['locals'].update(globals())
 
 @require_admin
 @command('eval', short=">>>")
 def eval_it(self, nick, target, chan, arg):
+    arg = sugar(arg)
     ip = None
     try:
         ip = self.state.interp[nick.lower()]
