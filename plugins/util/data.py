@@ -3,9 +3,8 @@ www_headers = {
 }
 
 def sugar(arg):
-    arg = arg.replace('endclass', '')
-    arg = arg.replace('endfunction', '')
-    arg = arg.replace('function', 'def')
+    arg = arg.replace('ssalc', '')
+    arg = arg.replace('fed', '')
     return arg
 
 def lineify(data, max_size=400):

@@ -169,7 +169,7 @@ class James(IRCHandler):
         self.state.events['MessageEvent'].fire(self, nick, target, chan, msg)
 
     def check_for_command(self, msg, nick, target, chan):
-        """ Check for a normal command starting with the command char. """
+        """ Check for a command """
         cmd_splitmsg = msg.split(" ", 1)
         try:
             if len(cmd_splitmsg) > 1:
