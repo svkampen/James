@@ -5,7 +5,8 @@ Standard = [
     {'JoinEvent': 'join'},
     {'PartEvent': 'part'},
     {'MessageEvent': 'message'},
-    {'NoticeEvent': 'notice'}
+    {'NoticeEvent': 'notice'},
+    {'CloseLogEvent': 'close_log'}
 ]
 
 

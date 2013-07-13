@@ -262,7 +262,7 @@ class James(IRCHandler):
             super(James, self).gracefully_terminate()
         except SystemExit:
             pass
-        self.log.close()
+        self.state.events['CloseLogEvent'].fire()
 
 
 if __name__ == '__main__':

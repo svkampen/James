@@ -5,6 +5,9 @@ Logging module
 from .util.decorators import initializer
 import time
 
+def close_log(*args):
+    logfile.close()
+
 def log(data):
     """ log and print data """
     timestamp = time.strftime("[%H:%M:%S] ")
@@ -46,8 +49,9 @@ def logger(*args, **kwargs):
      'join': log_join,
      'part': log_part,
      'welcome': log_welcome,
-     'notice': log_notice}
-    handlers.get(etype, lambda gs: None)(*args)
+     'notice': log_notice,
+     'close_log': close_log}
+    handlers.get(etype, lambda *args: None)(*args)
 
 @initializer
 def plugin_init(bot):
