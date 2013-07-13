@@ -31,7 +31,7 @@ json_dict['nick'] = input("Username (default=James): ")
 if not json_dict['nick']:
     json_dict['nick'] = 'James'
 
-json_dict['real'] = 'James3 - the most amazing bot on the net'
+json_dict['real'] = 'James - the most amazing bot on the net'
 json_dict['user'] = 'james'
 json_dict['admins'] = [input("Initial admin username: ")]
 
