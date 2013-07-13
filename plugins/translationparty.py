@@ -8,8 +8,9 @@ from .util.data import www_headers as headers
 from threading import Thread
 
 
-@command('translationparty')
+@command('translationparty', category='language')
 def translationparty(bot, nick, target, chan, arg):
+    """ Throw a translation through http://translationparty.com/ """
     if not arg:
         return bot.msg(chan, "Usage: translationparty <source>-<target> <times> <sentence>")
     args = arg.split()

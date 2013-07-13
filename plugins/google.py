@@ -5,7 +5,7 @@ from .util.decorators import command
 import requests
 
 
-@command('google')
+@command('google', category='internet')
 def google(bot, nick, target, chan, arg):
     """ Return the first google result for <argument>. """
     if not arg:

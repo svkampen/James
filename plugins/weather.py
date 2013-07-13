@@ -10,14 +10,16 @@ try:
 except:
     from urllib import pathname2url as urlencode
 
-@command('weather')
+@command('weather', category='internet')
 def weather_at(bot, nick, target, chan, arg):
+    """ Get the weather for a place """
     wv = list(getweather(arg))
     bot.msg(chan, "%s: %s" %(target, wv[0]))
 #    for w in wv:
 #        __import__('sys').stdout.buffer.write((w+'\n').encode('utf-8'))
 
-class weather(object):
+class Weather:
+    """ A weather class """
     def __init__(self, x):
         url = "http://weather.yahooapis.com/forecastrss?u=f&w="
         self.location = ', '.join([x['data-country'],x['data-district_county'],x['data-city'],x['data-province_state']])
@@ -151,7 +153,7 @@ def getweather(location):
         yield "NoSuchPlaceError: '%s' not found" %(loc)
 
     for x in ids[0:1]:
-        w = weather(x)
+        w = Weather(x)
         if 'condition' in w.__dict__.keys():
             yield w.form()
         else:

@@ -4,7 +4,7 @@ History
 from .util.decorators import command
 
 
-@command('history')
+@command('history', category='meta')
 def history(bot, nick, target, chan, arg):
     """ Get user's history. """
     args = arg.split()

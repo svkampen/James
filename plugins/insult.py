@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup as soupify
 import requests
 
 
-@command('insult')
+@command('insult', category='misc')
 def insult(bot, nick, target, chan, arg):
     """ Get an insult. Usage: insult <user> """
     if not arg:

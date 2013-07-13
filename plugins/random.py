@@ -6,7 +6,7 @@ from .util.decorators import command
 import random
 
 
-@command('random')
+@command('random', category='misc')
 def elect(bot, nick, target, chan, arg):
     """ Pick between a comma separated list of options """
     if not arg:

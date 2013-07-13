@@ -150,7 +150,7 @@ class James(IRCHandler):
                     else:
                         self._msg(chan, "*%s %s*" % (target,
                         new_msg.replace('\13',
-                            '/').split('\x01')[1].split(' ', 1)[1]))
+                            '/').split('\x01')[1].split(' ', 1)[-1]))
             else:
                 self.lastmsgof[chan.lower()][nick.lower()].appendleft(rawmsg)
                 self.lastmsgof[chan.lower()]['*all'].appendleft("<%s> %s"

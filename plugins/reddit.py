@@ -41,7 +41,7 @@ class RedditTicker(Ticker):
         self.last_post_id = data[0]['data']['id']
 
 
-@command('reddit.last')
+@command('reddit.last', category='social')
 def reddit_get_last_post(bot, nick, target, chan, arg):
     """ Get the last post of a subreddit on reddit. """
     if not arg:
@@ -57,7 +57,7 @@ def reddit_get_last_post(bot, nick, target, chan, arg):
     bot.msg(chan, "[\x02r/%s\x02] %s - \x02%s\x02" % (arg, data_title, data_url))
 
 
-@command('reddit.hot')
+@command('reddit.hot', category='social')
 def reddit_get_hot_post(bot, nick, target, chan, arg):
     """ Get most hottest post on a subreddit. """
     if not arg:
@@ -78,7 +78,7 @@ def plugin_initializer(bot):
     globals()['bot'] = bot
 
 
-@command('reddit.ticker.add_hook')
+@command('reddit.ticker.add_hook', category='automation')
 def reddit_add_hook(bot, nick, target, chan, arg):
     """ Add a ticker for a hook. """
     if not arg:
@@ -90,7 +90,7 @@ def reddit_add_hook(bot, nick, target, chan, arg):
     bot.msg(chan, "Added %s" % (bot.state.data['tickers'][-1]))
 
 
-@command('reddit.ticker.remove_hook')
+@command('reddit.ticker.remove_hook', category='automation')
 def reddit_del_hook(bot, nick, target, chan, arg):
     """ Delete a reddit ticker. """
     for ticker in bot.state.data['tickers']:

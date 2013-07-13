@@ -6,7 +6,7 @@ import requests
 import json
 
 
-@command('request.feature', 'reqfeature')
+@command('request.feature', 'reqfeature', category='git')
 def request_feature(bot, nick, target, chan, arg):
     """ Request a feature on the James issue tracker. """
     if not arg:
@@ -33,7 +33,7 @@ def request_feature(bot, nick, target, chan, arg):
                  % (page.status_code))
 
 
-@command('report.bug')
+@command('report.bug', category='git')
 def report_bug(bot, nick, target, chan, arg):
     """ Report a bug on the James issue tracker. """
     if not arg:

@@ -10,15 +10,16 @@ from threading import Thread
 def plugin_initializer(bot):
     globals()['port'] = -1
 
-@command("clojure.set_port")
+@command("clojure.set_port", category='programming')
 def set_clojure_port(bot, nick, target, chan, arg):
     try:
         globals()['port'] = int(arg)
     except ValueError:
         bot.msg(chan, "Dammit you! Enter a valid port!")
 
-@command("clojure.eval", short="user=>")
+@command("clojure.eval", short="user=>", category='programming')
 def eval_clojure(bot, nick, target, chan, arg):
+    """ Evaluate clojure code - note: broken """
     if globals()['port'] == -1:
         bot.msg(chan, "Port for leiningen repl isn't configured!")
     ClojureThread(bot, chan, globals()['port'], arg).start()
