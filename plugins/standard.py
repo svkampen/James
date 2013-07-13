@@ -68,7 +68,7 @@ def get_shorthook(bot, nick, target, chan, arg):
     if not arg:
         return bot.msg(chan, "Usage: short <command>")
     if bot.cmdhandler.trigger(arg):
-        shorthooks = bot.cmdhandler.trigger(arg).function.short_hooks
+        shorthooks = bot.cmdhandler.trigger(arg).short_hooks
         if shorthooks is not None:
             return bot.msg(chan, "%s has short hook %s" % (arg, shorthooks[0]))
         else:
