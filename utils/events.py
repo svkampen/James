@@ -10,8 +10,9 @@ Standard = [
 
 class Event():
     """ A simple event class """
-    def __init__(self):
+    def __init__(self, type_):
         self.handlers = set()
+        self.type = type_
 
     def register(self, handler):
         """ Register a function as an event handler """
@@ -22,7 +23,7 @@ class Event():
         """ Fire this event """
         try:
             for handler in self.handlers:
-                handler(*args, **kwargs)
+                handler(*args, **kwargs, type=self.type)
         except:
             traceback.print_exc()
 

@@ -35,7 +35,7 @@ class James(IRCHandler):
         self.log = logging.Logger()
 
         # state.
-        self.state.events = {i: Event() for i in utils.events.Standard}
+        self.state.events = {i.keys()[0]: Event(i.values()[0]) for i in utils.events.Standard}
         self.state.apikeys = json.loads(open('apikeys.conf').read())
         self.state.data = {'autojoin_channels': []}
         self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])

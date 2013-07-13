@@ -5,7 +5,7 @@ Logging module
 from .util.decorators import initializer
 
 def log_message(*args):
-	...
+	
 
 def log_join(*args):
 	...
