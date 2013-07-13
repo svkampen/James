@@ -32,7 +32,7 @@ def log_part(*args):
     log("[%s] PART %s" % (chan, user))
 
 def log_welcome(*args):
-    ...
+    log("Server has welcomed us.")
 
 def log_notice(*args):
     sender = args[1]
@@ -47,7 +47,7 @@ def logger(*args, **kwargs):
      'part': log_part,
      'welcome': log_welcome,
      'notice': log_notice}
-    handlers.get(etype, lambda *args: None)(*args)
+    handlers.get(etype, lambda gs: None)(*args)
 
 @initializer
 def plugin_init(bot):
