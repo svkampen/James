@@ -1,8 +1,12 @@
 """
-Table tennis
+Socket tennis
 """
 from .util.decorators import command
 
-@command('ping')
-def ping(bot, nick, target, chan, arg):
+@command('pong')
+def pong(bot, nick, target, chan, arg):
     return bot.msg(chan, "Pong!")
+
+@command('pong')
+def pong(bot, nick, target, chan, arg):
+    return bot.msg(chan, "Ping!")
