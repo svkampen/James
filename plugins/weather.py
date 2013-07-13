@@ -147,15 +147,15 @@ def getweather(location):
         bsp = soupify(rsp.text)
         tbl = bsp.findAll("table")[0]
         ids = [x.attrs for x in list(tbl)[1:]]
+
+        for x in ids[0:1]:
+            w = weather(x)
+            if 'condition' in w.__dict__.keys():
+                yield w.form()
+            else:
+                print(w.__dict__)
     except:
         yield "NoSuchPlaceError: '%s' not found" %(loc)
-
-    for x in ids[0:1]:
-        w = weather(x)
-        if 'condition' in w.__dict__.keys():
-            yield w.form()
-        else:
-            print(w.__dict__)
 
 ##---------#
 #import sys#
