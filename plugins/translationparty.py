@@ -8,8 +8,9 @@ from .util.data import www_headers as headers
 from threading import Thread
 
 
-@command('translationparty')
+@command('translationparty', category='language')
 def translationparty(bot, nick, target, chan, arg):
+    """ Throw a translation through http://translationparty.com/ """
     if not arg:
         return bot.msg(chan, "Usage: translationparty <source>-<target> <times> <sentence>")
     args = arg.split()
@@ -37,7 +38,7 @@ class tpThread(Thread):
 
     def run(self):
         url = "http://api.mymemory.translated.net/get"
-        for i in range(self.iters*2):
+        for i in range(self.iters):
             params = {'q': self.strings[i-1], 'langpair': self.langpair[i % 2], 'de': 'sam@tehsvk.net'}
             response = requests.get(url, headers=headers, params=params)
             data = response.json()

@@ -5,6 +5,7 @@ James.py - main bot
 
 from utils.irc import IRCHandler
 import utils
+import os
 import traceback
 import re
 import sys
@@ -12,13 +13,12 @@ import json
 import plugins
 import functools
 from collections import deque
-import utils.logging as logging
 from utils.commandhandler import CommandHandler
 from utils.events import Event
 from utils.decorators import startinfo
 
 CONFIG = {}
-VERSION = "4b1"
+VERSION = "4b2"
 
 
 class James(IRCHandler):
@@ -32,10 +32,10 @@ class James(IRCHandler):
 
         # Bot state and logger.
         self.state = utils.ServerState()
-        self.log = logging.Logger()
+        self.botdir = os.getcwd()
 
         # state.
-        self.state.events = {i: Event() for i in utils.events.Standard}
+        self.state.events = {list(i.keys())[0]: Event(list(i.values())[0]) for i in utils.events.Standard}
         self.state.apikeys = json.loads(open('apikeys.conf').read())
         self.state.data = {'autojoin_channels': []}
         self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
@@ -68,7 +68,8 @@ class James(IRCHandler):
         actualargs = msg['arg'].split(' ', 1)[1][1:]
         sender = msg['host'].split('!')[0]
         self.state.notices.append({'sender': sender, 'message': actualargs})
-        self.log.log("-%s- %s" % (sender, actualargs))
+        #self.log.log("-%s- %s" % (sender, actualargs))
+        self.state.events['NoticeEvent'].fire(self, sender, actualargs)
 
     def privmsg(self, msg):
         """ Handles messages """
@@ -82,7 +83,8 @@ class James(IRCHandler):
         target = nick  # failsafe
 
         if nick.lower() in self.state.muted and chan.startswith('#'):
-            return self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
+            #return self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
+            return self.state.events['MessageEvent'].fire(self, nick, None, chan, rawmsg)
 
         # Test for target
         msg = rawmsg
@@ -105,7 +107,7 @@ class James(IRCHandler):
                 self.lastmsgof[chan.lower()] = {'*all': deque([], 64),
                                                 nick: deque([rawmsg], 16)}
 
-        self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
+        #self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
         self.handlemsg(nick, chan, msg, target, rawmsg)
 
     def handlemsg(self, nick, chan, msg, target, rawmsg):
@@ -150,7 +152,7 @@ class James(IRCHandler):
                     else:
                         self._msg(chan, "*%s %s*" % (target,
                         new_msg.replace('\13',
-                            '/').split('\x01')[1].split(' ', 1)[1]))
+                            '/').split('\x01')[1].split(' ', 1)[-1]))
             else:
                 self.lastmsgof[chan.lower()][nick.lower()].appendleft(rawmsg)
                 self.lastmsgof[chan.lower()]['*all'].appendleft("<%s> %s"
@@ -169,7 +171,7 @@ class James(IRCHandler):
         self.state.events['MessageEvent'].fire(self, nick, target, chan, msg)
 
     def check_for_command(self, msg, nick, target, chan):
-        """ Check for a normal command starting with the command char. """
+        """ Check for a command """
         cmd_splitmsg = msg.split(" ", 1)
         try:
             if len(cmd_splitmsg) > 1:
@@ -229,14 +231,15 @@ class James(IRCHandler):
         user = msg['host'].split('!')[0].strip().lower()
         channel = msg['arg'][1:].strip().lower()
         self.state.events['JoinEvent'].fire(self, user, channel)
-        self.log.log("[%s] JOIN %s" % (channel, user))
+        #self.log.log("[%s] JOIN %s" % (channel, user))
 
     def part(self, msg):
         """ Handles people parting channels """
         channel = msg['arg'].split()[0].strip().lower()
         user = msg['host'].split('!')[0].strip().lower()
         try:
-            self.log.log("[%s] PART %s" % (channel, user))
+            #self.log.log("[%s] PART %s" % (channel, user))
+            self.state.events['PartEvent'].fire(self, user, channel)
         except BaseException:
             traceback.print_exc()
 
@@ -259,7 +262,7 @@ class James(IRCHandler):
             super(James, self).gracefully_terminate()
         except SystemExit:
             pass
-        self.log.close()
+        self.state.events['CloseLogEvent'].fire()
 
 
 if __name__ == '__main__':

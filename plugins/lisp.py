@@ -6,7 +6,7 @@ from .util.decorators import command
 import os
 import subprocess
 
-@command('lisp')
+@command('lisp', category='programming')
 def lisp(bot, nick, target, chan, arg):
 	""" Interpret a Common Lisp snippet. """
 	if not arg:

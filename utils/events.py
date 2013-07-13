@@ -1,17 +1,20 @@
 import traceback
 
 Standard = [
-    'WelcomeEvent',
-    'JoinEvent',
-    'PartEvent',
-    'MessageEvent'
+    {'WelcomeEvent': 'welcome'},
+    {'JoinEvent': 'join'},
+    {'PartEvent': 'part'},
+    {'MessageEvent': 'message'},
+    {'NoticeEvent': 'notice'},
+    {'CloseLogEvent': 'close_log'}
 ]
 
 
 class Event():
     """ A simple event class """
-    def __init__(self):
+    def __init__(self, type_):
         self.handlers = set()
+        self.type = type_
 
     def register(self, handler):
         """ Register a function as an event handler """
@@ -20,6 +23,7 @@ class Event():
 
     def fire(self, *args, **kwargs):
         """ Fire this event """
+        kwargs.update({'type': self.type})
         try:
             for handler in self.handlers:
                 handler(*args, **kwargs)

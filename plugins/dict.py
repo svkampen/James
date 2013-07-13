@@ -10,7 +10,7 @@ try:
 except:
     from urllib import pathname2url as urlencode
 
-@command('dict', 'dictionary')
+@command('dict', 'dictionary', category='language')
 def dict_lookup(bot, nick, target, chan, arg):
     ''' Dictionary lookup. '''
     if not arg:

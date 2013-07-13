@@ -18,9 +18,9 @@ def initialize_plugin(bot):
     bot.state.data['sentence_re'] = re.compile(r"((Dr\.|Mrs\.|Miss\.|Mr\.)?(.*?)\.)")
 
 
-@command('wiki')
+@command('wiki', category='internet')
 def wikipedia_get(bot, nick, target, chan, arg):
-    """ Get the first sentence in a wikipedia article. """
+    """ Get the first two sentences in a wikipedia article. """
     term = arg.replace(" ", "_")
     term = urlencode(term)
 

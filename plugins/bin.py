@@ -4,7 +4,7 @@ Binary codec library for James.three
 from .util.decorators import command
 
 
-@command('bencode', 'binencode', 'binenc', 'benc', 'str2b')
+@command('bencode', 'binencode', 'binenc', 'benc', 'str2b', category='misc')
 def binencode(bot, nick, target, chan, arg):
     """Encode a string in binary"""
     if not arg:
@@ -12,7 +12,7 @@ def binencode(bot, nick, target, chan, arg):
     return bot.msg(chan, "".join('{:08b}'.format(ord(c)) for c in arg))
 
 
-@command('bdecode', 'bindecode', 'bindec', 'bdec', 'b2str')
+@command('bdecode', 'bindecode', 'bindec', 'bdec', 'b2str', category='misc')
 def bindecode(bot, nick, target, chan, arg):
     """Decode a binary number."""
     arg = arg.split()

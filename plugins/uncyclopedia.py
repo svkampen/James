@@ -18,7 +18,7 @@ def plugin_initializer(bot):
     bot.state.data['sentence_re'] = re.compile(r"((Dhr\.|Mrs\.|Mr\.)?(.*?)\.)")
 
 
-@command('wikia')
+@command('wikia', category='internet')
 def wikia_get_first_sentence(bot, nick, target, chan, arg):
     """ Get the first sentence in a wikia article. """
     headers = {

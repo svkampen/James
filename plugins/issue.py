@@ -6,10 +6,9 @@ import requests
 import json
 
 
-@command('request.feature', 'reqfeature')
+@command('request.feature', 'reqfeature', category='git')
 def request_feature(bot, nick, target, chan, arg):
     """ Request a feature on the James issue tracker. """
-    print('test')
     if not arg:
         return bot._msg(chan, "Usage: requestfeat title: description")
 
@@ -19,7 +18,6 @@ def request_feature(bot, nick, target, chan, arg):
     github_url = 'https://api.github.com/repos/svkampen/James/issues'
     auth_data = bot.state.apikeys.get('github', {'user': False, 'pass': False})
     auth = (auth_data['user'], auth_data['pass'])
-    print(auth)
     headers = {'Content-Type': 'application/json'}
     payload = {'title': arg[0], 'body': arg[1], 'assignee': 'svkampen',
                'labels': ['want']}
@@ -35,7 +33,7 @@ def request_feature(bot, nick, target, chan, arg):
                  % (page.status_code))
 
 
-@command('report.bug')
+@command('report.bug', category='git')
 def report_bug(bot, nick, target, chan, arg):
     """ Report a bug on the James issue tracker. """
     if not arg:
