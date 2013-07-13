@@ -4,7 +4,8 @@ Standard = [
     {'WelcomeEvent': 'welcome'},
     {'JoinEvent': 'join'},
     {'PartEvent': 'part'},
-    {'MessageEvent': 'message'}
+    {'MessageEvent': 'message'},
+    {'NoticeEvent': 'notice'}
 ]
 
 
@@ -21,9 +22,10 @@ class Event():
 
     def fire(self, *args, **kwargs):
         """ Fire this event """
+        kwargs.update({'type': self.type})
         try:
             for handler in self.handlers:
-                handler(*args, **kwargs, type=self.type)
+                handler(*args, **kwargs)
         except:
             traceback.print_exc()
 
