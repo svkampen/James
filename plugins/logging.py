@@ -15,7 +15,8 @@ def log(data):
         print((timestamp+data).encode('utf-8').decode('utf-8'))
     except:
         pass
-    logfile.write(timestamp+data+"\n")
+    if not logfile.closed:
+        logfile.write(timestamp+data+"\n")
 
 def log_message(*args):
     nick = args[1]

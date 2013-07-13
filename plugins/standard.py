@@ -60,3 +60,18 @@ def part_channel(bot, nick, target, chan, arg):
 def join_channel(bot, nick, target, chan, arg):
     """ Join the specified channel. """
     bot._send("JOIN :%s" % (arg))
+
+
+@command('short', category='meta')
+def get_shorthook(bot, nick, target, chan, arg):
+    """ Get the short hook for a command (if exists) """
+    if not arg:
+        return bot.msg(chan, "Usage: short <command>")
+    if bot.cmdhandler.trigger(arg):
+        shorthooks = bot.cmdhandler.trigger(arg).function.short_hooks
+        if shorthooks is not None:
+            return bot.msg(chan, "%s has short hook %s" % (arg, shorthooks[0]))
+        else:
+            return bot.msg(chan, "%s has no short hook." % (arg))
+    else:
+        return bot.msg(chan, "%s is not a valid command.")
