@@ -1,10 +1,10 @@
 import traceback
 
 Standard = [
-    'WelcomeEvent',
-    'JoinEvent',
-    'PartEvent',
-    'MessageEvent'
+    {'WelcomeEvent': 'welcome'},
+    {'JoinEvent': 'join'},
+    {'PartEvent': 'part'},
+    {'MessageEvent': 'message'}
 ]
 
 

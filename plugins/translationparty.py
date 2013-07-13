@@ -38,7 +38,7 @@ class tpThread(Thread):
 
     def run(self):
         url = "http://api.mymemory.translated.net/get"
-        for i in range(self.iters*2):
+        for i in range(self.iters):
             params = {'q': self.strings[i-1], 'langpair': self.langpair[i % 2], 'de': 'sam@tehsvk.net'}
             response = requests.get(url, headers=headers, params=params)
             data = response.json()
