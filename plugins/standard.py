@@ -4,13 +4,27 @@ Standard functions like quit, part, join, etc.
 from .util.decorators import command
 import sys
 
+def command_categories(bot):
+    categories = list(bot.cmdhandler.command_help.keys())
+    output = "What category do you want?\nCategories: %s" % (', '.join(categories))
+    return output
+
 
 @command('help', category='standard')
 def help_me(bot, nick, target, chan, arg):
     if not arg:
-        return bot.msg(chan, "commands: %s." % (', '.join(sorted([i for i in bot.cmdhandler.command_names if not i.isdigit()]))))
-    return bot.msg(chan, "%s: %s" % (arg, bot.cmdhandler.trigger(arg).function.__doc__.lstrip()))
-
+        return bot.msg(chan, command_categories(bot))
+    if arg in bot.cmdhandler.command_help.keys():
+        # Is a category, not just a command
+        output = "Category %s contains: %s" % (arg, ', '.join(bot.cmdhandler.command_help[arg]))
+        return bot.msg(chan, output)
+    else:
+        # Is a command, not a category (or nonexistant)
+        if not bot.cmdhandler.trigger(arg):
+            return bot.msg(chan, "%s: '%s' is a nonexistant command or category!" % (nick, arg))
+        else:
+            doc = bot.cmdhandler.trigger(arg).function.__doc__.strip()
+            bot.msg(chan, "%s: %s -> %s" % (nick, arg, doc))
 
 @command('say', category='standard')
 def say(bot, nick, target, chan, arg):
