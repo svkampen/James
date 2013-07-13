@@ -12,6 +12,7 @@ def command_categories(bot):
 
 @command('help', category='standard')
 def help_me(bot, nick, target, chan, arg):
+    """ Get help for a command or category """
     if not arg:
         return bot.msg(chan, command_categories(bot))
     if arg in bot.cmdhandler.command_help.keys():
@@ -28,6 +29,7 @@ def help_me(bot, nick, target, chan, arg):
 
 @command('say', category='standard')
 def say(bot, nick, target, chan, arg):
+    """ Say something """
     if not arg:
         return
     bot.msg(chan, arg)

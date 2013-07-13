@@ -12,6 +12,7 @@ except:
 
 @command('weather', category='internet')
 def weather_at(bot, nick, target, chan, arg):
+    """ Get the weather for a place """
     wv = list(getweather(arg))
     bot.msg(chan, "%s: %s" %(target, wv[0]))
 #    for w in wv:

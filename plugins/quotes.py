@@ -15,6 +15,7 @@ def fixindent(quoteobj):
 
 @command("quote.get", category='misc')
 def get_quote(bot, nick, target, chan, arg):
+    """ Get a quote from the Awfulnet QuoteDB. Semi-broken """
     if not arg:
         return bot.msg(chan, "Usage: quote.get #<quotenum>\nExample: quote.get #10")
     quotedb_url = "http://awfulnet.org/quotes/?%s" % (arg.split("#")[1])

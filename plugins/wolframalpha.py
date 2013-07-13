@@ -11,7 +11,8 @@ except:
     from urllib import pathname2url as urlencode
 
 @command('wa', category='internet')
-def proxywa(bot, nick, target, chan, arg): 
+def proxywa(bot, nick, target, chan, arg):
+    """ WolframAlpha search """
     if not arg:
         return bot.msg(chan, "No search term.")
     query = urlencode(arg)
