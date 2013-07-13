@@ -7,7 +7,7 @@ import datetime
 import time
 
 
-@command('ageme')
+@command('ageme', category='misc')
 def insult(bot, nick, target, chan, arg):
     """ Find exact age """
     if not arg:

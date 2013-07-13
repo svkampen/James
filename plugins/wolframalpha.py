@@ -10,7 +10,7 @@ try:
 except:
     from urllib import pathname2url as urlencode
 
-@command('wa')
+@command('wa', category='internet')
 def proxywa(bot, nick, target, chan, arg): 
     if not arg:
         return bot.msg(chan, "No search term.")

@@ -3,10 +3,10 @@ Socket tennis
 """
 from .util.decorators import command
 
-@command('pong')
+@command('pong', category='misc')
 def pong(bot, nick, target, chan, arg):
     return bot.msg(chan, "Pong!")
 
-@command('pong')
-def pong(bot, nick, target, chan, arg):
+@command('ping', category='misc')
+def ping(bot, nick, target, chan, arg):
     return bot.msg(chan, "Ping!")

@@ -42,7 +42,7 @@ def initialize_plugin(bot):
     bot.state.interp['locals'].update(globals())
 
 @require_admin
-@command('eval', short=">>>")
+@command('eval', short=">>>", category='meta')
 def eval_it(self, nick, target, chan, arg):
     arg = sugar(arg)
     ip = None

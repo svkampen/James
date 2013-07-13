@@ -4,9 +4,10 @@ Get definitions from urbandictionary
 from .util.decorators import command
 import requests
 import traceback
+import random
 
 
-@command('urban', 'urbandictionary', 'ud')
+@command('urban', 'urbandictionary', 'ud', category='internet')
 def urban_lookup(bot, nick, target, chan, arg):
     ''' UrbanDictionary lookup. '''
     if not arg:
@@ -53,7 +54,6 @@ def urban_lookup(bot, nick, target, chan, arg):
         bot.msg(chan, "%s: %s" % (target, output))
 
 def failmsg():
-    import random
     return random.choice([
         "%s: No definition found for %s.",
         "%s: The heck is '%s'?!",
@@ -70,7 +70,7 @@ def failmsg():
         "Shh %s, nobody's meant to know about '%s'...",
         "Really %s? %s?"])
 
-@command('urbanrandom', 'urbandictionaryrandom', 'udr')
+@command('urbanrandom', 'urbandictionaryrandom', 'udr', category='internet')
 def urban_random(bot, nick, target, chan, arg):
     ''' Random UrbanDictionary lookup. '''
     word = requests.get("http://api.urbandictionary.com/v0/random").json()['list'][0]['word']

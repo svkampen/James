@@ -13,7 +13,7 @@ def fixindent(quoteobj):
     return '\n'.join(quoteobj)
 
 
-@command("quote.get")
+@command("quote.get", category='misc')
 def get_quote(bot, nick, target, chan, arg):
     if not arg:
         return bot.msg(chan, "Usage: quote.get #<quotenum>\nExample: quote.get #10")
