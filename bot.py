@@ -12,7 +12,6 @@ import sys
 import json
 import plugins
 import functools
-from collections import deque
 from utils.commandhandler import CommandHandler
 from utils.events import Event
 from utils.decorators import startinfo
@@ -70,7 +69,6 @@ class James(IRCHandler):
         actualargs = msg['arg'].split(' ', 1)[1][1:]
         sender = msg['host'].split('!')[0]
         self.state.notices.append({'sender': sender, 'message': actualargs})
-        #self.log.log("-%s- %s" % (sender, actualargs))
         self.state.events['NoticeEvent'].fire(self, sender, actualargs)
 
     def privmsg(self, msg):
@@ -91,6 +89,7 @@ class James(IRCHandler):
         self.check_for_command(msg, nick, chan)
 
         self.state.events['MessageEvent'].fire(self, nick, chan, msg)
+        self.lastmsgof[nick] = msg
 
     def check_for_command(self, msg, nick, chan):
         """ Check for a command """
