@@ -43,13 +43,21 @@ def check_sed(msg):
     if re.match("^(\w+: )?s/.+/.+(/([gi]?){2})?$", msg):
         return True
 
+def sed_escape(msg):
+    msg = msg.replace('(', r"\(")
+    msg = msg.replace(")", r"\)")
+    return msg
+
 def sed(bot, nick, chan, msg):
-    to_sed = bot.lastmsgof[nick]
-    to_replace = msg.split('/')[1]
-    replace_with = msg.split('/')[2]
+    try:
+        to_sed = bot.lastmsgof[nick]
+    except KeyError:
+        pass
+
+    msg = sed_escape(msg)
 
     sed_p = subprocess.Popen(
-        "sed %s" % (msg),
+        "echo %s | sed \"%s\"" % (to_sed, msg),
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
