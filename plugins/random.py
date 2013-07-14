@@ -7,7 +7,7 @@ import random
 
 
 @command('random', category='misc')
-def elect(bot, nick, target, chan, arg):
+def elect(bot, nick, chan, arg):
     """ Pick between a comma separated list of options """
     if not arg:
         return bot.msg(chan, elect.__doc__.strip())

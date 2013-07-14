@@ -5,6 +5,7 @@ www_headers = {
 def sugar(arg):
     arg = arg.replace('ssalc', '')
     arg = arg.replace('fed', '')
+    arg = arg.replace('self', 'bot')
     return arg
 
 def lineify(data, max_size=400):

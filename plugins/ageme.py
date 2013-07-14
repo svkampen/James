@@ -8,7 +8,7 @@ import time
 
 
 @command('ageme', category='misc')
-def ageme(bot, nick, target, chan, arg):
+def ageme(bot, nick, chan, arg):
     """ Find exact age of person """
     if not arg:
         return bot.msg(chan, insult.__doc__.strip())

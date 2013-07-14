@@ -19,7 +19,7 @@ def initialize_plugin(bot):
 
 
 @command('wiki', category='internet')
-def wikipedia_get(bot, nick, target, chan, arg):
+def wikipedia_get(bot, nick, chan, arg):
     """ Get the first two sentences in a wikipedia article. """
     term = arg.replace(" ", "_")
     term = urlencode(term)
@@ -52,11 +52,11 @@ def wikipedia_get(bot, nick, target, chan, arg):
             sentences = ' '.join([x.groups()[0] for x in senreg[:2]])
         else:
             if (len(first_paragraph.split(". ")[0]) + len(first_paragraph.split(". ")[1])) > 32:
-                return bot._msg(chan, "%s: %s -- read more: %s" % (target, ' '.join(first_paragraph.split(". ")[:1]), bot.state.data['shortener'](bot, root)))
+                return bot._msg(chan, "%s: %s -- read more: %s" % (nick, ' '.join(first_paragraph.split(". ")[:1]), bot.state.data['shortener'](bot, root)))
     except:
         if len(senreg) > 0:
             sentences = senreg[0].groups()[0]
         else:
             if len(first_paragraph.split(". ")[0]) > 15:
-                return bot._msg(chan, "%s: %s -- read more: %s" % (target, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, root)))
-    bot._msg(chan, "%s: %s -- Read more: %s" % (target, sentences, bot.state.data['shortener'](bot, root)))
+                return bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_paragraph.split(". ")[0], bot.state.data['shortener'](bot, root)))
+    bot._msg(chan, "%s: %s -- Read more: %s" % (nick, sentences, bot.state.data['shortener'](bot, root)))

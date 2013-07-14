@@ -11,7 +11,7 @@ except:
     from urllib import pathname2url as urlencode
 
 @command('wa', category='internet')
-def proxywa(bot, nick, target, chan, arg):
+def proxywa(bot, nick, chan, arg):
     """ WolframAlpha search """
     if not arg:
         return bot.msg(chan, "No search term.")
@@ -20,4 +20,4 @@ def proxywa(bot, nick, target, chan, arg):
     answer = requests.get(uri % (urllib.parse.quote(query.replace('+', '%2B'))), headers=headers).text.strip('\n').replace(';', '  |  ').replace('\\/', '/')
     if not answer: 
        answer = 'Sorry, no result.'
-    bot.msg(chan, "%s: %s" %(target, answer))
+    bot.msg(chan, "%s: %s" %(nick, answer))

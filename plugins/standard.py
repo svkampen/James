@@ -11,7 +11,7 @@ def command_categories(bot):
 
 
 @command('help', category='standard')
-def help_me(bot, nick, target, chan, arg):
+def help_me(bot, nick, chan, arg):
     """ Get help for a command or category """
     if not arg:
         return bot.msg(chan, command_categories(bot))
@@ -30,7 +30,7 @@ def help_me(bot, nick, target, chan, arg):
             bot.msg(chan, "%s: %s -> %s" % (nick, arg, doc))
 
 @command('say', category='standard')
-def say(bot, nick, target, chan, arg):
+def say(bot, nick, chan, arg):
     """ Say something """
     if not arg:
         return
@@ -38,20 +38,20 @@ def say(bot, nick, target, chan, arg):
 
 
 @command('quit', 'exit', category='standard')
-def quitbot(bot, nick, target, chan, arg):
+def quitbot(bot, nick, chan, arg):
     """ Quit the bot. """
     bot.gracefully_terminate()
     sys.exit()
 
 
 @command('login', category='standard')
-def login(bot, nick, target, chan, arg):
+def login(bot, nick, chan, arg):
     """ Login to the bot. """
     bot.login(nick)
 
 
 @command('part', category='standard')
-def part_channel(bot, nick, target, chan, arg):
+def part_channel(bot, nick, chan, arg):
     """ Part the specified channel. """
     if not arg:
         arg = chan
@@ -59,13 +59,13 @@ def part_channel(bot, nick, target, chan, arg):
 
 
 @command('join', category='standard')
-def join_channel(bot, nick, target, chan, arg):
+def join_channel(bot, nick, chan, arg):
     """ Join the specified channel. """
     bot._send("JOIN :%s" % (arg))
 
 
 @command('short', category='meta')
-def get_shorthook(bot, nick, target, chan, arg):
+def get_shorthook(bot, nick, chan, arg):
     """ Get the short hook for a command (if exists) """
     if not arg:
         return bot.msg(chan, "Usage: short <command>")

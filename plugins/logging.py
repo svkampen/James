@@ -20,8 +20,8 @@ def log(data):
 
 def log_message(*args):
     nick = args[1]
-    chan = args[3]
-    msg = args[-1] # or 4
+    chan = args[2]
+    msg = args[-1] # or 3
     log("[%s] <%s> %s" % (chan, nick, msg))
 
 

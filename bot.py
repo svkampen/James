@@ -12,7 +12,6 @@ import sys
 import json
 import plugins
 import functools
-from collections import deque
 from utils.commandhandler import CommandHandler
 from utils.events import Event
 from utils.decorators import startinfo
@@ -35,7 +34,9 @@ class James(IRCHandler):
         self.botdir = os.getcwd()
 
         # state.
-        self.state.events = {list(i.keys())[0]: Event(list(i.values())[0]) for i in utils.events.Standard}
+        self.state.events = {list(i.keys())[0]: Event(list(i.values())[0])
+            for i in utils.events.Standard}
+
         self.state.apikeys = json.loads(open('apikeys.conf').read())
         self.state.data = {'autojoin_channels': []}
         self.state.data['autojoin_channels'].extend(CONFIG['autojoin'])
@@ -68,7 +69,6 @@ class James(IRCHandler):
         actualargs = msg['arg'].split(' ', 1)[1][1:]
         sender = msg['host'].split('!')[0]
         self.state.notices.append({'sender': sender, 'message': actualargs})
-        #self.log.log("-%s- %s" % (sender, actualargs))
         self.state.events['NoticeEvent'].fire(self, sender, actualargs)
 
     def privmsg(self, msg):
@@ -79,98 +79,25 @@ class James(IRCHandler):
         if not chan.startswith('#'):
             chan = nick  # if chan is a private message, file under them
         chan = chan.lower()
-        rawmsg = msg['arg'].split(':', 1)[1]  # get msg
-        target = nick  # failsafe
+        msg = msg['arg'].split(':', 1)[1]  # get msg
 
         if nick.lower() in self.state.muted and chan.startswith('#'):
-            #return self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
-            return self.state.events['MessageEvent'].fire(self, nick, None, chan, rawmsg)
+            return self.state.events['MessageEvent'].fire(self, nick, chan, msg)
 
-        # Test for target
-        msg = rawmsg
-        try:
-            if ',' in rawmsg:
-                preamb = rawmsg.split(',')[0]
-                # this is a hackish solution, change it
-                if preamb.lower() in self.lastmsgof[chan].keys():
-                    target = preamb
-                    msg = rawmsg.split(',', 1)[1].lstrip()
-            if ':' in rawmsg:
-                preamb = rawmsg.split(':')[0]
-                if preamb.lower() in self.lastmsgof[chan].keys():
-                    target = preamb
-                    msg = rawmsg.split(':', 1)[1].lstrip()
-        except KeyError:
-            if chan in self.lastmsgof.keys():
-                self.lastmsgof[chan.lower()][nick.lower()] = deque([rawmsg], 16)
-            else:
-                self.lastmsgof[chan.lower()] = {'*all': deque([], 64),
-                                                nick: deque([rawmsg], 16)}
-
-        #self.log.log("[%s] <%s> %s" % (chan, nick, rawmsg))
-        self.handlemsg(nick, chan, msg, target, rawmsg)
-
-    def handlemsg(self, nick, chan, msg, target, rawmsg):
-        """ Handles Messages.. again """
         # Test for inline code
         msg = utils.parse.inline_python(nick, chan, msg)
 
-        # Test for sed
-        try:
-            if utils.parse.check_for_sed(self, msg):
+        # test for sed
+        if utils.parse.check_sed(msg):
+            # we have a winner
+            utils.parse.sed(self, nick, chan, msg)
 
-                parsed_msg = utils.parse.parse_sed(self,
-                    msg.replace("\/", "\13"),
-                    self.lastmsgof[chan.lower()][target.lower()])
+        self.check_for_command(msg, nick, chan)
 
-                if parsed_msg == -1:
-                    parsed_msg = utils.parse.parse_sed(self,
-                        msg.replace("\/", "\13"),
-                        self.lastmsgof[chan.lower()]["*all"])
-                    if parsed_msg == -1:
-                        self._msg(chan, "%s: No matches found" % (nick))
-                    else:
-                        new_msg = re.sub(parsed_msg['to_replace'],
-                            parsed_msg['replacement'], parsed_msg['oldmsg'],
-                            0 if parsed_msg['glob'] else 1)
+        self.state.events['MessageEvent'].fire(self, nick, chan, msg)
+        self.lastmsgof[nick] = msg
 
-                        if not '\x01' in new_msg:
-                            self._msg(chan, "%s"
-                                % (new_msg.replace("\13", "/")))
-                        else:
-                            self._msg(chan, "*%s*"
-                                % (new_msg[8:-1].replace('\13',
-                                    '/').split('\x01')[1].split(' ', 1)[1]))
-                else:
-                    new_msg = re.sub(parsed_msg['to_replace'],
-                        parsed_msg['replacement'], parsed_msg['oldmsg'],
-                        0 if parsed_msg['glob'] else 1)
-
-                    if not '\x01' in new_msg:
-                        self._msg(chan, "<%s> %s" % (target,
-                            new_msg.replace("\13", "/")))
-                    else:
-                        self._msg(chan, "*%s %s*" % (target,
-                        new_msg.replace('\13',
-                            '/').split('\x01')[1].split(' ', 1)[-1]))
-            else:
-                self.lastmsgof[chan.lower()][nick.lower()].appendleft(rawmsg)
-                self.lastmsgof[chan.lower()]['*all'].appendleft("<%s> %s"
-                    % (nick, rawmsg))
-
-        except KeyError:
-            if chan.lower() in self.lastmsgof.keys():
-                self.lastmsgof[chan.lower()][nick.lower()] = deque([rawmsg], 16)
-            else:
-                self.lastmsgof[chan.lower()] = {'*all': deque([], 64),
-                    nick: deque([rawmsg], 16)}
-
-        # Test for command
-        self.check_for_command(msg, nick, target, chan)
-
-        self.state.events['MessageEvent'].fire(self, nick, target, chan, msg)
-
-    def check_for_command(self, msg, nick, target, chan):
+    def check_for_command(self, msg, nick, chan):
         """ Check for a command """
         cmd_splitmsg = msg.split(" ", 1)
         try:
@@ -183,9 +110,9 @@ class James(IRCHandler):
             if triggered_short:
                 if hasattr(triggered_short.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
-                        triggered_short(self, nick, target, chan, cmd_args)
+                        triggered_short(self, nick, chan, cmd_args)
                 else:
-                    triggered_short(self, nick, target, chan, cmd_args)
+                    triggered_short(self, nick, chan, cmd_args)
             if msg.startswith(CONFIG['cmdchar']):
                 cmd_name = cmd_splitmsg[0][1:]
                 callback = self.cmdhandler.trigger(cmd_name)
@@ -195,9 +122,9 @@ class James(IRCHandler):
 
                 if hasattr(callback.function, '_require_admin'):
                     if nick.lower() in self.state.admins:
-                        callback(self, nick, target, chan, cmd_args)
+                        callback(self, nick, chan, cmd_args)
                 else:
-                    callback(self, nick, target, chan, cmd_args)
+                    callback(self, nick, chan, cmd_args)
         except BaseException:
             self._meditate(sys.exc_info(), chan)
             traceback.print_exc()
