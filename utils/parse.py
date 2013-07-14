@@ -60,6 +60,7 @@ def parse_sed(bot, sedmsg, oldmsgs):
     import traceback
     import re
     split_msg = sedmsg.split('/')[1:]
+    split_msg[1] = split_msg[1].replace('\1', r'\1')
     glob = False
     case = False
     if len(split_msg) == 3:
