@@ -8,7 +8,7 @@ import random
 
 
 @command('urban', 'urbandictionary', 'ud', category='internet')
-def urban_lookup(bot, nick, target, chan, arg):
+def urban_lookup(bot, nick, chan, arg):
     ''' UrbanDictionary lookup. '''
     if not arg:
         return bot.msg(chan, "Usage: urban [phrase] [index?]")
@@ -48,10 +48,10 @@ def urban_lookup(bot, nick, target, chan, arg):
         tinyurl = bot.state.data['shortener'](bot, defs[index]['permalink'])
         output = output[:output.rfind(' ', 0, 180)] + '...\r\nRead more: %s'\
             % (tinyurl)
-        bot.msg(chan, "%s: %s" % (target, output))
+        bot.msg(chan, "%s: %s" % (nick, output))
 
     else:
-        bot.msg(chan, "%s: %s" % (target, output))
+        bot.msg(chan, "%s: %s" % (nick, output))
 
 def failmsg():
     return random.choice([
@@ -71,7 +71,7 @@ def failmsg():
         "Really %s? %s?"])
 
 @command('urbanrandom', 'urbandictionaryrandom', 'udr', category='internet')
-def urban_random(bot, nick, target, chan, arg):
+def urban_random(bot, nick, chan, arg):
     ''' Random UrbanDictionary lookup. '''
     word = requests.get("http://api.urbandictionary.com/v0/random").json()['list'][0]['word']
-    urban_lookup(bot, nick, target, chan, word)
+    urban_lookup(bot, nick, chan, word)

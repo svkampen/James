@@ -8,7 +8,7 @@ import random
 
 
 @command('misc.day_at', category='misc')
-def get_weekday_at(bot, nick, target, chan, arg):
+def get_weekday_at(bot, nick, chan, arg):
     """
     Get the day of the week at <date>
     <date> format: yyyy-mm-dd
@@ -24,7 +24,7 @@ def get_weekday_at(bot, nick, target, chan, arg):
 
 
 @command('unibarf', short='barf', category='"language"')
-def unicode_please(bot, nick, target, chan, arg):
+def unicode_please(bot, nick, chan, arg):
     """ Return a random number of unicode characters, or <arg> amount of unicode characters. """
     if not arg:
         arg = random.randint(2, 400)

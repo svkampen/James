@@ -7,7 +7,7 @@ import os
 
 
 @command('fortune', category='misc')
-def fortune(bot, nick, target, chan, arg):
+def fortune(bot, nick, chan, arg):
     """Get a fortune cookie"""
     cookie = os.popen("fortune -as").read().strip().replace('\t', "    ")
     if cookie:

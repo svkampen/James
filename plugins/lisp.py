@@ -7,7 +7,7 @@ import os
 import subprocess
 
 @command('lisp', category='programming')
-def lisp(bot, nick, target, chan, arg):
+def lisp(bot, nick, chan, arg):
 	""" Interpret a Common Lisp snippet. """
 	if not arg:
 		return bot._msg(chan, "Usage: lisp [code]")

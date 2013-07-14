@@ -5,7 +5,7 @@ from .util.decorators import command
 
 
 @command('bencode', 'binencode', 'binenc', 'benc', 'str2b', category='misc')
-def binencode(bot, nick, target, chan, arg):
+def binencode(bot, nick, chan, arg):
     """Encode a string in binary"""
     if not arg:
         return bot.msg(chan, binencode.__doc__)
@@ -13,7 +13,7 @@ def binencode(bot, nick, target, chan, arg):
 
 
 @command('bdecode', 'bindecode', 'bindec', 'bdec', 'b2str', category='misc')
-def bindecode(bot, nick, target, chan, arg):
+def bindecode(bot, nick, chan, arg):
     """Decode a binary number."""
     arg = arg.split()
     arg = ''.join(arg)

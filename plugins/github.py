@@ -13,7 +13,7 @@ def getpercentage(part, whole):
 
 
 @command('github.what.is', category='git')
-def what_the_fuck_is_this(bot, nick, target, chan, arg):
+def what_the_fuck_is_this(bot, nick, chan, arg):
     """ Get the description of a github repository """
     auth_data = bot.state.apikeys['github']
     auth = (auth_data['user'], auth_data['pass'])
@@ -25,7 +25,7 @@ def what_the_fuck_is_this(bot, nick, target, chan, arg):
 
 
 @command('github.stats_for', category='git')
-def repostats(bot, nick, target, chan, arg):
+def repostats(bot, nick, chan, arg):
     """ Get statistics for a github repository """
     auth_data = bot.state.apikeys['github']
     auth = (auth_data['user'], auth_data['pass'])

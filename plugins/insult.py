@@ -9,7 +9,7 @@ import requests
 
 
 @command('insult', category='misc')
-def insult(bot, nick, target, chan, arg):
+def insult(bot, nick, chan, arg):
     """ Get an insult. Usage: insult <user> """
     if not arg:
         return bot.msg(chan, insult.__doc__.strip())

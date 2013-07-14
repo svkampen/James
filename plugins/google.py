@@ -6,7 +6,7 @@ import requests
 
 
 @command('google', category='internet')
-def google(bot, nick, target, chan, arg):
+def google(bot, nick, chan, arg):
     """ Return the first google result for <argument>. """
     if not arg:
         return bot.msg(chan, "Usage: google [query]")

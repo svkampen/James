@@ -19,7 +19,7 @@ def plugin_initializer(bot):
 
 
 @command('wikia', category='internet')
-def wikia_get_first_sentence(bot, nick, target, chan, arg):
+def wikia_get_first_sentence(bot, nick, chan, arg):
     """ Get the first sentence in a wikia article. """
     headers = {
         'User-Agent': 'Mozilla/5.0 (compatible) / JamesIRC'

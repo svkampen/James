@@ -11,10 +11,10 @@ except:
     from urllib import pathname2url as urlencode
 
 @command('weather', category='internet')
-def weather_at(bot, nick, target, chan, arg):
+def weather_at(bot, nick, chan, arg):
     """ Get the weather for a place """
     wv = list(getweather(arg))
-    bot.msg(chan, "%s: %s" %(target, wv[0]))
+    bot.msg(chan, "%s: %s" %(nick, wv[0]))
 #    for w in wv:
 #        __import__('sys').stdout.buffer.write((w+'\n').encode('utf-8'))
 

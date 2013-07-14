@@ -81,23 +81,18 @@ class James(IRCHandler):
         if not chan.startswith('#'):
             chan = nick  # if chan is a private message, file under them
         chan = chan.lower()
-        rawmsg = msg['arg'].split(':', 1)[1]  # get msg
-        target = nick
+        msg = msg['arg'].split(':', 1)[1]  # get msg
 
         if nick.lower() in self.state.muted and chan.startswith('#'):
-            return self.state.events['MessageEvent'].fire(self, nick, None, chan, rawmsg)
+            return self.state.events['MessageEvent'].fire(self, nick, chan, msg)
 
-        self.handlemsg(nick, chan, msg, target, rawmsg)
-
-    def handlemsg(self, nick, chan, msg, target, rawmsg):
-        """ Handles Messages.. again """
         # Test for inline code
         msg = utils.parse.inline_python(nick, chan, msg)
-        self.check_for_command(msg, nick, target, chan)
+        self.check_for_command(msg, nick, chan)
 
-        self.state.events['MessageEvent'].fire(self, nick, target, chan, msg)
+        self.state.events['MessageEvent'].fire(self, nick, chan, msg)
 
-    def check_for_command(self, msg, nick, target, chan):
+    def check_for_command(self, msg, nick, chan):
         """ Check for a command """
         cmd_splitmsg = msg.split(" ", 1)
         try:
@@ -110,9 +105,9 @@ class James(IRCHandler):
             if triggered_short:
                 if hasattr(triggered_short.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
-                        triggered_short(self, nick, target, chan, cmd_args)
+                        triggered_short(self, nick, chan, cmd_args)
                 else:
-                    triggered_short(self, nick, target, chan, cmd_args)
+                    triggered_short(self, nick, chan, cmd_args)
             if msg.startswith(CONFIG['cmdchar']):
                 cmd_name = cmd_splitmsg[0][1:]
                 callback = self.cmdhandler.trigger(cmd_name)
@@ -122,9 +117,9 @@ class James(IRCHandler):
 
                 if hasattr(callback.function, '_require_admin'):
                     if nick.lower() in self.state.admins:
-                        callback(self, nick, target, chan, cmd_args)
+                        callback(self, nick, chan, cmd_args)
                 else:
-                    callback(self, nick, target, chan, cmd_args)
+                    callback(self, nick, chan, cmd_args)
         except BaseException:
             self._meditate(sys.exc_info(), chan)
             traceback.print_exc()
