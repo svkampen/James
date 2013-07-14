@@ -86,6 +86,12 @@ class James(IRCHandler):
 
         # Test for inline code
         msg = utils.parse.inline_python(nick, chan, msg)
+
+        # test for sed
+        if utils.parse.check_sed(msg):
+            # we have a winner
+            utils.parse.sed(bot, nick, chan, msg)
+
         self.check_for_command(msg, nick, chan)
 
         self.state.events['MessageEvent'].fire(self, nick, chan, msg)
