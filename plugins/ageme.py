@@ -8,7 +8,7 @@ import time
 
 
 @command('ageme', category='misc')
-def insult(bot, nick, target, chan, arg):
+def ageme(bot, nick, target, chan, arg):
     """ Find exact age of person """
     if not arg:
         return bot.msg(chan, insult.__doc__.strip())
@@ -36,6 +36,9 @@ def insult(bot, nick, target, chan, arg):
     except ValueError:
         return bot.msg(chan, "USAGE: +ageme day month year [prec] [target]")
 
-    age = ("%." + prec + "f") % ((time.time() - time.mktime(datetime.date(int(year), int(month), int(day)).timetuple())) / (60 * 60 * 24 * 365.242))
+    try:
+        age = ("%." + prec + "f") % ((time.time() - time.mktime(datetime.date(int(year), int(month), int(day)).timetuple())) / (60 * 60 * 24 * 365.242))
+    except:
+        return bot.msg(chan, "Error parsing date. Are you american?")
 
     bot._msg(chan, "*%s is %s years old*" % (nick, age))
