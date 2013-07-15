@@ -46,6 +46,10 @@ def check_sed(msg):
 def sed_escape(msg):
     msg = msg.replace('(', r"\(")
     msg = msg.replace(")", r"\)")
+    while msg.count('/') != 3:
+        # not valid, because valid is only 3 slashes (s/a/b/)
+        msg = msg[:msg.rfind("/")] # strip
+    msg = msg[:msg.rfind("/")+1] # good.
     return msg
 
 def sed(bot, nick, chan, msg):
