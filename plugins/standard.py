@@ -3,6 +3,7 @@ Standard functions like quit, part, join, etc.
 """
 from .util.decorators import command
 import sys
+import platform
 
 def command_categories(bot):
     categories = list(bot.cmdhandler.command_help.keys())
@@ -62,6 +63,19 @@ def part_channel(bot, nick, chan, arg):
 def join_channel(bot, nick, chan, arg):
     """ Join the specified channel. """
     bot._send("JOIN :%s" % (arg))
+
+
+@command('version', category='standard')
+def version(bot, nick, chan, arg):
+    libc_ver = ' '.join(platform.libc_ver())
+    python_ver = platform.python_version()
+    bot_ver = bot.version
+    distro = platform.linux_distribution()[0] # 'arch' on arch linux
+    compiler = platform.python_compiler()
+
+    output = 'Bot version: %s - Python compiler: %s using %s\n' % (bot_ver, compiler, libc_ver)
+    output += 'Python version: %s - Linux distribution: %s' % (python_ver, distro)
+    bot.msg(chan, output)
 
 
 @command('short', category='meta')
