@@ -1,11 +1,12 @@
-""" 
- command class definition - do not confuse this with
- the individual plugins in plugins/
- by Sam van Kampen, 2013 
+"""
+command class definition - do not confuse this with
+the individual plugins in plugins/
+by Sam van Kampen, 2013
 """
 
 import sys
 import traceback
+
 
 class Command(object):
     """Command(Object function, List<str> hooks=[], List<str> shorthooks=[])"""
@@ -42,10 +43,11 @@ class Command(object):
         else:
             return True if trigger in self.hooks else False
 
+
 def plugins_to_commands(plugins):
     """Turn a list of plugins into a list of commands"""
     commands = []
-    has_hook=False
+    has_hook = False
     if type(plugins) == type(sys.modules[__name__]):
         plugins = [plugins]
     try:
@@ -54,7 +56,7 @@ def plugins_to_commands(plugins):
                 if hasattr(function, "hook"):
                     has_hook = True
                     new_command = Command(function, function.hook)
-                if hasattr(function, "shorthook") and has_hook == True:
+                if hasattr(function, "shorthook") and has_hook:
                     new_command.set_shorthooks(function.shorthook)
                 if has_hook:
                     commands.append(new_command)
@@ -63,6 +65,7 @@ def plugins_to_commands(plugins):
         traceback.print_exc()
 
     return commands
+
 
 def plugins_to_initializers(plugins):
     """Turn a list of plugins into a list of initializers"""

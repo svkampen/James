@@ -1,4 +1,4 @@
-""" 
+"""
 IRC API - irc.py
 """
 
@@ -10,6 +10,7 @@ from .num import NUM as numerics
 import time
 
 CONFIG = {}
+
 
 class IRCHandler(object):
     """ IRCHandler(Dict<string, object> config) - a standard IRC handler """
@@ -24,8 +25,14 @@ class IRCHandler(object):
 
     def connect(self):
         """ Connect to the IRC server and start the main loop """
-        server = CONFIG["server"]
-        self.sock.connect((server[:-5], int(server[-4:])))
+        server = CONFIG["server"].split("|")[0].split(":")
+        self.sock.connect((server[0], int(server[1])))
+        try:
+            passwd = CONFIG["server"].split("|", 1)[1]
+            if passwd:
+                self._send("PASS "+passwd)
+        except:
+            pass
         self.mainloop()
 
     def mainloop(self):
@@ -35,15 +42,15 @@ class IRCHandler(object):
             while self.running:
 
                 time.sleep(0.1)
-                try:
-                    self.buff.append(self.sock.recv(1024).decode('utf-8'))
-                except UnicodeDecodeError:
+                if loops != 0:
                     try:
-                        self.buff.append(self.sock.recv(1024).decode('utf-16'))
-                    except:
-                        pass
-
-                if loops == 0:
+                        self.buff.append(self.sock.recv(1024).decode('utf-8'))
+                    except UnicodeDecodeError:
+                        try:
+                            self.buff.append(self.sock.recv(1024).decode('utf-16'))
+                        except:
+                            pass
+                else:
                     self.sendnick()
                     self.senduser()
 
@@ -75,7 +82,7 @@ class IRCHandler(object):
             if self.verbose:
                 print('<<< '+msg)
             self.sock.send((msg+newline).encode('utf-8'))
-            time.sleep(1)
+            time.sleep(1.6)
 
     def try_to_call(self, function, namespace=None, args=None, unpack=True):
         """ Try to call a function. """
@@ -85,7 +92,7 @@ class IRCHandler(object):
             if not args:
                 getattr(namespace, function)()
             else:
-                if type(args) not in (tuple, list) or unpack == False:
+                if type(args) not in (tuple, list) or not unpack:
                     getattr(namespace, function)(args)
                 else:
                     getattr(namespace, function)(*args)

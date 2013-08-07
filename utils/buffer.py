@@ -1,8 +1,10 @@
-""" 
+"""
 A buffer for the input stream from sockets. Iterable.
 """
+
+
 class Buffer(object):
-    """ 
+    """
     Represents an iterable buffer that returns completed lines.
     """
     def __init__(self):
@@ -19,6 +21,7 @@ class Buffer(object):
             return data.rstrip()
 
     def next(self):
+        """ Next in Py3K """
         return self.__next__()
 
     def append(self, data):
@@ -27,5 +30,5 @@ class Buffer(object):
         return data
 
     def get_buffer(self):
-        """ Make pylint shut up """ 
+        """ Make pylint shut up """
         print(self.buffer)

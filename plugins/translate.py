@@ -1,4 +1,4 @@
-""" 
+"""
 Translate module.
 """
 
@@ -6,8 +6,10 @@ from .util.decorators import command
 import requests
 from .util.data import www_headers as headers
 
-@command('translate')
-def translate(bot, nick, target, chan, arg):
+
+@command('translate', category='language')
+def translate(bot, nick, chan, arg):
+    """ Translate a snippet. Usage: translate <from>-<to> <snippet> """
     args = arg.split()
     langpair = args[0].replace('-', '|').replace('#', '-')
     word = ' '.join(args[1:])
@@ -17,5 +19,4 @@ def translate(bot, nick, target, chan, arg):
     data = response.json()
     if 'INVALID TARGET LANGUAGE' in data['responseData']['translatedText']:
         return bot.msg(chan, "%s: Invalid target language." % (target))
-    print(data)
     bot.msg(chan, "%s: %s" % (target, data['responseData']['translatedText']))

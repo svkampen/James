@@ -1,70 +1,108 @@
-""" 
+"""
 IRC Parser - parse.py
 """
 
-import sys
+import inspect
+import traceback
+import re
+import subprocess
 
 def parse(msg):
-    """ Parse placeholder """
-    return msg
+    """ Parse an IRC protocol message """
+    if msg.startswith("PING"):
+        info = {'method': 'PING', 'arg': msg.split()[-1]}
+    else:
+        splitmsg = msg.split(' ', 2)
+        info = {'method': splitmsg[1], 'host': splitmsg[0][1:], 'arg':
+                splitmsg[2]}
+    return info
 
-class Parse(object):
-    """ Parser """
-    def __call__(self, msg):
-        return self.parse(msg)
-
-    def parse(self, msg):
-        """ Parse a string """
-        if msg.startswith("PING"):
-            info = {'method': 'PING', 'arg': msg.split()[-1]}
-        else:
-            splitmsg = msg.split(' ', 2)
-            info = {'method': splitmsg[1], 'host': splitmsg[0][1:], 'arg':\
-                    splitmsg[2]}
-        return info
-
-    def inline_python(self, bot, nick, chan, msg):
-        import inspect
-        import traceback
-        import re
-        pieces_of_python = re.findall("`([^`]+)`", msg)
-        evaluate_expression = inspect.getmodule(bot.cmdhandler.trigger('eval').function).evaluate_expression
-        pieces = []
-        if pieces_of_python == []:
-            return msg
-        for piece in pieces_of_python:
+def evaluate(self, nick, chan, msg):
+    """ Evaluate python code. """
+    try:
+        output = eval(msg, globals(), locals())
+        if output is not None:
+            self.leo = output
+            if type(self.leo) == tuple:
+                self.leo = list(self.leo)
+                output = list(output)
+            return output
+    except (NameError, SyntaxError):
+        try:
+            exec(msg, globals())
+        except:
             try:
-                msg = msg.replace(piece, evaluate_expression(bot, nick, chan, piece))
+                exec(msg, locals())
             except:
-                traceback.print_exc()
-        return msg.replace('`', '')
+                try:
+                    exec(msg,globals(),locals())
+                except:
+                    exec(msg,locals(),globals())
 
-    def check_for_sed(self, bot, msg):
-        import re
-        if re.match("^(\w+: )?s/.+/.+(/([gi]?){2})?$", msg):
-            return True
+###
+##
+## Sed part
+##
+###
 
-    def parse_sed(self, bot, sedmsg, oldmsgs):
-        import re
-        split_msg = sedmsg.split('/')[1:]
-        glob = False
-        case = False
-        if len(split_msg) == 3:
-            if 'g' in split_msg[2]:
-                glob = True
-            if 'i' in split_msg[2]:
-                case = True
-        regex = re.compile(split_msg[0], re.I if case else 0)
-        for msg in oldmsgs:
-            if regex.search(msg) is not None:
-                if case:
-                    return {'to_replace': "(?i)"+split_msg[0], 'replacement': lambda match: split_msg[1].replace("&", match.group(0)), 'oldmsg': msg, 'glob': glob}
-                else:
-                    return {'to_replace': split_msg[0], 'replacement': lambda match: split_msg[1].replace("&", match.group(0)), 'oldmsg': msg, 'glob': glob}
-        return -1
+class Seddable(object):
+    def __init__(self, msg):
+        message_split = msg.split('/')
 
-    def copy(self):
-        """ Copy this Parse instance """
-        return self
+        replace = message_split[1]
+        by = message_split[2]
 
-sys.modules[__name__]  = Parse()
+        self.message = msg
+        self.to_replace = replace
+        self.by = by
+
+def get_message(bot, sedregex, nick):
+    if not nick in bot.state.messages:
+        return ""
+    for message in bot.state.messages[nick]:
+        if re.search(sedregex, message):
+            return message
+    return ""
+
+def check_sed(msg):
+    """ Check whether a message is a sed request """
+    if re.match("^(([a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*)[:,] )?s/.+/.*(/([gi]?){2})?$", msg):
+        return True
+
+def sed(bot, nick, chan, msg):
+    """ Perform the actual sedding """
+    if re.match("^(([a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*)[:,] )s/.+/.*(/([gi]?){2})?$", msg):
+        # target acquired
+        split_msg = msg.split(':')
+        nick = split_msg[0]
+        msg = split_msg[1].strip()
+
+    sedmsg = Seddable(msg)
+    to_sed = get_message(bot, sedmsg.to_replace, nick)
+
+    if not to_sed:
+        return
+
+    sedmsg.message = to_sed
+    sedded_message = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message)
+    return bot.msg(chan, "FTFY <%s> %s" % (nick, sedded_message))
+
+
+###
+##
+## Inline python
+##
+###
+
+def inline_python(bot, nick, chan, msg):
+    """ Execute inline python """
+    pieces_of_python = re.findall("`([^`]+)`", msg)
+    if pieces_of_python == []:
+        return msg
+    for piece in pieces_of_python:
+        try:
+            msg = msg.replace(piece, str(evaluate(bot, nick, chan, piece)))
+        except BaseException:
+            traceback.print_exc()
+    return msg.replace('`', '')
+
