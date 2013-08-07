@@ -7,7 +7,7 @@ import traceback
 import re
 import subprocess
 
-SED_REGEX = re.compile(r"^(?:(\S+)[:,] )?(?:(.+?)/)?s/(.+?)/(.*?)(?:/([gi]{0,2}))?$")
+SED_REGEX = re.compile(r"^(?:(\S+)[:,] )?(?:(.+?)/)?s/(.+?)/(.*?)(?:/([gix]{0,2}))?$")
 
 def parse(msg):
     """ Parse an IRC protocol message """
