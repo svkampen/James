@@ -55,6 +55,12 @@ def populate(sedobject, groups):
 def set_flags(sedobject, flags):
     i = 0
     count = 1
+
+    if not flags:
+        setattr(sedobject, 'flags', i)
+        setattr(sedobject, 'count', count)
+        return
+
     for item in flags:
         if item == 'i':
             i += re.IGNORECASE
@@ -65,6 +71,11 @@ def set_flags(sedobject, flags):
 
     setattr(sedobject, 'flags', i)
     setattr(sedobject, 'count', count)
+
+def debug(sedobject):
+    for k,v in sedobject.__dict__.items():
+        if not k.startswith('_') or not k.endswith("_"):
+            print("%s: %s" % (k,v))
 
 def get_message(bot, sedregex, nick, qual=None):
     if not nick in bot.state.messages:
@@ -91,6 +102,8 @@ def sed(bot, nick, chan, msg):
     groups = SED_REGEX.match(msg).groups()
     populate(s, groups)
     set_flags(s, s.flags)
+
+    debug(s)
 
     if s.target:
         nick = s.target
