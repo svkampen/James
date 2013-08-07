@@ -60,7 +60,7 @@ def set_flags(sedobject, flags):
         if item == 'i':
             i += re.IGNORECASE
         if item == 'x':
-            i += re.x
+            i += re.X
         if item == 'g':
             count = 0
 
