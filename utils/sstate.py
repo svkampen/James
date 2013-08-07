@@ -10,6 +10,7 @@ class ServerState(object):
         self.muted = set()
         self.nick = 'JamesNext'
         self.notices = []
+        self.messages = {}
 
     def add_admin(self, nick):
         """ Add an user to the admin list. """

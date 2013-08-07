@@ -8,7 +8,7 @@ import re
 import subprocess
 
 def parse(msg):
-    """ blah """
+    """ Parse an IRC protocol message """
     if msg.startswith("PING"):
         info = {'method': 'PING', 'arg': msg.split()[-1]}
     else:
@@ -17,7 +17,7 @@ def parse(msg):
                 splitmsg[2]}
     return info
 
-def evaluate_expression(self, nick, chan, msg):
+def evaluate(self, nick, chan, msg):
     """ Evaluate python code. """
     try:
         output = eval(msg, globals(), locals())
@@ -39,38 +39,60 @@ def evaluate_expression(self, nick, chan, msg):
                 except:
                     exec(msg,locals(),globals())
 
+###
+##
+## Sed part
+##
+###
+
+class Seddable(object):
+    def __init__(self, msg):
+        message_split = msg.split('/')
+
+        replace = message_split[1]
+        by = message_split[2]
+
+        self.message = msg
+        self.to_replace = replace
+        self.by = by
+
+def get_message(bot, sedregex, nick):
+    if not nick in bot.state.messages:
+        return ""
+    for message in bot.state.messages[nick]:
+        if re.search(sedregex, message):
+            return message
+    return ""
+
 def check_sed(msg):
-    if re.match("^(\w+: )?s/.+/.+(/([gi]?){2})?$", msg):
+    """ Check whether a message is a sed request """
+    if re.match("^(([a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*)[:,] )?s/.+/.*(/([gi]?){2})?$", msg):
         return True
 
-def sed_escape(msg):
-    msg = msg.replace('(', r"\(")
-    msg = msg.replace(")", r"\)")
-    while msg.count('/') != 3:
-        # not valid, because valid is only 3 slashes (s/a/b/)
-        msg = msg[:msg.rfind("/")] # strip
-    msg = msg[:msg.rfind("/")+1] # good.
-    return msg
-
 def sed(bot, nick, chan, msg):
-    try:
-        to_sed = bot.lastmsgof[nick]
-    except KeyError:
-        pass
+    """ Perform the actual sedding """
+    if re.match("^(([a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*)[:,] )s/.+/.*(/([gi]?){2})?$", msg):
+        # target acquired
+        split_msg = msg.split(':')
+        nick = split_msg[0]
+        msg = split_msg[1].strip()
 
-    msg = sed_escape(msg)
+    sedmsg = Seddable(msg)
+    to_sed = get_message(bot, sedmsg.to_replace, nick)
 
-    sed_p = subprocess.Popen(
-        "echo %s | sed \"%s\"" % (to_sed, msg),
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        close_fds=True
-    )
+    if not to_sed:
+        return
 
-    output = sed_p.stdout.read().decode('utf-8').strip()
-    return bot.msg(chan, "%s: %s" % (nick, output))
+    sedmsg.message = to_sed
+    sedded_message = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message)
+    return bot.msg(chan, "FTFY <%s> %s" % (nick, sedded_message))
 
+
+###
+##
+## Inline python
+##
+###
 
 def inline_python(bot, nick, chan, msg):
     """ Execute inline python """
@@ -79,7 +101,7 @@ def inline_python(bot, nick, chan, msg):
         return msg
     for piece in pieces_of_python:
         try:
-            msg = msg.replace(piece, str(evaluate_expression(bot, nick, chan, piece)))
+            msg = msg.replace(piece, str(evaluate(bot, nick, chan, piece)))
         except BaseException:
             traceback.print_exc()
     return msg.replace('`', '')

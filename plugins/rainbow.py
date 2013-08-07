@@ -71,4 +71,4 @@ def rainbow(arg):
 @command('rainbow', category='misc')
 def rainbowify(bot, nick, chan, arg):
     """ Rainbowify anything. """
-    bot.msg(chan, '%s: %s' % (target, rainbow(arg)))
+    bot.msg(chan, '%s: %s' % (nick, rainbow(arg)))
