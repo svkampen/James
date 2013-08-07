@@ -15,7 +15,7 @@ except:
 @initializer
 def initialize_plugin(bot):
     """ Initialize this plugin. """
-    bot.state.data['sentence_re'] = re.compile(r"((Dr\.|Mrs\.|Miss\.|Mr\.)?(.*?)\.)")
+    bot.state.data['sentence_re'] = re.compile(r"(([DM]rs?\.|Miss\.)?(.*?)\.)")
 
 
 @command('wiki', category='internet')

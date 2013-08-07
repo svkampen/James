@@ -47,53 +47,106 @@ def evaluate(self, nick, chan, msg):
 
 class Seddable(object):
     def __init__(self, msg):
-        message_split = msg.split('/')
+        message_split = msg.split('s/')[1].split('/')
 
-        replace = message_split[1]
-        by = message_split[2]
+        replace = message_split[0]
+        by = message_split[1]
 
         self.message = msg
         self.to_replace = replace
         self.by = by
         self.rest = ""
         if not msg.endswith('/'):
-            self.rest = message_split[3]
+            self.rest = message_split[2]
 
-def get_message(bot, sedregex, nick):
+        self.linereq = ''
+
+        if not msg.startswith("s/"):
+            ## Probably means it has a line requirement
+            self.linereq = msg.split('/')[0]
+
+        if True:
+            print("To Replace: %s" % (self.to_replace))
+            print("Replace by: %s" % (self.by))
+            if self.rest:
+                print("Some flags: %s" % (self.rest))
+            if self.linereq:
+                print("Qualifiers: %s" % (self.linereq))
+
+        if 'g' in self.rest:
+            self.global_ = True
+        else:
+            self.global_ = False
+
+        if 'i' in self.rest:
+            self.ignorecase = True
+        else:
+            self.ignorecase = False
+
+
+def get_message(bot, sedregex, nick, qual=None):
     if not nick in bot.state.messages:
         return ""
     for message in bot.state.messages[nick]:
-        if re.search(sedregex, message):
-            return message
+        try:
+            if qual:
+                if re.search(sedregex, message) and re.search(qual, message):
+                    return message
+            else:
+                if re.search(sedregex, message):
+                    return message
+        except BaseException:
+            pass
     return ""
 
 def check_sed(msg):
     """ Check whether a message is a sed request """
-    if re.match("^(\S+[:,] )?s/.+/.*(/([gi]?){2})?$", msg):
+    if re.match(r"^(\S+[:,] )?(.+/)?s/.+/.*(/([gi]?){2})?$", msg):
         return True
 
 def sed(bot, nick, chan, msg):
     """ Perform the actual sedding """
-    if re.match("^(\S+[:,] )s/.+/.*(/([gi]?){2})?$", msg):
+    if re.match(r"^(\S+[:,] )(.+/)?s/.+/.*(/([gi]?){2})?$", msg):
         # target acquired
-        split_msg = msg.split(':')
+        if ':' in msg.split()[0]:
+            split_msg = msg.split(':')
+        else:
+            split_msg = msg.split(",")
         nick = split_msg[0]
         msg = split_msg[1].strip()
 
     sedmsg = Seddable(msg)
-    to_sed = get_message(bot, sedmsg.to_replace, nick)
+    if sedmsg.linereq:
+        to_sed = get_message(bot, sedmsg.to_replace, nick, qual=sedmsg.linereq)
+    else:
+        to_sed = get_message(bot, sedmsg.to_replace, nick)
 
     if not to_sed:
         return
 
-    sedmsg.message = to_sed
-    if 'i' in sedmsg.rest:
-        sedded_message = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message, 
-            flags=re.IGNORECASE)
-    else:
-        sedded_message = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message)
-    return bot.msg(chan, "FTFY <%s> %s" % (nick, sedded_message))
+    try:
+        sedmsg.message = to_sed
 
+        if sedmsg.ignorecase and sedmsg.global_:
+            # i option on
+            new_msg = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message, 
+                flags=re.IGNORECASE)
+        elif sedmsg.ignorecase:
+            # i and g options on
+            new_msg = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message, 
+                flags=re.IGNORECASE, count=1)
+        elif sedmsg.global_:
+            # g option on
+            new_msg = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message)
+        else:
+            # no options on
+            new_msg = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message, 
+                count=1)
+
+
+        return bot.msg(chan, "<%s> %s" % (nick, new_msg))
+    except BaseException:
+        traceback.print_exc()
 
 ###
 ##
