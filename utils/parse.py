@@ -55,6 +55,9 @@ class Seddable(object):
         self.message = msg
         self.to_replace = replace
         self.by = by
+        self.rest = ""
+        if not msg.endswith('/'):
+            self.rest = message_split[3]
 
 def get_message(bot, sedregex, nick):
     if not nick in bot.state.messages:
@@ -66,12 +69,12 @@ def get_message(bot, sedregex, nick):
 
 def check_sed(msg):
     """ Check whether a message is a sed request """
-    if re.match("^(([a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*)[:,] )?s/.+/.*(/([gi]?){2})?$", msg):
+    if re.match("^(\S+[:,] )?s/.+/.*(/([gi]?){2})?$", msg):
         return True
 
 def sed(bot, nick, chan, msg):
     """ Perform the actual sedding """
-    if re.match("^(([a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*)[:,] )s/.+/.*(/([gi]?){2})?$", msg):
+    if re.match("^(\S+[:,] )s/.+/.*(/([gi]?){2})?$", msg):
         # target acquired
         split_msg = msg.split(':')
         nick = split_msg[0]
@@ -84,7 +87,11 @@ def sed(bot, nick, chan, msg):
         return
 
     sedmsg.message = to_sed
-    sedded_message = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message)
+    if 'i' in sedmsg.rest:
+        sedded_message = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message, 
+            flags=re.IGNORECASE)
+    else:
+        sedded_message = re.sub(sedmsg.to_replace, sedmsg.by, sedmsg.message)
     return bot.msg(chan, "FTFY <%s> %s" % (nick, sedded_message))
 
 
