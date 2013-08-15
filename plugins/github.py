@@ -11,15 +11,37 @@ import time
 def getpercentage(part, whole):
     return 100 * float(part)/float(whole)
 
+@command('github.get_issue', category='git')
+def get_github_issue(bot, nick, chan, arg):
+    args = arg.split()
+    if len(args) == 2:
+        repo = args[0]
+        num = args[1]
+    else:
+        repo = 'svkampen/James'
+        num = arg[1:]
+    req = requests.get("https://api.github.com/repos/%s/issues/%s" % (repo, num))
+    if not req.status_code == 200:
+        return bot.msg(chan, "An error occurred fetching the issue. Status code: %s"
+            % (resp.status_code))
+
+    data = req.json()
+    
+    title = data['title']
+    body = data['body']
+
+    bot.msg(chan, "#%s - %s: %s" % (num, title, body))
 
 @command('github.what.is', category='git')
-def what_the_fuck_is_this(bot, nick, chan, arg):
+def what(bot, nick, chan, arg):
     """ Get the description of a github repository """
     auth_data = bot.state.apikeys['github']
     auth = (auth_data['user'], auth_data['pass'])
-    response = requests.get("https://api.github.com/repos/%s" % (arg), headers=headers, auth=auth)
+    response = requests.get("https://api.github.com/repos/%s" % (arg),
+        headers=headers, auth=auth)
     if response.status_code == 200:
-        return bot.msg(chan, "\x02%s\x02 -- %s" % (response.json()['full_name'], response.json()['description']))
+        return bot.msg(chan, "\x02%s\x02 -- %s" % (response.json()['full_name'],
+	        response.json()['description']))
     else:
         return bot.msg(chan, "\x02Unknown repository\x02 %s" % (arg))
 
@@ -29,7 +51,8 @@ def repostats(bot, nick, chan, arg):
     """ Get statistics for a github repository """
     auth_data = bot.state.apikeys['github']
     auth = (auth_data['user'], auth_data['pass'])
-    c_response = requests.get("https://api.github.com/repos/%s/stats/contributors" % (arg), headers=headers, auth=auth)
+    c_response = requests.get("https://api.github.com/repos/%s/stats/contributors" % (arg),
+        headers=headers, auth=auth)
     if c_response.status_code in (200, 202):
         json = c_response.json()
         commits = [i['total'] for i in json]
@@ -37,7 +60,8 @@ def repostats(bot, nick, chan, arg):
     else:
         commits = -1
     time.sleep(0.1)
-    l_response = requests.get("https://api.github.com/repos/%s/languages" % (arg), headers=headers, auth=auth)
+    l_response = requests.get("https://api.github.com/repos/%s/languages" % (arg),
+        headers=headers, auth=auth)
     if l_response.status_code in (200, 202):
         json = l_response.json()
         whole = sum(json.values())
