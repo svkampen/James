@@ -19,5 +19,5 @@ def translate(bot, nick, chan, arg):
     data = response.json()
     if 'INVALID TARGET LANGUAGE' in data['responseData']['translatedText']:
         return bot.msg(chan, "%s: Invalid target language." % (nick))
-    else
+    else:
         bot.msg(chan, "%s: %s" % (nick, data['responseData']['translatedText']))
