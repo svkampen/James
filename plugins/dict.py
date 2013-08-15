@@ -33,9 +33,9 @@ def dict_lookup(bot, nick, chan, arg):
         output = output.strip()
 
         if len(output) > 300:
-            bot.msg(chan, "%s: %s" % (target, output[:295]+"[...]"))
+            bot.msg(chan, "%s: %s" % (nick, output[:295]+"[...]"))
         else:
-            bot.msg(chan, "%s: %s" % (target, output))
+            bot.msg(chan, "%s: %s" % (nick, output))
 
     except:
         bot.msg(chan, "Usage: dict [query]")

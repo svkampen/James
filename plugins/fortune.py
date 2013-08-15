@@ -12,5 +12,5 @@ def fortune(bot, nick, chan, arg):
     cookie = os.popen("fortune -as").read().strip().replace('\t', "    ")
     if cookie:
         if cookie.count("\n") > 5:
-            return fortune(bot, nick, target, chan, arg)  # rerun the command, too long of a fortune!
+            return fortune(bot, nick, chan, arg)  # rerun the command, too long of a fortune!
         bot.msg(chan, cookie)
