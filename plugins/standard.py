@@ -73,8 +73,9 @@ def version(bot, nick, chan, arg):
     distro = platform.linux_distribution()[0] # 'arch' on arch linux
     compiler = platform.python_compiler()
 
-    output = 'Bot version: %s - Python compiler: %s using %s\n' % (bot_ver, compiler, libc_ver)
-    output += 'Python version: %s - Linux distribution: %s' % (python_ver, distro)
+    output = 'Bot: %s - Python compiler: %s using %s\n' % (bot_ver, compiler,
+        libc_ver)
+    output += 'Python: %s - Linux distribution: %s' % (python_ver, distro)
     bot.msg(chan, output)
 
 
@@ -91,3 +92,15 @@ def get_shorthook(bot, nick, chan, arg):
             return bot.msg(chan, "%s has no short hook." % (arg))
     else:
         return bot.msg(chan, "%s is not a valid command." % (arg))
+
+@command('admin?', category='meta')
+def is_command_admin(bot, nick, chan, arg):
+    if not arg:
+        return bot.msg(chan, "Usage: admin? <command>")
+    command = bot.cmdhandler.trigger(arg)
+    if not command:
+        return bot.msg(chan, "Non-existant command!")
+    f = command.function
+    if hasattr(f, '_require_admin'):
+        return bot.msg(chan, "Command %s requires admin privileges." % (arg))
+    bot.msg(chan, "Command %s does not require admin privileges." % (arg))
