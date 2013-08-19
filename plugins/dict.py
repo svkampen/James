@@ -37,6 +37,6 @@ def dict_lookup(bot, nick, chan, arg):
         else:
             bot.msg(chan, "%s: %s" % (nick, output))
 
-    except:
-        bot.msg(chan, "Usage: dict [query]")
+    except Exception as e:
+        bot.msg(chan, "No definition found")
 
