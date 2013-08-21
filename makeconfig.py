@@ -3,6 +3,7 @@
 #
 
 import json
+import os
 from pprint import pformat as pprint
 
 json_dict = dict()
@@ -53,3 +54,9 @@ json_dict.pop('port')
 
 config_file.write(pprint(json_dict).replace("'", '"'))
 config_file.close()
+
+if not os.path.exists('apikeys.conf'):
+    # populate the apikeys file with nothing
+    apikeys_file = open('apikeys.conf', 'w')
+    apikeys_file.write('{}')
+    apikeys_file.close()

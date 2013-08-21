@@ -22,7 +22,7 @@ def ageme(bot, nick, chan, arg):
     elif len(args) == 5:
         (day, month, year, prec, chan) = args
     else:
-        return bot.msg(chan, "USAGE: +ageme day month year [prec] [target]")
+        return bot.msg(chan, "USAGE: +ageme day month year [prec] [chan]")
 
     try:
         int(month)
@@ -34,7 +34,7 @@ def ageme(bot, nick, chan, arg):
         if int(prec) > 200 or int(prec) < 0:
             raise ValueError
     except ValueError:
-        return bot.msg(chan, "USAGE: +ageme day month year [prec] [target]")
+        return bot.msg(chan, "USAGE: +ageme day month year [prec] [chan]")
 
     try:
         age = ("%." + prec + "f") % ((time.time() - time.mktime(datetime.date(int(year), int(month), int(day)).timetuple())) / (60 * 60 * 24 * 365.242))

@@ -15,4 +15,4 @@ def elect(bot, nick, chan, arg):
     choices = [x.strip() for x in arg.split(',')]
     if choices[-1].startswith('or '):
         choices[-1] = choices[-1][3:]
-    bot._msg(chan, "%s: %s" % (target, random.choice(choices)))
+    bot._msg(chan, "%s: %s" % (nick, random.choice(choices)))

@@ -7,7 +7,7 @@ import traceback
 import re
 import subprocess
 
-SED_REGEX = re.compile(r"^(?:(\S+)[:,] )?(?:(.+?)/)?s/(.+?)/(.*?)(?:/([gix]{0,3}))?$")
+SED_REGEX = re.compile(r"^(?:(\S+)[:,] )?(?:(.+?)/)?s/(.+?)/(.*?)(?:/([gixs]{0,4}))?$")
 
 def parse(msg):
     """ Parse an IRC protocol message """
@@ -63,9 +63,11 @@ def set_flags(sedobject, flags):
 
     for item in flags:
         if item == 'i':
-            i += re.IGNORECASE
+            i |= re.IGNORECASE
         if item == 'x':
-            i += re.X
+            i |= re.X
+        if item == 's':
+            i |= re.S
         if item == 'g':
             count = 0
 
