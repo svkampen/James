@@ -103,7 +103,8 @@ def sed(bot, nick, chan, msg):
     populate(s, groups)
     set_flags(s, s.flags)
 
-    debug(s)
+    if bot.debug:
+        debug(s)
 
     if s.target:
         nick = s.target

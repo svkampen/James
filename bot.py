@@ -28,11 +28,12 @@ MAX_MESSAGE_STORAGE = 256
 class James(IRCHandler):
     """ James main bot executable thingy class """
     @startinfo(VERSION)
-    def __init__(self, config, verbose=False):
+    def __init__(self, config, verbose=False, debug=False):
         super(James, self).__init__(config, verbose=verbose)
         globals()['CONFIG'] = config
 
         self.version = VERSION
+        self.debug = debug
 
         # Bot state and logger.
         self.state = utils.ServerState()
@@ -201,8 +202,14 @@ class James(IRCHandler):
 if __name__ == '__main__':
     ARGS = sys.argv[1:]
     CONFIG = json.loads(open('config.json', 'r').read())
+    
+    VERBOSE = False
+    DEBUG = False
+
     if '--verbose' in ARGS:
-        BOT = James(CONFIG, verbose=True)
-    else:
-        BOT = James(CONFIG)
+        VERBOSE = True
+    if '--debug' in ARGS:
+        DEBUG = True
+
+    BOT = James(CONFIG, VERBOSE, DEBUG)
     BOT.connect()
