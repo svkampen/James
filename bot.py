@@ -21,7 +21,7 @@ from utils.events import Event
 from utils.decorators import startinfo
 
 CONFIG = {}
-VERSION = "4.4.3"
+VERSION = "4.5.3"
 MAX_MESSAGE_STORAGE = 256
 
 
@@ -62,6 +62,9 @@ class James(IRCHandler):
         ip = utils.parse.inline_python
         utils.parse.inline_python = functools.partial(ip, self)
 
+    def getconfig(self):
+        return CONFIG
+
     def welcome(self, *args):
         """ welcome(msg) - handles on-login actions """
         if CONFIG['ident_pass']:
@@ -93,8 +96,8 @@ class James(IRCHandler):
         # Test for inline code
         msg = utils.parse.inline_python(nick, chan, msg)
 
-        
-        utils.parse.sed(self, nick, chan, msg)
+        if CONFIG['sed-enabled']:
+            utils.parse.sed(self, nick, chan, msg)
 
         self.check_for_command(msg, nick, chan)
 
@@ -114,7 +117,7 @@ class James(IRCHandler):
                 cmd_args = ''
 
             triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
-            if triggered_short:
+            if triggered_short and CONFIG['short_enabled']:
                 if hasattr(triggered_short.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
                         triggered_short(self, nick, chan, cmd_args)

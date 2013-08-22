@@ -40,6 +40,18 @@ json_dict['cmdchar'] = input("Command character (default='+'): ")
 if not json_dict['cmdchar']:
     json_dict['cmdchar'] = '+'
 
+json_dict['short_enabled'] = input("Shorthands enabled (y or n) (default=y): ")
+if json_dict['short_enabled'] not in ("n", "no"):
+    json_dict['short_enabled'] = True
+else:
+    json_dict['short_enabled'] = False
+
+json_dict['sed-enabled'] = input("Enable sed? (y or n) (default=y): ")
+if json_dict['sed-enabled'] not in ("n", "no"):
+    json_dict['sed-enabled'] = True
+else:
+    json_dict['sed-enabled'] = False
+
 json_dict['identify_service'] = input("Service to identify with (default=NickServ): ")
 if not json_dict['identify_service']:
     json_dict['identify_service'] = 'NickServ'
@@ -52,7 +64,10 @@ for item in input("Channels to automatically join, seperated by ',': ").split(',
 
 json_dict.pop('port')
 
-config_file.write(pprint(json_dict).replace("'", '"'))
+jsons = json.dumps(json_dict, sort_keys=True,
+                   indent=4, separators=(',', ': '))
+
+config_file.write(jsons)
 config_file.close()
 
 if not os.path.exists('apikeys.conf'):
