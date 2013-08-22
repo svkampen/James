@@ -37,8 +37,8 @@ def ageme(bot, nick, chan, arg):
         return bot.msg(chan, "USAGE: +ageme day month year [prec] [chan]")
 
     try:
-        age = ("%." + prec + "f") % ((datetime.now() - datetime.datetime(y, m, d)).total_seconds() / (60 * 60 * 24 * 365.242))
-    except:
-        return bot.msg(chan, "Error parsing date. Are you american?")
+        age = ("%." + prec + "f") % ((datetime.datetime.now() - datetime.datetime(int(year), int(month), int(day))).total_seconds() / (60 * 60 * 24 * 365.242))
+    except Exception as e:
+        return bot.msg(chan, str(e)+": Error parsing date. Are you american?")
 
     bot._msg(chan, "*%s is %s years old*" % (nick, age))
