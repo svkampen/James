@@ -1,7 +1,7 @@
 """
 Standard functions like quit, part, join, etc.
 """
-from .util.decorators import command
+from .util.decorators import command, require_admin
 import sys
 import platform
 
@@ -93,7 +93,7 @@ def get_shorthook(bot, nick, chan, arg):
     else:
         return bot.msg(chan, "%s is not a valid command." % (arg))
 
-@command('admin?', category='meta')
+@command('req.admin?', category='meta')
 def is_command_admin(bot, nick, chan, arg):
     if not arg:
         return bot.msg(chan, "Usage: admin? <command>")
@@ -104,3 +104,14 @@ def is_command_admin(bot, nick, chan, arg):
     if hasattr(f, '_require_admin'):
         return bot.msg(chan, "Command %s requires admin privileges." % (arg))
     bot.msg(chan, "Command %s does not require admin privileges." % (arg))
+
+@require_admin
+@command('req.admin!', category='meta')
+def set_command_admin(bot, nick, chan, arg):
+    if not arg:
+        return bot.msg(chan, "Usage: req.admin! <command>")
+    if not bot.cmdhandler.trigger(arg):
+        return bot.msg(chan, "%s: '%s' is a nonexistant command!" % (nick, arg))
+    bot.cmdhandler.trigger(arg).function._require_admin = True
+    return bot.msg(chan, "%s: '%s' now requires admin privileges" % (nick, arg))
+

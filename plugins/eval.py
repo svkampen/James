@@ -16,8 +16,17 @@ class IRCterpreter(code.InteractiveConsole):
     def write(self, data):
         self.cache.append(data)
 
+    def is_exception(self, data):
+        return True if 'File "<console>", line 1' in data else False
+
     def flushbuf(self):
         out = ''.join(self.cache).rstrip('\n').replace("\n\n", "\n \n")
+
+        if self.is_exception(out):
+            # most likely a traceback, only capture exception
+            print(out)
+            out = out[out.rfind("\n"):]
+
         if len(out) > 0:
             self.bot.msg(self.curchan, out)
         self.cache = []

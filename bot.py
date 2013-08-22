@@ -21,18 +21,19 @@ from utils.events import Event
 from utils.decorators import startinfo
 
 CONFIG = {}
-VERSION = "4.4.3"
+VERSION = "4.5.3"
 MAX_MESSAGE_STORAGE = 256
 
 
 class James(IRCHandler):
     """ James main bot executable thingy class """
     @startinfo(VERSION)
-    def __init__(self, config, verbose=False):
+    def __init__(self, config, verbose=False, debug=False):
         super(James, self).__init__(config, verbose=verbose)
         globals()['CONFIG'] = config
 
         self.version = VERSION
+        self.debug = debug
 
         # Bot state and logger.
         self.state = utils.ServerState()
@@ -60,6 +61,9 @@ class James(IRCHandler):
         """Set up partial functions"""
         ip = utils.parse.inline_python
         utils.parse.inline_python = functools.partial(ip, self)
+
+    def getconfig(self):
+        return CONFIG
 
     def welcome(self, *args):
         """ welcome(msg) - handles on-login actions """
@@ -92,8 +96,8 @@ class James(IRCHandler):
         # Test for inline code
         msg = utils.parse.inline_python(nick, chan, msg)
 
-        
-        utils.parse.sed(self, nick, chan, msg)
+        if CONFIG['sed-enabled']:
+            utils.parse.sed(self, nick, chan, msg)
 
         self.check_for_command(msg, nick, chan)
 
@@ -113,7 +117,7 @@ class James(IRCHandler):
                 cmd_args = ''
 
             triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
-            if triggered_short:
+            if triggered_short and CONFIG['short_enabled']:
                 if hasattr(triggered_short.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
                         triggered_short(self, nick, chan, cmd_args)
@@ -201,8 +205,14 @@ class James(IRCHandler):
 if __name__ == '__main__':
     ARGS = sys.argv[1:]
     CONFIG = json.loads(open('config.json', 'r').read())
+    
+    VERBOSE = False
+    DEBUG = False
+
     if '--verbose' in ARGS:
-        BOT = James(CONFIG, verbose=True)
-    else:
-        BOT = James(CONFIG)
+        VERBOSE = True
+    if '--debug' in ARGS:
+        DEBUG = True
+
+    BOT = James(CONFIG, VERBOSE, DEBUG)
     BOT.connect()
