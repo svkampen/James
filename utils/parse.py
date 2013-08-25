@@ -85,10 +85,10 @@ def get_message(bot, sedregex, nick, qual=None):
     for message in bot.state.messages[nick]:
         try:
             if qual:
-                if re.search(sedregex, message) and re.search(qual, message):
+                if re.search(sedregex, message) and re.search(qual, message) and not SED_REGEX.search(message):
                     return message
             else:
-                if re.search(sedregex, message):
+                if re.search(sedregex, message) and not SED_REGEX.search(message):
                     return message
         except BaseException:
             pass
