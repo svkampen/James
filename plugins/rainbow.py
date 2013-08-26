@@ -1,7 +1,8 @@
 from .util.decorators import command, initializer
 
-colors = ['\x0304', '\x0307', '\x0308', '\x0309', '\x0302', '\x0306']
+colors = ["%s%.2d" % (k, v) for k,v in zip(["\x03" for i in range(0,12)], map(int, "5 4 7 8 9 3 10 11 2 12 6 13".split()))]
 count = 0
+even = False
 
 bad_chars = ['\n', '\t', '\r', ' ']
 
@@ -49,12 +50,18 @@ def rainbow_char(item):
     global count
     global colors
     global bad_chars
+    global even
     if count == len(colors):
         count = 0
     if item in bad_chars:
+        if even:
+            count += 1
+        even = not even
         return item
     item = ('%s' % (colors[count]))+item
-    count += 1
+    if even:
+      count += 1
+    even = not even
     return item
 
 
@@ -71,4 +78,4 @@ def rainbow(arg):
 @command('rainbow', category='misc')
 def rainbowify(bot, nick, chan, arg):
     """ Rainbowify anything. """
-    bot.msg(chan, '%s: %s' % (nick, rainbow(arg)))
+    bot.msg(chan, '%s' % (rainbow(arg)))

@@ -21,7 +21,7 @@ from utils.events import Event
 from utils.decorators import startinfo
 
 CONFIG = {}
-VERSION = "4.5.3"
+VERSION = "4.5.4"
 MAX_MESSAGE_STORAGE = 256
 
 
