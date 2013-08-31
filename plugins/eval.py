@@ -20,7 +20,7 @@ class IRCterpreter(code.InteractiveConsole):
         return True if 'File "<console>", line 1' in data else False
 
     def flushbuf(self):
-        out = ''.join(self.cache).rstrip('\n').replace("\n\n", "\n \n")
+        out = ''.join(self.cache).strip()
 
         if self.is_exception(out):
             # most likely a traceback, only capture exception

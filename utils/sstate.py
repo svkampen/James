@@ -2,6 +2,11 @@
 ServerState object
 """
 
+class Channel(object):
+    def __init__(self, name):
+        self.name = name
+    def __call__(self):
+        return self.name
 
 class ServerState(object):
     """ A class that holds the active channels and admins and some more things about the bot that are server-specific. """
@@ -11,6 +16,7 @@ class ServerState(object):
         self.nick = 'JamesNext'
         self.notices = []
         self.messages = {}
+        self.channels = []
 
     def add_admin(self, nick):
         """ Add an user to the admin list. """
