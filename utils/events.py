@@ -23,10 +23,15 @@ class Event():
 
     def fire(self, *args, **kwargs):
         """ Fire this event """
-        kwargs.update({'type': self.type})
+        _kwargs = kwargs.copy()
         try:
             for handler in self.handlers:
-                handler(*args, **kwargs)
+                if not hasattr(handler, '_want_type'):
+                    handler(*args, **kwargs)
+                else:
+                    kwargs.update({'type': self.type})
+                    handler(*args, **kwargs)
+                    kwargs = _kwargs
         except:
             traceback.print_exc()
 

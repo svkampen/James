@@ -22,18 +22,21 @@ def log_message(*args):
     nick = args[1]
     chan = args[2]
     msg = args[-1] # or 3
-    log("[%s] <%s> %s" % (chan, nick, msg))
+    ws = " "*(15 - len("[%s]" % (chan)))
+    log("[%s]%s<%s> %s" % (chan, ws, nick, msg))
 
 
 def log_join(*args):
     user = args[1]
     chan = args[2]
-    log("[%s] JOIN %s" % (chan, user))
+    ws = " "*(15 - len("[%s]" % (chan)))
+    log("[%s]%sJOIN %s" % (chan, ws, user))
 
 def log_part(*args):
     user = args[1]
     chan = args[2]
-    log("[%s] PART %s" % (chan, user))
+    ws = " "*(15 - len("[%s]" % (chan)))
+    log("[%s]%sPART %s" % (chan, ws, user))
 
 def log_welcome(*args):
     log("Server has welcomed us.")
@@ -41,7 +44,8 @@ def log_welcome(*args):
 def log_notice(*args):
     sender = args[1]
     args = args[2]
-    log("-%s- %s" % (sender, args))
+    ws = " "*(15 - len("-%s-" % (sender)))
+    log("-%s-%s%s" % (sender, ws, args))
 
 
 def logger(*args, **kwargs):
@@ -53,6 +57,8 @@ def logger(*args, **kwargs):
      'notice': log_notice,
      'close_log': close_log}
     handlers.get(etype, lambda *args: None)(*args)
+
+logger._want_type = True
 
 @initializer
 def plugin_init(bot):
