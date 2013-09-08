@@ -9,7 +9,7 @@ from .util.data import www_headers as headers
 
 @command('translate', category='language')
 def translate(bot, nick, chan, arg):
-    """ Translate a snippet. Usage: translate <from>-<to> <snippet> """
+    """ translate <from>-<to> <snippet> -> translate a text snippet. """
     args = arg.split()
     langpair = args[0].replace('-', '|').replace('#', '-')
     word = ' '.join(args[1:])

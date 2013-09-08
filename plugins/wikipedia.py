@@ -20,7 +20,7 @@ def initialize_plugin(bot):
 
 @command('wiki', category='internet')
 def wikipedia_get(bot, nick, chan, arg):
-    """ Get the first two sentences in a wikipedia article. """
+    """ wiki *args -> Get the first two sentences in *args' wikipedia article. """
     term = arg.replace(" ", "_")
     term = urlencode(term)
 

@@ -8,7 +8,7 @@ import os
 
 @command('fortune', category='misc')
 def fortune(bot, nick, chan, arg):
-    """Get a fortune cookie"""
+    """fortune -> Get a fortune cookie"""
     cookie = os.popen("fortune -as").read().strip().replace('\t', "    ")
     if cookie:
         if cookie.count("\n") > 5:

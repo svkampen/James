@@ -203,6 +203,9 @@ class James(IRCHandler):
 
 
 if __name__ == '__main__':
+    if (sys.getdefaultencoding() == 'ascii' or sys.getfilesystemencoding() == 'ascii'):
+        raise OSError("Your shitty OS uses ASCII as it's default (FS) encoding. Fix it.")
+    
     ARGS = sys.argv[1:]
     CONFIG = json.loads(open('config.json', 'r').read())
     

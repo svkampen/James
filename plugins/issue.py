@@ -8,7 +8,7 @@ import json
 
 @command('request.feature', 'reqfeature', category='git')
 def request_feature(bot, nick, chan, arg):
-    """ Request a feature on the James issue tracker. """
+    """ request.feature <title>: <desc> -> Request a feature. """
     if not arg:
         return bot._msg(chan, "Usage: requestfeat title: description")
 
@@ -35,7 +35,7 @@ def request_feature(bot, nick, chan, arg):
 
 @command('report.bug', category='git')
 def report_bug(bot, nick, chan, arg):
-    """ Report a bug on the James issue tracker. """
+    """ report.bug <title>: <desc> -> Report a bug. """
     if not arg:
         return bot._msg(chan, "Usage: report.bug title: description")
 

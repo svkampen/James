@@ -77,5 +77,5 @@ def rainbow(arg):
 
 @command('rainbow', category='misc')
 def rainbowify(bot, nick, chan, arg):
-    """ Rainbowify anything. """
+    """ rainbow *args -> Rainbowify *args. """
     bot.msg(chan, '%s' % (rainbow(arg)))

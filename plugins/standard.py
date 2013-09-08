@@ -13,7 +13,7 @@ def command_categories(bot):
 
 @command('help', category='standard')
 def help_me(bot, nick, chan, arg):
-    """ Get help for a command or category """
+    """ help [command] or [category] -> Get help for a command or category """
     if not arg:
         return bot.msg(chan, command_categories(bot))
     if arg in bot.cmdhandler.command_help.keys():
@@ -28,11 +28,11 @@ def help_me(bot, nick, chan, arg):
                 "%s: '%s' is a nonexistant command or category!" % (nick, arg))
         else:
             doc = bot.cmdhandler.trigger(arg).function.__doc__.strip()
-            bot.msg(chan, "%s: %s -> %s" % (nick, arg, doc))
+            bot.msg(chan, "%s: %s" % (nick, doc))
 
 @command('say', category='standard')
 def say(bot, nick, chan, arg):
-    """ Say something """
+    """ say *args -> Say *args """
     if not arg:
         return
     bot.msg(chan, arg)
@@ -40,20 +40,14 @@ def say(bot, nick, chan, arg):
 
 @command('quit', 'exit', category='standard')
 def quitbot(bot, nick, chan, arg):
-    """ Quit the bot. """
+    """ quit -> Quit the bot. """
     bot.gracefully_terminate()
     sys.exit()
 
 
-@command('login', category='standard')
-def login(bot, nick, chan, arg):
-    """ Login to the bot. """
-    bot.login(nick)
-
-
 @command('part', category='standard')
 def part_channel(bot, nick, chan, arg):
-    """ Part the specified channel. """
+    """ part <chan> -> Part the specified channel. """
     if not arg:
         arg = chan
     bot.state.rm_channel(arg)
@@ -61,12 +55,13 @@ def part_channel(bot, nick, chan, arg):
 
 @command('join', category='standard')
 def join_channel(bot, nick, chan, arg):
-    """ Join the specified channel. """
+    """ join <chan> -> Join the specified channel. """
     bot._send("JOIN :%s" % (arg))
 
 
 @command('version', category='standard')
 def version(bot, nick, chan, arg):
+    """ version -> return bot/python version information """ 
     libc_ver = ' '.join(platform.libc_ver())
     python_ver = platform.python_version()
     bot_ver = bot.version
@@ -81,7 +76,7 @@ def version(bot, nick, chan, arg):
 
 @command('short', category='meta')
 def get_shorthook(bot, nick, chan, arg):
-    """ Get the short hook for a command (if exists) """
+    """ short <cmd> -> Get the shorthook for a command, if exists"""
     if not arg:
         return bot.msg(chan, "Usage: short <command>")
     if bot.cmdhandler.trigger(arg):
@@ -95,6 +90,7 @@ def get_shorthook(bot, nick, chan, arg):
 
 @command('req.admin?', category='meta')
 def is_command_admin(bot, nick, chan, arg):
+    """ req.admin? <cmd> -> Check whether a command requires admin privileges """
     if not arg:
         return bot.msg(chan, "Usage: admin? <command>")
     command = bot.cmdhandler.trigger(arg)
@@ -108,6 +104,7 @@ def is_command_admin(bot, nick, chan, arg):
 @require_admin
 @command('req.admin!', category='meta')
 def set_command_admin(bot, nick, chan, arg):
+    """ req.admin! <cmd> -> Make a command require admin privileges """
     if not arg:
         return bot.msg(chan, "Usage: req.admin! <command>")
     if not bot.cmdhandler.trigger(arg):
@@ -115,3 +112,7 @@ def set_command_admin(bot, nick, chan, arg):
     bot.cmdhandler.trigger(arg).function._require_admin = True
     return bot.msg(chan, "%s: '%s' now requires admin privileges" % (nick, arg))
 
+@require_admin
+@command('map', category='beta')
+def map_command_to(bot, nick, chan, arg):
+    """ map <cmd>-><newcmd>

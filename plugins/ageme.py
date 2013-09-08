@@ -9,7 +9,7 @@ import time
 
 @command('ageme', category='misc')
 def ageme(bot, nick, chan, arg):
-    """ Find exact age of person """
+    """ ageme day month year -> Find exact age of person """
     if not arg:
         return bot.msg(chan, insult.__doc__.strip())
 
@@ -22,7 +22,7 @@ def ageme(bot, nick, chan, arg):
     elif len(args) == 5:
         (day, month, year, prec, chan) = args
     else:
-        return bot.msg(chan, "USAGE: +ageme day month year [prec] [chan]")
+        return bot.msg(chan, ageme.__doc__.strip())
 
     try:
         int(month)
@@ -34,11 +34,11 @@ def ageme(bot, nick, chan, arg):
         if int(prec) > 200 or int(prec) < 0:
             raise ValueError
     except ValueError:
-        return bot.msg(chan, "USAGE: +ageme day month year [prec] [chan]")
+        return bot.msg(chan, ageme.__doc__.strip())
 
     try:
         age = ("%." + prec + "f") % ((datetime.datetime.now() - datetime.datetime(int(year), int(month), int(day))).total_seconds() / (60 * 60 * 24 * 365.242))
-    except Exception as e:
+    except BaseException:
         return bot.msg(chan, str(e)+": Error parsing date. Are you american?")
 
     bot._msg(chan, "*%s is %s years old*" % (nick, age))

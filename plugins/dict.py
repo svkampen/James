@@ -12,7 +12,7 @@ except:
 
 @command('dict', 'dictionary', category='language')
 def dict_lookup(bot, nick, chan, arg):
-    ''' Dictionary lookup. '''
+    """ dict <word> -> Dictionary lookup. """
     if not arg:
         return bot.msg(chan, "Usage: dict [query]")
 
@@ -22,8 +22,7 @@ def dict_lookup(bot, nick, chan, arg):
 
     try:
         data = json.loads(request.text.replace("\\x", "\\u00")[25:-10])
-        data = data['webDefinitions'][0]
-        data = random.choice(data['entries'][:5])
+        data = data['webDefinitions'][0]['entries'][0]
         data = data['terms'][0]['text']
         data = soupify(data).getText()
         defs = None
@@ -37,6 +36,6 @@ def dict_lookup(bot, nick, chan, arg):
         else:
             bot.msg(chan, "%s: %s" % (nick, output))
 
-    except Exception as e:
+    except BaseException:
         bot.msg(chan, "No definition found")
 

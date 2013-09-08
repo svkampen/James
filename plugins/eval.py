@@ -53,7 +53,7 @@ def initialize_plugin(bot):
 @require_admin
 @command('eval', short=">>>", category='meta')
 def eval_it(self, nick, chan, arg):
-    """ Evaluate python code dynamically """
+    """ eval *args -> Evaluate *args as python code."""
     arg = sugar(arg)
     ip = None
     try:

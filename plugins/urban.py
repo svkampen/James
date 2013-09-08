@@ -9,7 +9,7 @@ import random
 
 @command('urban', 'urbandictionary', 'ud', category='internet')
 def urban_lookup(bot, nick, chan, arg):
-    ''' UrbanDictionary lookup. '''
+    """ ud <word> -> look something up on UrbanDictionary. """
     if not arg:
         return bot.msg(chan, "Usage: urban [phrase] [index?]")
 
@@ -72,6 +72,6 @@ def failmsg():
 
 @command('urbanrandom', 'urbandictionaryrandom', 'udr', category='internet')
 def urban_random(bot, nick, chan, arg):
-    ''' Random UrbanDictionary lookup. '''
+    """ urbanrandom -> look a random thing up on UrbanDictionary. """
     word = requests.get("http://api.urbandictionary.com/v0/random").json()['list'][0]['word']
     urban_lookup(bot, nick, chan, word)

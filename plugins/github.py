@@ -13,6 +13,7 @@ def getpercentage(part, whole):
 
 @command('github.get_issue', category='git')
 def get_github_issue(bot, nick, chan, arg):
+    """ github.get_issue #<n> -> get github issue #<n> """
     args = arg.split()
     if len(args) == 2:
         repo = args[0]
@@ -34,7 +35,7 @@ def get_github_issue(bot, nick, chan, arg):
 
 @command('github.what.is', category='git')
 def what(bot, nick, chan, arg):
-    """ Get the description of a github repository """
+    """ github.what.is <user/repo> -> Get the description of a github repository """
     auth_data = bot.state.apikeys['github']
     auth = (auth_data['user'], auth_data['pass'])
     response = requests.get("https://api.github.com/repos/%s" % (arg),
@@ -48,7 +49,7 @@ def what(bot, nick, chan, arg):
 
 @command('github.stats_for', category='git')
 def repostats(bot, nick, chan, arg):
-    """ Get statistics for a github repository """
+    """ github.stats_for <user/repo> -> Get statistics for a github repository """
     auth_data = bot.state.apikeys['github']
     auth = (auth_data['user'], auth_data['pass'])
     c_response = requests.get("https://api.github.com/repos/%s/stats/contributors" % (arg),

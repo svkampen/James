@@ -12,7 +12,7 @@ except:
 
 @command('weather', category='internet')
 def weather_at(bot, nick, chan, arg):
-    """ Get the weather for a place """
+    """ weather <at> -> Get the weather at <arg> """
     wv = list(getweather(arg))
     bot.msg(chan, "%s: %s" %(nick, wv[0]))
 #    for w in wv:

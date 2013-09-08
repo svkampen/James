@@ -31,6 +31,6 @@ def plugin_initializer(bot):
 
 @command('shorten', 'bit.ly', 'bitly', category='internet')
 def bitly(bot, nick, chan, arg):
-    """ Shorten a url using bit.ly """
+    """ bit.ly <url> -> Shorten a url using bit.ly """
     url = _shorten(bot, arg)
     bot._msg(chan, url)

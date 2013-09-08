@@ -2,6 +2,13 @@
 ServerState object
 """
 
+class ChannelSearcher(object):
+    def __init__(self):
+        self.channels = []
+    def get(self, chan_name):
+        if type(chan_name) != str:
+            raise TypeError("Type of argument passed to %s.get should be str" % (str(self)))
+
 class Channel(object):
     def __init__(self, name):
         self.name = name
