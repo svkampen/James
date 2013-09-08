@@ -115,4 +115,5 @@ def set_command_admin(bot, nick, chan, arg):
 @require_admin
 @command('map', category='beta')
 def map_command_to(bot, nick, chan, arg):
-    """ map <cmd>-><newcmd>
+    """ map <cmd>-><newcmd> -> map a command to another command name """
+    pass
