@@ -83,33 +83,27 @@ class UserDict(dict):
             raise AttributeError("'%s' object has no attribute '%s', is '%s' in the channel?"
                 % (self, item, item))
 
+
 class Channel(object):
     # TODO: ADD KICK STUFF
     def __init__(self, name):
         self.name = name
-        self.users = {}
+        self.users = set()
         self.is_empty = IsUserSetEmpty()
         self.users_n = UserNumInChannel()
-        self.modes = ChannelModes()
 
     def add_user(self, user):
-        print('adding user %s to channel %s' % (user, self.name))
-        self.users[user] = User(user.lower())
+        self.users.add(user.lower())
 
     def remove_user(self, user):
-        try:
-            del self.users[user]
-        except KeyError:
-            pass
+        self.users.remove(user.lower())
 
     def change_user(self, map_):
-        self.remove_user(map_[0])
-        self.add_user(map_[1])
+        self.users.discard(map_[0])
+        self.users.add(map_[1])
 
     def update_users(self, update):
-        print("updating channel %s with users: %s" % (self.name, update))
-        for user in update:
-            self.users[user] = User(user.lower())
+        self.users |= set([i.lower() for i in list(update)])
         return self.users
 
     def __repr__(self):

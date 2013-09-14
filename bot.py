@@ -101,6 +101,7 @@ class James(IRCHandler):
                 else:
                     self.cmd_thread.handle(Function(triggered_short,
                         (self, nick, chan, cmd_args)))
+
             if msg.startswith(CONFIG["cmdchar"]):
                 cmd_name = cmd_splitmsg[0][1:]
                 callback = self.cmdhandler.trigger(cmd_name)
@@ -166,9 +167,8 @@ class James(IRCHandler):
         users = args.split(':')[1].split()
         modes = ['+', '%', '@', '&', '~']
 
-        
-        users = ([u for u in users if not u[:1] in modes]
-                 + [u[1:] for u in users if u[:1] in modes])
+        users = set([u for u in users if not u[:1] in modes]
+            + [u[1:] for u in users if u[:1] in modes])
 
         channel = self.state.channels.get(chan, False)
         if channel:
