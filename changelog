@@ -1,0 +1,11 @@
+v4.6.6:
+    * alphabetically ordered bot.py
+    + changelog
+    + Channels are now logged (make sure the nick in config.json is correct!)
+    * When nick is changed, update <ServerState instance at 0x<hex>>.nick
+    * Fix ageme except Exception as e -> except BaseException as e
+    * Make it possible to create an issue without a body
+    * Give events a better __repr__()
+    * turn all 's into "s (in progress)
+    
+    

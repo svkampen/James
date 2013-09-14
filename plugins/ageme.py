@@ -7,13 +7,14 @@ import datetime
 import time
 
 
-@command('ageme', category='misc')
+
+@command("ageme", category="misc")
 def ageme(bot, nick, chan, arg):
     """ ageme day month year -> Find exact age of person """
     if not arg:
         return bot.msg(chan, insult.__doc__.strip())
 
-    prec = '16'
+    prec = "16"
     args = arg.split()
     if len(args) == 3:
         (day, month, year) = args
@@ -38,7 +39,7 @@ def ageme(bot, nick, chan, arg):
 
     try:
         age = ("%." + prec + "f") % ((datetime.datetime.now() - datetime.datetime(int(year), int(month), int(day))).total_seconds() / (60 * 60 * 24 * 365.242))
-    except BaseException:
+    except BaseException as e:
         return bot.msg(chan, str(e)+": Error parsing date. Are you american?")
 
     bot._msg(chan, "*%s is %s years old*" % (nick, age))

@@ -11,7 +11,6 @@ import time
 
 CONFIG = {}
 
-
 class IRCHandler(object):
     """ IRCHandler(Dict<string, object> config) - a standard IRC handler """
     def __init__(self, bconfig, verbose=False):

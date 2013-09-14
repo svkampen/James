@@ -3,6 +3,7 @@ Standard functions like quit, part, join, etc.
 """
 from .util.decorators import command, require_admin
 import sys
+import inspect
 import platform
 
 def command_categories(bot):
@@ -44,15 +45,15 @@ def quitbot(bot, nick, chan, arg):
     bot.gracefully_terminate()
     sys.exit()
 
-
+@require_admin
 @command('part', category='standard')
 def part_channel(bot, nick, chan, arg):
     """ part <chan> -> Part the specified channel. """
     if not arg:
         arg = chan
-    bot.state.rm_channel(arg)
+    bot._send("PART :%s" % (arg))
 
-
+@require_admin
 @command('join', category='standard')
 def join_channel(bot, nick, chan, arg):
     """ join <chan> -> Join the specified channel. """

@@ -79,16 +79,19 @@ def debug(sedobject):
         if not k.startswith('_') or not k.endswith("_"):
             print("%s: %s" % (k,v))
 
-def get_message(bot, sedregex, nick, qual=None):
+def get_message(bot, sedregex, nick, chan, qual=None):
     if not nick in bot.state.messages:
         return ""
     for message in bot.state.messages[nick]:
+        if not message.channel == bot.state.channels[chan]:
+            continue
+        msg = message.msg
         try:
             if qual:
-                if re.search(sedregex, message) and re.search(qual, message) and not SED_REGEX.search(message):
+                if re.search(sedregex, msg) and re.search(qual, msg) and not SED_REGEX.search(msg):
                     return message
             else:
-                if re.search(sedregex, message) and not SED_REGEX.search(message):
+                if re.search(sedregex, msg) and not SED_REGEX.search(msg):
                     return message
         except BaseException:
             pass
@@ -112,9 +115,9 @@ def sed(bot, nick, chan, msg):
         nick = s.target
 
     if s.qual:
-        s.msg = get_message(bot, s.to_replace, nick, qual=s.qual)
+        s.msg = get_message(bot, s.to_replace, nick, chan, qual=s.qual).msg
     else:
-        s.msg = get_message(bot, s.to_replace, nick)
+        s.msg = get_message(bot, s.to_replace, nick, chan).msg
 
     if not s.msg: return
 

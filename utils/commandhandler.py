@@ -8,6 +8,8 @@ class CommandHandler():
     """ The command handler object - handles triggering commands """
     def __init__(self, bot, plugins):
 
+        self.initializers = self.commands = []
+
         self.initializers = command.plugins_to_initializers(plugins)
         for function in self.initializers:
             function(bot)

@@ -6,7 +6,8 @@ Standard = [
     {'PartEvent': 'part'},
     {'MessageEvent': 'message'},
     {'NoticeEvent': 'notice'},
-    {'CloseLogEvent': 'close_log'}
+    {'CloseLogEvent': 'close_log'},
+    {'KickEvent': 'kick'}
 ]
 
 
@@ -15,6 +16,15 @@ class Event():
     def __init__(self, type_):
         self.handlers = set()
         self.type = type_
+
+    def __str__(self):
+        if len(self.handlers) != 1:
+            return "Event(handlers=%s, ...})" % (self.handlers.__str__().split(", ")[0])
+        else:
+            return "Event(handlers=%s)" % (self.handlers)
+
+    def __repr__(self):
+        return self.__str__()
 
     def register(self, handler):
         """ Register a function as an event handler """
