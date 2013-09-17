@@ -28,10 +28,7 @@ def command(*args, **kwargs):
     """The command decorator."""
     def decorator(funct):
         """The actual command decorator."""
-        hooks = []
-        for arg in args:
-            hooks.append(arg)
-        funct.hook = hooks
+        funct.hook = args
         if 'short' in kwargs.keys():
             funct.shorthook = [kwargs['short']]
         if 'category' in kwargs.keys():
