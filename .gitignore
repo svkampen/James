@@ -8,3 +8,4 @@ __pycache__
 james.log
 apikeys.conf
 config.json
+config.json.znc

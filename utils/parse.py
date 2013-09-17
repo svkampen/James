@@ -89,10 +89,10 @@ def get_message(bot, sedregex, nick, chan, qual=None):
         try:
             if qual:
                 if re.search(sedregex, msg) and re.search(qual, msg) and not SED_REGEX.search(msg):
-                    return message
+                    return msg
             else:
                 if re.search(sedregex, msg) and not SED_REGEX.search(msg):
-                    return message
+                    return msg
         except BaseException:
             pass
     return ""
@@ -115,9 +115,9 @@ def sed(bot, nick, chan, msg):
         nick = s.target
 
     if s.qual:
-        s.msg = get_message(bot, s.to_replace, nick, chan, qual=s.qual).msg
+        s.msg = get_message(bot, s.to_replace, nick, chan, qual=s.qual)
     else:
-        s.msg = get_message(bot, s.to_replace, nick, chan).msg
+        s.msg = get_message(bot, s.to_replace, nick, chan)
 
     if not s.msg: return
 

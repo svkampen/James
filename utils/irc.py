@@ -8,6 +8,7 @@ from . import parse
 import socket
 from .num import NUM as numerics
 import time
+import _thread
 
 CONFIG = {}
 
@@ -92,9 +93,9 @@ class IRCHandler(object):
                 getattr(namespace, function)()
             else:
                 if type(args) not in (tuple, list) or not unpack:
-                    getattr(namespace, function)(args)
+                    _thread.start_new_thread(getattr(namespace, function), (args,))
                 else:
-                    getattr(namespace, function)(*args)
+                    _thread.start_new_thread(getattr(namespace, function), args)
 
     def senduser(self):
         """ Send the IRC USER message. """

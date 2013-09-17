@@ -4,6 +4,7 @@ Logging module
 
 from .util.decorators import initializer
 import time
+import sys
 
 def close_log(*args):
     logfile.close()
@@ -11,10 +12,13 @@ def close_log(*args):
 def log(data):
     """ log and print data """
     timestamp = time.strftime("[%H:%M:%S] ")
-    try:
-        print((timestamp+data).encode('utf-8').decode('utf-8'))
-    except:
-        pass
+    if sys.stdout != sys.__stdout__:
+        sys.__stdout__.write((timestamp+data+'\n').encode('utf-8').decode('utf-8'))
+    else:
+        try:
+            print((timestamp+data).encode('utf-8').decode('utf-8'))
+        except:
+            pass
     if not logfile.closed:
         logfile.write(timestamp+data+"\n")
 

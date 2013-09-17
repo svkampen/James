@@ -21,12 +21,12 @@ class ChannelHandler(dict):
         return 'ChannelHandler'
 
     def get_channels_for(self, user):
-        return [c for c in self.values() if user in c.users]
+        return [c for c in self.values() if c.users.get(user, None)]
 
     def update_channel(self, *args):
         to_merge = args[0]
         merge_with = args[1]
-        to_merge.users |= merge_with.users
+        to_merge.users.update(merge_with.users)
 
     def __getattribute__(self, name):
         if name != "keys":

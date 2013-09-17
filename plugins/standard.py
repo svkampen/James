@@ -5,6 +5,7 @@ from .util.decorators import command, require_admin
 import sys
 import inspect
 import platform
+import time
 
 def command_categories(bot):
     categories = list(bot.cmdhandler.command_help.keys())
@@ -59,6 +60,13 @@ def join_channel(bot, nick, chan, arg):
     """ join <chan> -> Join the specified channel. """
     bot._send("JOIN :%s" % (arg))
 
+@command('u.is_identified', category='standard')
+def is_identified(bot, nick, chan, arg):
+    """ u.is_identified <user> -> Check if user is identified. """
+    bot.msg("NickServ", "ACC %s" % (arg))
+    time.sleep(4/3)
+    is_id = ('3' in bot.state.notices[-1]['message'])
+    bot.msg(chan, is_id)
 
 @command('version', category='standard')
 def version(bot, nick, chan, arg):

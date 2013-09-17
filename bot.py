@@ -4,6 +4,8 @@ James.py - main bot
 """
 
 from utils.irc import IRCHandler
+from utils.threads import HandlerThread
+from utils.function import Function
 import utils
 import plugins
 
@@ -21,7 +23,7 @@ from utils.events import Event
 from utils.decorators import startinfo
 
 CONFIG = {}
-VERSION = "4.6.6"
+VERSION = "5.0.0a1"
 MAX_MESSAGE_STORAGE = 256
 
 
@@ -54,6 +56,8 @@ class James(IRCHandler):
         self.lastmsgof = {}
         self.cmdhandler = CommandHandler(self, plugins.get_plugins())
         self.leo = object()  # Last eval output
+        self.cmd_thread = HandlerThread()
+        self.cmd_thread.daemon = True
 
         self.set_up_partials()
 
@@ -92,9 +96,11 @@ class James(IRCHandler):
             if triggered_short and CONFIG["short_enabled"]:
                 if hasattr(triggered_short.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
-                        triggered_short(self, nick, chan, cmd_args)
+                        self.cmd_thread.handle(Function(
+                            triggered_short, (self, nick, chan, cmd_args)))
                 else:
-                    triggered_short(self, nick, chan, cmd_args)
+                    self.cmd_thread.handle(Function(triggered_short,
+                        (self, nick, chan, cmd_args)))
             if msg.startswith(CONFIG["cmdchar"]):
                 cmd_name = cmd_splitmsg[0][1:]
                 callback = self.cmdhandler.trigger(cmd_name)
@@ -104,12 +110,25 @@ class James(IRCHandler):
 
                 if hasattr(callback.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
-                        callback(self, nick, chan, cmd_args)
+                        self.cmd_thread.handle(Function(callback, 
+                            (self, nick, chan, cmd_args)))
                 else:
-                    callback(self, nick, chan, cmd_args)
+                    self.cmd_thread.handle(Function(callback,
+                        (self, nick, chan, cmd_args)))
         except BaseException:
             self._meditate(sys.exc_info(), chan)
             traceback.print_exc()
+
+    def cmodes(self, msg):
+        modes = msg['arg'].split()[2]
+        channel = msg['arg'].split()[1]
+        c = self.state.channels.get(channel, False)
+        if c:
+            c._modes = modes
+
+    def connect(self):
+        self.cmd_thread.start()
+        super().connect()
 
     def getconfig(self):
         """ Get the botconfig from another module """
@@ -129,6 +148,7 @@ class James(IRCHandler):
         channel = msg["arg"][1:].strip().lower()
         if user == self.state.nick.lower().strip():
             self.state.channels.add(channel)
+            self._send("MODE %s" % (channel))
         self.state.channels[channel].add_user(user)
         self.state.events["JoinEvent"].fire(self, user, channel)
         #self.log.log("[%s] JOIN %s" % (channel, user))
@@ -147,8 +167,8 @@ class James(IRCHandler):
         modes = ['+', '%', '@', '&', '~']
 
         
-        users = set([u for u in users if not u[:1] in modes]
-            + [u[1:] for u in users if u[:1] in modes])
+        users = ([u for u in users if not u[:1] in modes]
+                 + [u[1:] for u in users if u[:1] in modes])
 
         channel = self.state.channels.get(chan, False)
         if channel:

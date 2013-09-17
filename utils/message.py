@@ -10,7 +10,7 @@ class Message(object):
 		self.nick = user
 		self.channel = chan
 		self.msg = msg
-		self.timestamp = timestamp or (datetime.utcnow().isoformat().rsplit('.', 1)[0])+" UTC"
+		self.timestamp = timestamp or datetime.utcnow()
 
 	def __call__(self, *args):
 		return self.msg

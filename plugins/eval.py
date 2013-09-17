@@ -34,6 +34,8 @@ class IRCterpreter(code.InteractiveConsole):
     def run(self, nick, chan, code):
         if not 'self' in self.locals.keys():
             self.locals['self'] = self
+        self.locals['chan'] = chan
+        self.locals['nick'] = nick
         self.curnick = nick
         self.curchan = chan
         sys.stdout = sys.interp = self
