@@ -23,7 +23,7 @@ from utils.events import Event
 from utils.decorators import startinfo
 
 CONFIG = {}
-VERSION = "5.0.0a1"
+VERSION = "5.0.0a2"
 MAX_MESSAGE_STORAGE = 256
 
 
@@ -60,6 +60,9 @@ class James(IRCHandler):
         self.cmd_thread.daemon = True
 
         self.set_up_partials()
+
+    def __repr__(self):
+        return 'James(server=%r, channels=%s)' % (CONFIG["server"].split(":")[0], list(self.state.channels.keys()))
 
     def _meditate(self, exc_info, chan):
         """ Prints GURU MEDITATION messages. """
@@ -186,18 +189,15 @@ class James(IRCHandler):
 
     def nick(self, msg):
         """ Handles nickchanges """
-        """ FIXME: this is fugly """
-        oldnick = msg["host"].split("!")[0]
-        newnick = msg["arg"][1:]
-        if oldnick.lower() in self.state.admins:
-            self.state.admins.remove(oldnick.lower())
-            self.state.admins.add(newnick.lower())
-        if oldnick.lower() in self.state.muted:
-            self.state.muted.remove(oldnick.lower())
-            self.state.muted.add(newnick.lower())
+        oldnick = msg["host"].split("!")[0].lower()
+        newnick = msg["arg"][1:].lower()
+        if oldnick in self.state.admins:
+            self.state.admins.replace(oldnick, newnick)
+        if oldnick in self.state.muted:
+            self.state.muted.replace(oldnick, newnick)
         if oldnick == self.state.nick:
             self.state.nick = newnick
-        for chan in self.state.channels.get_channels_for(oldnick):
+        for chan in self.state.channels.get_channels_for(oldnick).values():
             chan.change_user((oldnick, newnick))
 
     def part(self, msg):
@@ -244,8 +244,10 @@ class James(IRCHandler):
 
     def quit(self, msg):
         nick = msg['host'].split("!")[0].lower()
-        for channel in self.state.channels.get_channels_for(nick):
+        for channel in self.state.channels.get_channels_for(nick).values():
             channel.remove_user(nick)
+        if self.state.users.get(nick, False):
+            del self.state.users[nick]
 
     def kick(self, msg):
         nick = msg['arg'].split()[1].lower()

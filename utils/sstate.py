@@ -4,6 +4,11 @@ ServerState, Channel and ChannelHandler objects.
 
 from .channel import Channel
 
+class FancySet(set):
+    def replace(self, o, n):
+        self.discard(o)
+        self.add(n)
+
 class ChannelHandler(dict):
     """ A class that handles channels. """
     def add(self, channel):
@@ -21,7 +26,12 @@ class ChannelHandler(dict):
         return 'ChannelHandler'
 
     def get_channels_for(self, user):
-        return [c for c in self.values() if user in c.users]
+        assert user == user.lower()
+        channels_ = ChannelHandler()
+        for v in self.values():
+            if user in v.users.keys():
+                channels_.add(v)
+        return channels_
 
     def update_channel(self, *args):
         to_merge = args[0]
@@ -40,12 +50,13 @@ class ChannelHandler(dict):
 class ServerState(object):
     """ A class that holds the active channels and admins and some more things about the bot that are server-specific. """
     def __init__(self):
-        self.admins = set()
-        self.muted = set()
+        self.admins = FancySet()
+        self.muted = FancySet()
         self.nick = 'James'
         self.notices = []
         self.messages = {}
         self.channels = ChannelHandler()
+        self.users = {}
 
     def add_admin(self, nick):
         """ Add an user to the admin list. """

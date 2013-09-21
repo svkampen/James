@@ -93,9 +93,9 @@ class IRCHandler(object):
                 getattr(namespace, function)()
             else:
                 if type(args) not in (tuple, list) or not unpack:
-                    _thread.start_new_thread(getattr(namespace, function), (args,))
+                    getattr(namespace, function)(args)
                 else:
-                    _thread.start_new_thread(getattr(namespace, function), args)
+                    getattr(namespace, function)(*args)
 
     def senduser(self):
         """ Send the IRC USER message. """

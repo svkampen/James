@@ -122,7 +122,22 @@ def set_command_admin(bot, nick, chan, arg):
     return bot.msg(chan, "%s: '%s' now requires admin privileges" % (nick, arg))
 
 @require_admin
+@command('req.admin-', category='meta')
+def remove_cmd_admin(bot, nick, chan, arg):
+    """ req.admin- <cmd> -> Make a command not require admin privileges """
+    if not arg:
+        return bot.msg(chan, remove_cmd_admin.__doc__)
+    if not bot.cmdhandler.trigger(arg):
+        return bot.msg(chan, "%s: '%s' is a nonexistant command" % (nick, arg))
+    delattr(bot.cmdhandler.trigger(arg).function, '_require_admin')
+    return bot.msg(chan, "%s: '%s' does not require admin privileges anymore" % (nick, arg))
+
+@require_admin
 @command('map', category='beta')
 def map_command_to(bot, nick, chan, arg):
     """ map <cmd>-><newcmd> -> map a command to another command name """
-    pass
+    args = arg.split("->")
+    orig, new = args
+    orig_cmd = bot.cmdhandler.trigger(orig)
+    orig_cmd.hooks.append(new)
+    return bot.msg(chan, "%s: '%s' now has hooks %r" % (nick, orig, orig_cmd.hooks))

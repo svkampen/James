@@ -6,6 +6,7 @@ import inspect
 import traceback
 import re
 import subprocess
+import sys
 
 SED_REGEX = re.compile(r"^(?:(\S+)[:,] )?(?:(.+?)/)?s/(.+?)/(.*?)(?:/([gixs]{0,4}))?$")
 
@@ -145,5 +146,6 @@ def inline_python(bot, nick, chan, msg):
             msg = msg.replace(piece, str(evaluate(bot, nick, chan, piece)))
         except BaseException:
             traceback.print_exc()
+            bot._meditate(sys.exc_info(), chan)
     return msg.replace('`', '')
-
+    

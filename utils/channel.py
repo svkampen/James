@@ -40,7 +40,13 @@ class UserMessagesArray(MagicAttribute):
     def __init__(self):
         self.bot = sys.modules['__main__'].BOT
     def func(self, obj):
-        return bot.state.messages[obj.nick]
+        return self.bot.state.messages[obj.nick]
+
+class UserChannels(MagicAttribute):
+    def __init__(self):
+        self.state = sys.modules['__main__'].BOT.state
+    def func(self, obj):
+        return self.state.channels.get_channels_for(obj.nick)
 
 class UserIdleTime(MagicAttribute):
     def func(self, obj):
@@ -49,16 +55,21 @@ class UserIdleTime(MagicAttribute):
         difference = (current_time - last_m_time)
 
 class User(object):
-    def __init__(self, nick):
+    def __init__(self, nick, channels=None):
         self.nick = nick
+        
         self.is_identified = IsIdentified()
         self.messages = UserMessagesArray()
         self.idle_time = UserIdleTime()
+        self.channels = UserChannels()
+
+    def __repr__(self):
+        return 'User(nick=%r, channels=%s)' % (self.nick, self.channels.keys())
 
     def __getattribute__(self, name):
         attr = super().__getattribute__(name)
         if hasattr(attr, "__get__"):
-            return attr.__get__(self, Channel)
+            return attr.__get__(self, User)
         return attr
 
 class UserDict(dict):
@@ -72,6 +83,12 @@ class UserDict(dict):
 
     def __str__(self):
         return 'UserDict'
+
+    def discard(self, item):
+        try:
+            del self[item]
+        except KeyError:
+            pass
 
     def __getattribute__(self, item):
         if item != "keys":
@@ -88,22 +105,39 @@ class Channel(object):
     # TODO: ADD KICK STUFF
     def __init__(self, name):
         self.name = name
-        self.users = set()
+        self.users = UserDict()
         self.is_empty = IsUserSetEmpty()
         self.users_n = UserNumInChannel()
+        self.state = sys.modules['__main__'].BOT.state
 
     def add_user(self, user):
-        self.users.add(user.lower())
+        assert user == user.lower(), "User is passed as lowercase."
+        existing_user = self.state.users.get(user, False)
+        if existing_user:
+            self.users[user] = existing_user
+        else:
+            self.state.users[user] = User(user)
+            self.users[user] = self.state.users[user]
 
     def remove_user(self, user):
-        self.users.remove(user.lower())
+        del self.users[user.lower()]
 
     def change_user(self, map_):
+        uobj = self.users[map_[0]]
+        uobj.nick = map_[1]
         self.users.discard(map_[0])
-        self.users.add(map_[1])
+        self.users[map_[1]] = uobj
+        return self.users[map_[1]]
 
     def update_users(self, update):
-        self.users |= set([i.lower() for i in list(update)])
+        update = [u.lower() for u in update]
+        for user in update:
+            existing_user = self.state.users.get(user, False)
+            if existing_user:
+                self.users[user] = existing_user
+            else:
+                self.state.users[user] = User(user)
+                self.users[user] = self.state.users.get(user)
         return self.users
 
     def __repr__(self):

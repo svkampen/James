@@ -1,3 +1,21 @@
+v5.0.0a2:
+    * Except exceptions in command thread
+    * Sync users between channels (issue #66)
+    * Cleaned up changenick handler in bot.py
+    * Change __repr__ function of user object
+    + UserChannels Magic Attribute (woo circularly referenced data structures!)
+    + Add __repr__ function of James object
+    + FancySet object
+    + Central user dict (like messages dict) (has to do with #66 too)
+    * Turned sstate.admins and sstate.muted into FancySet objects
+
+v5.0.0a1:
+    + User object
+    + UserDict object
+    * Fix up names handler in bot.py
+    + Thread commands
+    + Add a couple of magic attributes
+
 v4.6.6:
     * alphabetically ordered bot.py
     + changelog
