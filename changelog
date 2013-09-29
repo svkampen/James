@@ -4,7 +4,7 @@ v5.0.0b2:
     * Turn event dict into a DotDict
     * Turn event handler set into a HandlerSet (basically a dotdict for function names)
     + MODE handler - sets self.state.nick.
-    + Sexualize.py - the horniest plugin on the internet
+    + Add HandlerSet object.
     * Make it possible to flush the interpreter buffer
 
 v5.0.0b1:

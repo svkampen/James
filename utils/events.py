@@ -17,15 +17,30 @@ class HandlerSet(set):
             return x[name]
         return super().__getattribute__(name)
 
+class AdvancedHandlerSet(HandlerSet):
+    def __init__(self):
+        self.disabled_set = HandlerSet()
+
+    def disable(self, s):
+        if hasattr(self, s):
+            self.disabled_set.add(getattr(self, s))
+            self.discard(getattr(self, s))
+
+    def enable(self, s):
+        if hasattr(self.disabled_set, s):
+            self.add(getattr(self.disabled_set, s))
+            self.disabled_set.discard(getattr(self.disabled_set, s))
+
+
 class Event():
     """ A simple event class """
     def __init__(self, type_):
-        self.handlers = HandlerSet()
+        self.handlers = AdvancedHandlerSet()
         self.type = type_
 
     def __str__(self):
         if len(self.handlers) != 1:
-            return "Event(handlers=%s, ...})" % (self.handlers.__str__().split(", ")[0])
+            return "Event(handlers=%s, ...}))" % (self.handlers.__str__().split(", ")[0])
         else:
             return "Event(handlers=%s)" % (self.handlers)
 

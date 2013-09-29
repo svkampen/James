@@ -39,7 +39,7 @@ def repostats(bot, nick, chan, arg):
         commits = -1
     time.sleep(0.1)
     l_response = requests.get("https://api.github.com/repos/%s/languages" % (arg),
-        headers=headers, auth=auth)
+        headers=headers, auth=get_auth(bot))
     if l_response.status_code in (200, 202):
         json = l_response.json()
         whole = sum(json.values())
@@ -47,7 +47,7 @@ def repostats(bot, nick, chan, arg):
     else:
         langs_percents = {"unknownlang": 100.0}
     time.sleep(0.1)
-    r_response = requests.get("https://api.github.com/repos/%s" % (arg), headers=headers, auth=auth)
+    r_response = requests.get("https://api.github.com/repos/%s" % (arg), headers=headers, auth=get_auth(bot))
     if r_response.status_code in (200, 202):
         json = r_response.json()
         forks = json["forks"]
