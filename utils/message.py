@@ -1,5 +1,5 @@
 """
-Message object 'n stuff
+Message object "n stuff
 """
 
 from .channel import Channel

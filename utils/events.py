@@ -1,20 +1,26 @@
 import traceback
 
 Standard = [
-    {'WelcomeEvent': 'welcome'},
-    {'JoinEvent': 'join'},
-    {'PartEvent': 'part'},
-    {'MessageEvent': 'message'},
-    {'NoticeEvent': 'notice'},
-    {'CloseLogEvent': 'close_log'},
-    {'KickEvent': 'kick'}
+    {"WelcomeEvent": "welcome"},
+    {"JoinEvent": "join"},
+    {"PartEvent": "part"},
+    {"MessageEvent": "message"},
+    {"NoticeEvent": "notice"},
+    {"CloseLogEvent": "close_log"},
+    {"KickEvent": "kick"}
 ]
 
+class HandlerSet(set):
+    def __getattribute__(self, name):
+        x = {f.__name__:f for f in self}
+        if name in x.keys():
+            return x[name]
+        return super().__getattribute__(name)
 
 class Event():
     """ A simple event class """
     def __init__(self, type_):
-        self.handlers = set()
+        self.handlers = HandlerSet()
         self.type = type_
 
     def __str__(self):
@@ -36,10 +42,10 @@ class Event():
         _kwargs = kwargs.copy()
         try:
             for handler in self.handlers:
-                if not hasattr(handler, '_want_type'):
+                if not hasattr(handler, "_want_type"):
                     handler(*args, **kwargs)
                 else:
-                    kwargs.update({'type': self.type})
+                    kwargs.update({"type": self.type})
                     handler(*args, **kwargs)
                     kwargs = _kwargs
         except:

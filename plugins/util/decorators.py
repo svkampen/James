@@ -32,9 +32,9 @@ def command(*args, **kwargs):
         for arg in args:
             hooks.append(arg)
         funct.hook = hooks
-        if 'short' in kwargs.keys():
-            funct.shorthook = [kwargs['short']]
-        if 'category' in kwargs.keys():
-            funct._category = kwargs['category']
+        if "short" in kwargs.keys():
+            funct.shorthook = [kwargs["short"]]
+        if "category" in kwargs.keys():
+            funct._category = kwargs["category"]
         return funct
     return decorator

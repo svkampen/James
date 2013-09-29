@@ -44,10 +44,10 @@ class IRCHandler(object):
                 time.sleep(0.1)
                 if loops != 0:
                     try:
-                        self.buff.append(self.sock.recv(1024).decode('utf-8'))
+                        self.buff.append(self.sock.recv(1024).decode("utf-8"))
                     except UnicodeDecodeError:
                         try:
-                            self.buff.append(self.sock.recv(1024).decode('utf-16'))
+                            self.buff.append(self.sock.recv(1024).decode("utf-16"))
                         except:
                             pass
                 else:
@@ -56,18 +56,18 @@ class IRCHandler(object):
 
                 for msg in self.buff:
                     if self.verbose:
-                        print('>>> '+msg)
+                        print(">>> "+msg)
                     pmsg = parse.parse(msg)
-                    if pmsg['method'] == 'PING':
+                    if pmsg["method"] == "PING":
                         self._send("PONG "+pmsg["arg"])
                     elif pmsg["method"] == "376":
                         self.is_welcome = True
-                        self.try_to_call('welcome', args=pmsg)
+                        self.try_to_call("welcome", args=pmsg)
                     else:
-                        if not pmsg['method'].isdigit():
-                            self.try_to_call(pmsg['method'].lower(), args=pmsg)
+                        if not pmsg["method"].isdigit():
+                            self.try_to_call(pmsg["method"].lower(), args=pmsg)
                         else:
-                            func = numerics.get(pmsg['method'], False)
+                            func = numerics.get(pmsg["method"], False)
                             if func:
                                 self.try_to_call(func, args=pmsg)
 
@@ -75,13 +75,13 @@ class IRCHandler(object):
         except KeyboardInterrupt:
             sys.exit()
 
-    def _send(self, data, newline='\r\n', sock=None):
+    def _send(self, data, newline="\r\n", sock=None):
         """ Send data through the socket and append CRLF. """
         self.outbuff.append(data+newline)
         for msg in self.outbuff:
             if self.verbose:
-                print('<<< '+msg)
-            self.sock.send((msg+newline).encode('utf-8'))
+                print("<<< "+msg)
+            self.sock.send((msg+newline).encode("utf-8"))
             time.sleep(.5)
 
     def try_to_call(self, function, namespace=None, args=None, unpack=True):

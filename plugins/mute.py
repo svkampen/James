@@ -5,7 +5,7 @@ from .util.decorators import command, require_admin
 
 
 @require_admin
-@command('mute', category='meta')
+@command("mute", category="meta")
 def mute(self, nick, chan, arg):
     """ mute <nick> -> Prohibit someone from using the bot. Admin-only. """
     self.state.mute(arg)
@@ -13,7 +13,7 @@ def mute(self, nick, chan, arg):
 
 
 @require_admin
-@command('unmute', category='meta')
+@command("unmute", category="meta")
 def unmute(self, nick, chan, arg):
     """ unmute <nick> -> Let someone use the bot. Admin-only. """
     self.state.unmute(arg)

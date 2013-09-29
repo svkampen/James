@@ -10,6 +10,8 @@ class CommandHandler():
 
         self.initializers = self.commands = []
 
+        self.loaded_plugins = [p.__name__ for p in plugins]
+
         self.initializers = command.plugins_to_initializers(plugins)
         for function in self.initializers:
             function(bot)
@@ -27,15 +29,15 @@ class CommandHandler():
         command_help = {}
         categories.add("unknown")
         for command in commands:
-            if hasattr(command.function, '_category'):
+            if hasattr(command.function, "_category"):
                 categories.add(command.function._category)
         for category in categories:
             command_help.update({category: set()})
         for command in commands:
-            if hasattr(command.function, '_category'):
+            if hasattr(command.function, "_category"):
                 command_help[command.function._category].add(command.main_hook)
             else:
-                command_help['unknown'].add(command.main_hook)
+                command_help["unknown"].add(command.main_hook)
         del categories
         return command_help
 

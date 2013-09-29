@@ -2,8 +2,9 @@
 Dynamically evaluate python code - James.three plugin
 """
 from .util.decorators import command, require_admin, initializer
-from .util.data import sugar
-import functools, code, sys
+from .util.data import sugar, lineify
+import code
+import sys
 
 class IRCterpreter(code.InteractiveConsole):
     def __init__(self, localVars, botinstance):
@@ -17,10 +18,10 @@ class IRCterpreter(code.InteractiveConsole):
         self.cache.append(data)
 
     def is_exception(self, data):
-        return True if 'File "<console>", line 1' in data else False
+        return True if 'File "<console>", line ' in data else False
 
     def flushbuf(self):
-        out = ''.join(self.cache).strip()
+        out = "".join(self.cache).strip()
 
         if self.is_exception(out):
             # most likely a traceback, only capture exception
@@ -28,14 +29,15 @@ class IRCterpreter(code.InteractiveConsole):
             out = out[out.rfind("\n"):]
 
         if len(out) > 0:
-            self.bot.msg(self.curchan, out)
+            for line in lineify(out):
+                self.bot.msg(self.curchan, line)
         self.cache = []
 
     def run(self, nick, chan, code):
-        if not 'self' in self.locals.keys():
-            self.locals['self'] = self
-        self.locals['chan'] = chan
-        self.locals['nick'] = nick
+        if not "self" in self.locals.keys():
+            self.locals["self"] = self
+        self.locals["chan"] = chan
+        self.locals["nick"] = nick
         self.curnick = nick
         self.curchan = chan
         sys.stdout = sys.interp = self
@@ -46,21 +48,28 @@ class IRCterpreter(code.InteractiveConsole):
 @initializer
 def initialize_plugin(bot):
     """ Initialize this plugin. """
-    import sys, os, inspect, plugins
-    message = lambda x: sys.interp.write("\x01ACTION %s\x01"%(x))
-    action = lambda x: sys.interp.write("\x01ACTION %s\x01"%(x))
-    bot.state.interp = {'locals':locals()}
-    bot.state.interp['locals'].update(globals())
+    bot.state.data["interp_locals"] = locals()
+    bot.state.data["interp_locals"].update(globals())
 
 @require_admin
-@command('eval', short=">>>", category='meta')
-def eval_it(self, nick, chan, arg):
+@command("eval", short=">>>", category="meta")
+def eval_it(bot, nick, chan, arg):
     """ eval *args -> Evaluate *args as python code."""
     arg = sugar(arg)
     ip = None
     try:
-        ip = self.state.interp[nick.lower()]
-    except KeyError:
-        lcls = self.state.interp['locals']
-        ip = self.state.interp[nick.lower()] = IRCterpreter(lcls, self)
+        ip = bot.state.interp
+    except AttributeError:
+        lcls = bot.state.data["interp_locals"]
+        ip = bot.state.interp = IRCterpreter(lcls, bot)
     ip.run(nick, chan, arg)
+
+@require_admin
+@command("flush_eval", short="flush~", category="meta")
+def flush_it(bot, nick, chan, arg):
+    """ flush -> Flush the eval buffer. """
+    ip = bot.state.interp
+    ip.cache = []
+    bot.msg(chan, "Flushed interpreter buffer.")
+
+

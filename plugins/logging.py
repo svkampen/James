@@ -6,6 +6,16 @@ from .util.decorators import initializer
 import time
 import sys
 
+logfile = None
+
+@initializer
+def plugin_init(bot):
+    global logfile
+    output = "%s/james.log" % bot.botdir
+    logfile = open(output, "a", encoding="utf-8")
+    for event in bot.state.events.values():
+        event.register(logger)
+
 def close_log(*args):
     logfile.close()
 
@@ -13,10 +23,10 @@ def log(data):
     """ log and print data """
     timestamp = time.strftime("[%H:%M:%S] ")
     if sys.stdout != sys.__stdout__:
-        sys.__stdout__.write((timestamp+data+'\n').encode('utf-8').decode('utf-8'))
+        sys.__stdout__.write((timestamp+data+"\n").encode("utf-8").decode("utf-8"))
     else:
         try:
-            print((timestamp+data).encode('utf-8').decode('utf-8'))
+            print((timestamp+data).encode("utf-8").decode("utf-8"))
         except:
             pass
     if not logfile.closed:
@@ -57,22 +67,14 @@ def log_notice(*args):
     log("-%s-%s%s" % (sender, ws, args))
 
 def logger(*args, **kwargs):
-    etype = kwargs['type']
-    handlers = {'message': log_message,
-     'join': log_join,
-     'part': log_part,
-     'welcome': log_welcome,
-     'notice': log_notice,
-     'kick': log_kick,
-     'close_log': close_log}
+    etype = kwargs["type"]
+    handlers = {"message": log_message,
+     "join": log_join,
+     "part": log_part,
+     "welcome": log_welcome,
+     "notice": log_notice,
+     "kick": log_kick,
+     "close_log": close_log}
     handlers.get(etype, lambda *args: None)(*args)
 
 logger._want_type = True
-
-@initializer
-def plugin_init(bot):
-    global logfile
-    output = "%s/james.log" % bot.botdir
-    logfile = open(output, 'a', encoding='utf-8')
-    for event in bot.state.events.values():
-        event.register(logger)

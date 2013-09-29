@@ -5,8 +5,8 @@ import os, sys, types
 __all__ = []
 
 for file_ in os.listdir("./plugins"):
-    if file_.endswith('.py'):
-        __all__.append(file_.split('.')[0])
+    if file_.endswith(".py"):
+        __all__.append(file_.split(".")[0])
 
 [__import__(__name__, fromlist=[item]) for item in __all__]
 CURRENT_MODULE = sys.modules[__name__]

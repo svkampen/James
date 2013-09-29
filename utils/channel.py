@@ -7,10 +7,16 @@ from subprocess import Popen
 import time
 from datetime import datetime
 
+bot = None
+
+def create_bot():
+    global bot
+    bot = __import__('__main__').BOT
+
 class MagicAttribute(object):
     """ A magic attribute """
     def __get__(self, obj, type):
-        return getattr(self, 'func')(obj)
+        return getattr(self, "func")(obj)
 
 class IsUserSetEmpty(MagicAttribute):
     def func(self, obj):
@@ -21,30 +27,24 @@ class UserNumInChannel(MagicAttribute):
         return len(obj.users) if not obj.is_empty else -1
 
 class IsIdentified(MagicAttribute):
-    def __init__(self):
-        self.bot = sys.modules['__main__'].BOT
     def func(self, obj):
-        self.bot.msg("NickServ", "ACC %s" % (obj.nick))
+        bot.msg("NickServ", "ACC %s" % (obj.nick))
         time.sleep(4/3)
-        return '3' in self.bot.state.notices[-1]['message']
+        return "3" in bot.state.notices[-1]["message"]
 
 class ChannelModes(MagicAttribute):
-    def __init__(self):
-        self.bot = sys.modules['__main__'].BOT
     def func(self, obj):
-        self.bot._send("MODE %s" % (obj.name))
+        bot._send("MODE %s" % (obj.name))
         time.sleep(4/3)
         return obj._modes
 
 class UserMessagesArray(MagicAttribute):
-    def __init__(self):
-        self.bot = sys.modules['__main__'].BOT
     def func(self, obj):
-        return self.bot.state.messages[obj.nick]
+        return bot.state.messages[obj.nick]
 
 class UserChannels(MagicAttribute):
     def __init__(self):
-        self.state = sys.modules['__main__'].BOT.state
+        self.state = bot.state
     def func(self, obj):
         return self.state.channels.get_channels_for(obj.nick)
 
@@ -64,7 +64,7 @@ class User(object):
         self.channels = UserChannels()
 
     def __repr__(self):
-        return 'User(nick=%r, channels=%s)' % (self.nick, self.channels.keys())
+        return "User(nick=%r, channels=%s)" % (self.nick, self.channels.keys())
 
     def __getattribute__(self, name):
         attr = super().__getattribute__(name)
@@ -82,7 +82,7 @@ class UserDict(dict):
         return super().get(*args, **kwargs)
 
     def __str__(self):
-        return 'UserDict'
+        return "UserDict"
 
     def discard(self, item):
         try:
@@ -104,11 +104,13 @@ class UserDict(dict):
 class Channel(object):
     # TODO: ADD KICK STUFF
     def __init__(self, name):
+        create_bot()
         self.name = name
+        self.disabled_commands = set()
         self.users = UserDict()
         self.is_empty = IsUserSetEmpty()
         self.users_n = UserNumInChannel()
-        self.state = sys.modules['__main__'].BOT.state
+        self.state = sys.modules["__main__"].BOT.state
 
     def add_user(self, user):
         assert user == user.lower(), "User is passed as lowercase."

@@ -13,10 +13,10 @@ SED_REGEX = re.compile(r"^(?:(\S+)[:,] )?(?:(.+?)/)?s/(.+?)/(.*?)(?:/([gixs]{0,4
 def parse(msg):
     """ Parse an IRC protocol message """
     if msg.startswith("PING"):
-        info = {'method': 'PING', 'arg': msg.split()[-1]}
+        info = {"method": "PING", "arg": msg.split()[-1]}
     else:
-        splitmsg = msg.split(' ', 2)
-        info = {'method': splitmsg[1], 'host': splitmsg[0][1:], 'arg':
+        splitmsg = msg.split(" ", 2)
+        info = {"method": splitmsg[1], "host": splitmsg[0][1:], "arg":
                 splitmsg[2]}
     return info
 
@@ -58,26 +58,26 @@ def set_flags(sedobject, flags):
     count = 1
 
     if not flags:
-        setattr(sedobject, 'flags', i)
-        setattr(sedobject, 'count', count)
+        setattr(sedobject, "flags", i)
+        setattr(sedobject, "count", count)
         return
 
     for item in flags:
-        if item == 'i':
+        if item == "i":
             i |= re.IGNORECASE
-        if item == 'x':
+        if item == "x":
             i |= re.X
-        if item == 's':
+        if item == "s":
             i |= re.S
-        if item == 'g':
+        if item == "g":
             count = 0
 
-    setattr(sedobject, 'flags', i)
-    setattr(sedobject, 'count', count)
+    setattr(sedobject, "flags", i)
+    setattr(sedobject, "count", count)
 
 def debug(sedobject):
     for k,v in sedobject.__dict__.items():
-        if not k.startswith('_') or not k.endswith("_"):
+        if not k.startswith("_") or not k.endswith("_"):
             print("%s: %s" % (k,v))
 
 def get_message(bot, sedregex, nick, chan, qual=None):
@@ -100,7 +100,7 @@ def get_message(bot, sedregex, nick, chan, qual=None):
 
 def sed(bot, nick, chan, msg):
     """ Perform the sedding """
-    s = type('SedObject', tuple(), {})
+    s = type("SedObject", tuple(), {})
     
     if not SED_REGEX.match(msg):
         return
@@ -147,5 +147,5 @@ def inline_python(bot, nick, chan, msg):
         except BaseException:
             traceback.print_exc()
             bot._meditate(sys.exc_info(), chan)
-    return msg.replace('`', '')
+    return msg.replace("`", "")
     

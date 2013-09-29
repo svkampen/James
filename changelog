@@ -1,3 +1,20 @@
+v5.0.0b2:
+    + github.get_issues
+    + github.close_issue
+    * Turn event dict into a DotDict
+    * Turn event handler set into a HandlerSet (basically a dotdict for function names)
+    + MODE handler - sets self.state.nick.
+    + Sexualize.py - the horniest plugin on the internet
+    * Make it possible to flush the interpreter buffer
+
+v5.0.0b1:
+    * Turn even more ''s into ""s
+    * Add more whitespace :P
+    + Disable or enable commands in a specific channel (cmd.disabled!, cmd.disabled?, cmd.disabled-)
+    + Added possibility to check whether a plugin has been loaded
+    * Remove unneccessary imports
+    + Make eval use lineify (I don't use that function often enough do I?)
+
 v5.0.0a2:
     * Except exceptions in command thread
     * Sync users between channels (issue #66)

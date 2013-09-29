@@ -4,6 +4,7 @@ James.py - main bot
 """
 
 from utils.irc import IRCHandler
+from utils.sstate import ServerState
 from utils.threads import HandlerThread
 from utils.function import Function
 import utils
@@ -21,9 +22,10 @@ from collections import deque
 from utils.commandhandler import CommandHandler
 from utils.events import Event
 from utils.decorators import startinfo
+from utils import is_enabled
 
 CONFIG = {}
-VERSION = "5.0.0a2"
+VERSION = "5.0.0b2"
 MAX_MESSAGE_STORAGE = 256
 
 
@@ -38,12 +40,12 @@ class James(IRCHandler):
         self.debug = debug
 
         # Bot state and logger.
-        self.state = utils.ServerState()
+        self.state = ServerState()
         self.botdir = os.getcwd()
 
         # state.
-        self.state.events = {list(i.keys())[0]: Event(list(i.values())[0])
-            for i in utils.events.Standard}
+        self.state.events.update({list(i.keys())[0]: Event(list(i.values())[0])
+            for i in utils.events.Standard})
 
         self.state.apikeys = json.loads(open("apikeys.conf").read())
         self.state.data = {"autojoin_channels": []}
@@ -62,7 +64,7 @@ class James(IRCHandler):
         self.set_up_partials()
 
     def __repr__(self):
-        return 'James(server=%r, channels=%s)' % (CONFIG["server"].split(":")[0], list(self.state.channels.keys()))
+        return "James(server=%r, channels=%s)" % (CONFIG["server"].split(":")[0], list(self.state.channels.keys()))
 
     def _meditate(self, exc_info, chan):
         """ Prints GURU MEDITATION messages. """
@@ -96,6 +98,8 @@ class James(IRCHandler):
                 cmd_args = ""
 
             triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
+            if not triggered_short or not is_enabled(self, chan, triggered_short):
+                triggered_short = False
             if triggered_short and CONFIG["short_enabled"]:
                 if hasattr(triggered_short.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
@@ -108,8 +112,9 @@ class James(IRCHandler):
             if msg.startswith(CONFIG["cmdchar"]):
                 cmd_name = cmd_splitmsg[0][1:]
                 callback = self.cmdhandler.trigger(cmd_name)
-
                 if not callback:
+                    return
+                if not is_enabled(self, chan, callback):
                     return
 
                 if hasattr(callback.function, "_require_admin"):
@@ -124,11 +129,14 @@ class James(IRCHandler):
             traceback.print_exc()
 
     def cmodes(self, msg):
-        modes = msg['arg'].split()[2]
-        channel = msg['arg'].split()[1]
+        modes = msg["arg"].split()[2]
+        channel = msg["arg"].split()[1]
         c = self.state.channels.get(channel, False)
         if c:
             c._modes = modes
+
+    def mode(self, msg):
+        self.state.nick = msg["arg"].split(" ", 1)[0]
 
     def connect(self):
         self.cmd_thread.start()
@@ -163,12 +171,12 @@ class James(IRCHandler):
 
     def names(self, msg):
         """ Executed on NAMES reply """
-        chantype = re.match(r'(=|@|\*).*', msg['arg'].split(' ', 1)[1])
+        chantype = re.match(r"(=|@|\*).*", msg["arg"].split(" ", 1)[1])
         chantype = chantype.groups()[0]
-        args = msg['arg'].split(chantype)[1]
-        chan = args.split(':')[0][:-1].strip().lower()
-        users = args.split(':')[1].split()
-        modes = ['+', '%', '@', '&', '~']
+        args = msg["arg"].split(chantype)[1]
+        chan = args.split(":")[0][:-1].strip().lower()
+        users = args.split(":")[1].split()
+        modes = ["+", "%", "@", "&", "~"]
 
         users = set([u for u in users if not u[:1] in modes]
             + [u[1:] for u in users if u[:1] in modes])
@@ -191,12 +199,16 @@ class James(IRCHandler):
         """ Handles nickchanges """
         oldnick = msg["host"].split("!")[0].lower()
         newnick = msg["arg"][1:].lower()
+
         if oldnick in self.state.admins:
             self.state.admins.replace(oldnick, newnick)
+
         if oldnick in self.state.muted:
             self.state.muted.replace(oldnick, newnick)
+
         if oldnick == self.state.nick:
             self.state.nick = newnick
+
         for chan in self.state.channels.get_channels_for(oldnick).values():
             chan.change_user((oldnick, newnick))
 
@@ -214,7 +226,7 @@ class James(IRCHandler):
     def privmsg(self, msg):
         """ Handles messages """
         # Split msg into parts
-        nick = msg["host"].split("!")[0]  # get sender
+        nick = msg["host"].split("!")[0].lower()  # get sender
         chan = msg["arg"].split()[0]  # get chan
         if not chan.startswith("#"):
             chan = nick  # if chan is a private message, file under them
@@ -243,19 +255,19 @@ class James(IRCHandler):
             self.state.messages[nick] = deque([msg], MAX_MESSAGE_STORAGE)
 
     def quit(self, msg):
-        nick = msg['host'].split("!")[0].lower()
+        nick = msg["host"].split("!")[0].lower()
         for channel in self.state.channels.get_channels_for(nick).values():
             channel.remove_user(nick)
         if self.state.users.get(nick, False):
             del self.state.users[nick]
 
     def kick(self, msg):
-        nick = msg['arg'].split()[1].lower()
-        chan = msg['arg'].split()[0].lower()
+        nick = msg["arg"].split()[1].lower()
+        chan = msg["arg"].split()[0].lower()
         channel = self.state.channels.get(chan, False)
         if channel:
             channel.remove_user(nick)
-        self.state.events['KickEvent'].fire(self, nick, chan)
+        self.state.events["KickEvent"].fire(self, nick, chan)
 
 
     def set_up_partials(self):
@@ -275,7 +287,7 @@ class James(IRCHandler):
 
 if __name__ == "__main__":
     if (sys.getdefaultencoding() == "ascii" or sys.getfilesystemencoding() == "ascii"):
-        raise OSError("Your shitty OS uses ASCII as it's default (FS) encoding. Fix it.")
+        raise OSError("Your shitty OS uses ASCII as its default (FS) encoding. Fix it.")
     
     ARGS = sys.argv[1:]
     CONFIG = json.loads(open("config.json", "r").read())

@@ -1,5 +1,5 @@
 """
-WolframAlpha 'API' (using proxy)
+WolframAlpha "API" (using proxy)
 """
 
 from .util.decorators import command
@@ -10,14 +10,14 @@ try:
 except:
     from urllib import pathname2url as urlencode
 
-@command('wa', category='internet')
+@command("wa", category="internet")
 def proxywa(bot, nick, chan, arg):
     """ WolframAlpha search """
     if not arg:
         return bot.msg(chan, "No search term.")
     query = urlencode(arg)
-    uri = 'http://tumbolia.appspot.com/wa/%s'
-    answer = requests.get(uri % (urllib.parse.quote(query.replace('+', '%2B'))), headers=headers).text.strip('\n').replace(';', '  |  ').replace('\\/', '/')
+    uri = "http://tumbolia.appspot.com/wa/%s"
+    answer = requests.get(uri % (urllib.parse.quote(query.replace("+", "%2B"))), headers=headers).text.strip("\n").replace(";", "  |  ").replace("\\/", "/")
     if not answer: 
-       answer = 'Sorry, no result.'
+       answer = "Sorry, no result."
     bot.msg(chan, "%s: %s" %(nick, answer))

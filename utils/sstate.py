@@ -9,6 +9,13 @@ class FancySet(set):
         self.discard(o)
         self.add(n)
 
+class DotDict(dict):
+    def __getattribute__(self, name):
+        if name != "keys":
+            if name in self.keys():
+                return self[name]
+        return super().__getattribute__(name)
+
 class ChannelHandler(dict):
     """ A class that handles channels. """
     def add(self, channel):
@@ -23,7 +30,7 @@ class ChannelHandler(dict):
                 % (str(self)))
 
     def __str__(self):
-        return 'ChannelHandler'
+        return "ChannelHandler"
 
     def get_channels_for(self, user):
         assert user == user.lower()
@@ -52,11 +59,12 @@ class ServerState(object):
     def __init__(self):
         self.admins = FancySet()
         self.muted = FancySet()
-        self.nick = 'James'
+        self.nick = "James"
         self.notices = []
         self.messages = {}
         self.channels = ChannelHandler()
         self.users = {}
+        self.events = DotDict()
 
     def add_admin(self, nick):
         """ Add an user to the admin list. """
