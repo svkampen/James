@@ -136,7 +136,9 @@ class James(IRCHandler):
             c._modes = modes
 
     def mode(self, msg):
-        self.state.nick = msg["arg"].split(" ", 1)[0]
+        if not msg["arg"].startswith("#"):
+            self.state.nick = msg["arg"].split(" ", 1)[0]
+            print("Set self.state.nick to %s" % (self.state.nick))
 
     def connect(self):
         self.cmd_thread.start()
