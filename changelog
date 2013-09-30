@@ -1,3 +1,8 @@
+v5.0.0:
+    - ASCII OSError
+    + cmd.disabled - posts disabled commands
+    + plugin reloading - use #plugin.reload (fixes #53)
+
 v5.0.0b2:
     + github.get_issues
     + github.close_issue

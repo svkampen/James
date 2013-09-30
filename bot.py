@@ -64,7 +64,8 @@ class James(IRCHandler):
         self.set_up_partials()
 
     def __repr__(self):
-        return "James(server=%r, channels=%s)" % (CONFIG["server"].split(":")[0], list(self.state.channels.keys()))
+        return "James(server=%r, channels=%s)" % (CONFIG["server"].split(":")[0],
+                list(self.state.channels.keys()))
 
     def _meditate(self, exc_info, chan):
         """ Prints GURU MEDITATION messages. """
@@ -289,7 +290,8 @@ class James(IRCHandler):
 
 if __name__ == "__main__":
     if (sys.getdefaultencoding() == "ascii" or sys.getfilesystemencoding() == "ascii"):
-        raise OSError("Your shitty OS uses ASCII as its default (FS) encoding. Fix it.")
+        #OSError("Your shitty OS uses ASCII as its default (FS) encoding. Fix it.")
+        pass
     
     ARGS = sys.argv[1:]
     CONFIG = json.loads(open("config.json", "r").read())

@@ -2,12 +2,16 @@
 The Command handler
 """
 from . import command
+from imp import reload
+import sys
 
+BOT = None
 
 class CommandHandler():
     """ The command handler object - handles triggering commands """
     def __init__(self, bot, plugins):
-
+        global BOT
+        BOT = bot
         self.initializers = self.commands = []
 
         self.loaded_plugins = [p.__name__ for p in plugins]
@@ -19,10 +23,26 @@ class CommandHandler():
         self.command_names = [cmd.main_hook for cmd in self.commands]
 
         self.command_help = self.organize_commands(self.commands)
+        
 
         if self.commands == []:
             raise RuntimeError("No commands found!")
         print("%d commands initialized." % (len(self.commands)))
+
+    def reload_plugin(self, plugin):
+        from . import get_name
+        if plugin in self.loaded_plugins:
+            self.loaded_plugins.remove(plugin)
+        for cmd in self.commands:
+            if get_name(cmd.function).startswith(plugin):
+                self.commands.remove(cmd)
+        reloaded_plugin = reload(sys.modules[plugin])
+        self.commands += command.plugins_to_commands(reloaded_plugin)
+        initializers = command.plugins_to_initializers(reloaded_plugin)
+        for i in initializers:
+            i(BOT)
+        self.command_help = self.organize_commands(self.commands)
+        return reloaded_plugin
 
     def organize_commands(self, commands):
         categories = set()

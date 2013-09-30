@@ -180,3 +180,19 @@ def enable_command(bot, nick, chan, arg):
     c.disabled_commands.discard(cmd)
     bot.msg(chan, "Command %s (%s) is enabled in channel %s" % (arg, cmd, c))
 
+@command("cmd.disabled", category="meta")
+def disabled_commands(bot, nick, chan, arg):
+    """ cmd.disabled -> show all disabled commands for current channel """
+    c = bot.state.channels[chan]
+    if c.disabled_commands:
+        return bot.msg(chan, "Disabled commands: %s" % (', '.join(c.disabled_commands)))
+    bot.msg(chan, "No disabled commands in channel %s" % (c))
+
+@require_admin
+@command("plugin.reload", category="meta")
+def reload_plugin(bot, nick, chan, arg):
+    """ plugin.reload <plugin_name> -> reload a plugin """
+    if not arg:
+        return bot.msg(chan, reload_plugin.__doc__.strip())
+    bot.cmdhandler.reload_plugin(arg)
+    bot.msg(chan, "Reloaded plugin %s" % (arg))
