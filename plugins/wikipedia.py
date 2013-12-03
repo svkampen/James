@@ -19,14 +19,17 @@ def initialize_plugin(bot):
 
 
 @command("wiki", category="internet")
-def wikipedia_get(bot, nick, chan, arg):
+def wikipedia_get(bot, nick, chan, arg, root=None):
     """ wiki *args -> Get the first two sentences in *args' wikipedia article. """
     if not arg:
         return bot.msg(chan, get_doc())
     term = arg.replace(" ", "_")
     term = urlencode(term)
 
-    root = "http://en.wikipedia.org/wiki/%s" % (term)
+    if root:
+        root = root % term
+    else:
+        root = ("http://en.wikipedia.org/wiki/%s" % (term))
     url = root+"?action=render"
     response = requests.get(url, headers=headers)
 
@@ -62,3 +65,10 @@ def wikipedia_get(bot, nick, chan, arg):
             if len(first_paragraph.split(". ")[0]) > 15:
                 return bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_paragraph.split(". ")[0], bot.state.data["shortener"](bot, root)))
     bot._msg(chan, "%s: %s -- Read more: %s" % (nick, sentences, bot.state.data["shortener"](bot, root)))
+
+@command("ed", category="internet")
+def encyclopedia_dramatica(bot, nick, chan, arg):
+    """ ed *args -> Get the first two sentences in *args' encyclopedia dramatica article. """
+    if not arg:
+        return bot.msg(chan, get_doc())
+    wikipedia_get(bot, nick, chan, arg, root="https://encyclopediadramatica.es/%s")

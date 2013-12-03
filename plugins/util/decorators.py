@@ -28,10 +28,6 @@ def command(*args, **kwargs):
         if "category" in kwargs.keys():
             funct._category = kwargs["category"]
 
-        @wraps(funct)
-        def new_function(*args, **kwargs):
-            callee_doc = funct.__doc__
-            return funct(*args, **kwargs)
-        return new_function
+        return funct
 
     return decorator
