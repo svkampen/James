@@ -7,6 +7,7 @@ from .util.data import www_headers as headers, get_doc
 from .util.threads import Ticker
 import time
 import requests
+from collections import deque
 
 
 class RedditTicker(Ticker):
@@ -14,7 +15,7 @@ class RedditTicker(Ticker):
         if not chan_to_msg:
             chan_to_msg = "#%s" % (subreddit)
         self.chan_to_msg = chan_to_msg
-        self.last_post_id = "None"
+        self.last_post_id = deque(maxlen=5)
         self.bot = bot
         self.subreddit = subreddit
         self.url = "http://reddit.com/r/%s/new.json" % (subreddit)
@@ -29,7 +30,7 @@ class RedditTicker(Ticker):
         if self.loops != 1:
             data = data[:1]
         for item in data:
-            if item["data"]["id"] != self.last_post_id:
+            if item["data"]["id"] not in self.last_post_id:
                 data_title = item["data"]["title"]
                 #permalink = item["data"]["permalink"]
                 data_url = "http://redd.it/%s" % (item["data"]["id"])
@@ -38,7 +39,7 @@ class RedditTicker(Ticker):
                 time.sleep(2)
             else:
                 break
-        self.last_post_id = data[0]["data"]["id"]
+        self.last_post_id.append(data[0]["data"]["id"])
 
 
 @command("reddit.last", category="social")
