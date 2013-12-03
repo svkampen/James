@@ -2,7 +2,7 @@
 Dynamically evaluate python code - James.three plugin
 """
 from .util.decorators import command, require_admin, initializer
-from .util.data import sugar, lineify
+from .util.data import sugar, lineify, generate_vulgarity
 import code
 import sys
 

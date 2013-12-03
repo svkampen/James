@@ -6,6 +6,7 @@ import sys
 import platform
 import time
 import inspect
+import random
 from types import ModuleType, FunctionType
 
 def get_name(f):
@@ -22,7 +23,7 @@ def command_categories(bot):
 
 @command("help", category="standard")
 def help_me(bot, nick, chan, arg):
-    """ help [command] or [category] -> Get help for a command or category """
+    """ help [command] or [category] -> Get help for a command or category. """
     if not arg:
         return bot.msg(chan, command_categories(bot))
     if arg in bot.cmdhandler.command_help.keys():
@@ -41,9 +42,9 @@ def help_me(bot, nick, chan, arg):
 
 @command("say", category="standard")
 def say(bot, nick, chan, arg):
-    """ say *args -> Say *args """
+    """ say *args -> Say *args. """
     if not arg:
-        return
+        return bot.msg(chan, get_doc())
     bot.msg(chan, arg)
 
 
@@ -65,11 +66,15 @@ def part_channel(bot, nick, chan, arg):
 @command("join", category="standard")
 def join_channel(bot, nick, chan, arg):
     """ join <chan> -> Join the specified channel. """
+    if not arg:
+        bot.msg(chan, get_doc())
     bot._send("JOIN :%s" % (arg))
 
 @command("u.is_identified", category="standard")
 def is_identified(bot, nick, chan, arg):
     """ u.is_identified <user> -> Check if user is identified. """
+    if not arg:
+        bot.msg(chan, get_doc())
     bot.msg("NickServ", "ACC %s" % (arg))
     time.sleep(4/3)
     is_id = ("3" in bot.state.notices[-1]["message"])
@@ -77,7 +82,9 @@ def is_identified(bot, nick, chan, arg):
 
 @command("version", category="standard")
 def version(bot, nick, chan, arg):
-    """ version -> return bot/python version information """ 
+    """ version -> return bot/python version information. """ 
+    if not arg:
+        bot.msg(chan, get_doc())
     libc_ver = " ".join(platform.libc_ver())
     python_ver = platform.python_version()
     bot_ver = bot.version
@@ -94,7 +101,7 @@ def version(bot, nick, chan, arg):
 def get_shorthook(bot, nick, chan, arg):
     """ short <cmd> -> Get the shorthook for a command, if exists"""
     if not arg:
-        return bot.msg(chan, "Usage: short <command>")
+        return bot.msg(chan, get_doc())
     if bot.cmdhandler.trigger(arg):
         shorthooks = bot.cmdhandler.trigger(arg).short_hooks
         if shorthooks != [] and shorthooks != None:
@@ -106,9 +113,9 @@ def get_shorthook(bot, nick, chan, arg):
 
 @command("req.admin?", category="meta")
 def is_command_admin(bot, nick, chan, arg):
-    """ req.admin? <cmd> -> Check whether a command requires admin privileges """
+    """ req.admin? <cmd> -> Check whether a command requires admin privileges. """
     if not arg:
-        return bot.msg(chan, "Usage: admin? <command>")
+        return bot.msg(chan, get_doc())
     command = bot.cmdhandler.trigger(arg)
     if not command:
         return bot.msg(chan, "Non-existant command!")
@@ -120,9 +127,9 @@ def is_command_admin(bot, nick, chan, arg):
 @require_admin
 @command("req.admin!", category="meta")
 def set_command_admin(bot, nick, chan, arg):
-    """ req.admin! <cmd> -> Make a command require admin privileges """
+    """ req.admin! <cmd> -> Make a command require admin privileges. """
     if not arg:
-        return bot.msg(chan, "Usage: req.admin! <command>")
+        return bot.msg(chan, get_doc())
     if not bot.cmdhandler.trigger(arg):
         return bot.msg(chan, "%s: '%s' is a nonexistant command!" % (nick, arg))
     bot.cmdhandler.trigger(arg).function._require_admin = True
@@ -131,9 +138,9 @@ def set_command_admin(bot, nick, chan, arg):
 @require_admin
 @command("req.admin-", category="meta")
 def remove_cmd_admin(bot, nick, chan, arg):
-    """ req.admin- <cmd> -> Make a command not require admin privileges """
+    """ req.admin- <cmd> -> Make a command not require admin privileges. """
     if not arg:
-        return bot.msg(chan, remove_cmd_admin.__doc__)
+        return bot.msg(chan, get_doc())
     if not bot.cmdhandler.trigger(arg):
         return bot.msg(chan, "%s: '%s' is a nonexistant command" % (nick, arg))
     delattr(bot.cmdhandler.trigger(arg).function, "_require_admin")
@@ -142,7 +149,9 @@ def remove_cmd_admin(bot, nick, chan, arg):
 @require_admin
 @command("map", category="beta")
 def map_command_to(bot, nick, chan, arg):
-    """ map <cmd>-><newcmd> -> map a command to another command name """
+    """ map <cmd>-><newcmd> -> map a command to another command name. """
+    if not arg:
+        return bot.msg(chan, get_doc())
     args = arg.split("->")
     orig, new = args
     orig_cmd = bot.cmdhandler.trigger(orig)
@@ -152,7 +161,9 @@ def map_command_to(bot, nick, chan, arg):
 @require_admin
 @command("cmd.disabled!", category="meta")
 def disable_command(bot, nick, chan, arg):
-    """ cmd.disabled! <cmd> -> disable a command in the current channel """
+    """ cmd.disabled! <cmd> -> disable a command in the current channel. """
+    if not arg:
+        return bot.msg(chan, get_doc())
     c = bot.state.channels[chan]
     cmd = bot.cmdhandler.trigger(arg).function
     cmd = get_name(cmd)
@@ -162,7 +173,9 @@ def disable_command(bot, nick, chan, arg):
 @require_admin
 @command("cmd.disabled?", category="meta")
 def is_command_disabled(bot, nick, chan, arg):
-    """ cmd.disabled? <cmd> -> check if a command is disabled in the current channel """
+    """ cmd.disabled? <cmd> -> check if a command is disabled in the current channel. """
+    if not arg:
+        return bot.msg(chan, get_doc())
     c = bot.state.channels[chan]
     cmd = bot.cmdhandler.trigger(arg).function
     cmd = get_name(cmd)
@@ -173,7 +186,9 @@ def is_command_disabled(bot, nick, chan, arg):
 @require_admin
 @command("cmd.disabled-", category="meta")
 def enable_command(bot, nick, chan, arg):
-    """ cmd.disabled- <cmd> -> enable command in the current channel """
+    """ cmd.disabled- <cmd> -> enable command in the current channel. """
+    if not arg:
+        return bot.msg(chan, get_doc())
     c = bot.state.channels[chan]
     cmd = bot.cmdhandler.trigger(arg).function
     cmd = get_name(cmd)
@@ -182,7 +197,7 @@ def enable_command(bot, nick, chan, arg):
 
 @command("cmd.disabled", category="meta")
 def disabled_commands(bot, nick, chan, arg):
-    """ cmd.disabled -> show all disabled commands for current channel """
+    """ cmd.disabled -> show all disabled commands for current channel.. """
     c = bot.state.channels[chan]
     if c.disabled_commands:
         return bot.msg(chan, "Disabled commands: %s" % (', '.join(c.disabled_commands)))
@@ -191,8 +206,46 @@ def disabled_commands(bot, nick, chan, arg):
 @require_admin
 @command("plugin.reload", category="meta")
 def reload_plugin(bot, nick, chan, arg):
-    """ plugin.reload <plugin_name> -> reload a plugin """
+    """ plugin.reload <plugin_name> -> reload a plugin. """
     if not arg:
-        return bot.msg(chan, reload_plugin.__doc__.strip())
+        return bot.msg(chan, get_doc())
     bot.cmdhandler.reload_plugin(arg)
     bot.msg(chan, "Reloaded plugin %s" % (arg))
+
+@require_admin
+@command("event.disable_handler", category="meta")
+def disable_event_handler(bot, nick, chan, arg):
+    """ event.disable_handler <event>.<handler.__name__> -> disable handler for event. """
+    if not arg:
+        bot.msg(chan, get_doc())
+    event, handler = arg.split(".")
+    e = bot.state.events[event]
+    if not e.handlers.disable(handler):
+        bot.msg(chan, "Something went wrong while trying to disable %s" % (arg))
+    else:
+        bot.msg(chan, "Handler %s disabled." % (arg))
+
+@require_admin
+@command("event.enable_handler", category="meta")
+def enable_event_handler(bot, nick, chan, arg):
+    """ event.enable_handler <event>.<handler.__name__> -> enable handler for event. """
+    if not arg:
+        return bot.msg(chan, get_doc())
+    event, handler = arg.split(".")
+    e = bot.state.events[event]
+    if not e.handlers.enable(handler):
+        bot.msg(chan, "Something went wrong while trying to re-enable %s" % (arg))
+    else:
+        bot.msg(chan, "Handler %s re-enabled." % (arg))
+
+@command("vulgarity", category="fantastic")
+def vulgarity(bot, nick, chan, arg):
+    swears = ["FUCK", "SHIT", "DICK", "TWAT", "CUNT", "FISH", "CRAP", "ASS", "TIT", "PUSSY", "COCK", "DOUCHE", "CUM", "PISS", "MAN", "CRUD"]
+    nouns = ["STAIN", "BAG", "FUCKER", "TARD", "WAFFLE", "NIPPLE", "BOOB", "BURGER", "EATER", "HOLE", "PONY", "NUTS", "JUICE", "CHODE", "SLUT", "BREATH", "WHORE", "DONKEY", "GOBBLER", "NUGGET", "BRAIN", "MUNCHER", "SUCKER", "STICK", "FACE", "TOOL", "WAGON", "WAD", "BUTT", "BUCKET", "BOX"]
+    swearnoun = ["DIPSHIT", "FUCKWIT", "DUMBASS", "CORNHOLE", "LIMPDICK", "PIGSHIT"]
+    if random.random() < 0.05:
+        vulgarity = random.choice(swearnoun)
+    else:
+        vulgarity = random.choice(swears) + random.choice(nouns)
+
+    bot.msg(chan, "%s: u r 1 ✓ %s" % (nick, vulgarity))

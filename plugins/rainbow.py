@@ -1,4 +1,5 @@
 from .util.decorators import command, initializer
+from .util.data import get_doc
 
 colors = ["%s%.2d" % (k, v) for k,v in zip(["\x03" for i in range(0,12)], map(int, "5 4 7 8 9 3 10 11 2 12 6 13".split()))]
 count = 0
@@ -78,4 +79,6 @@ def rainbow(arg):
 @command("rainbow", category="misc")
 def rainbowify(bot, nick, chan, arg):
     """ rainbow *args -> Rainbowify *args. """
+    if not arg:
+      return bot.msg(chan, get_doc())
     bot.msg(chan, "%s" % (rainbow(arg)))

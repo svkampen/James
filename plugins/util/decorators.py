@@ -4,15 +4,7 @@
  by Sam van Kampen, 2013
 """
 
-#def returns(outtype):
-#    """A decorator that sets output type."""
-#    def decorator(funct):
-#        """The actual decorator"""
-#        funct.output_type = outtype
-#        return funct
-#    return decorator
-#
-# Quote: "<@NightLion> Dependency injection fuck yeah"
+from functools import wraps
 
 def require_admin(funct):
     """ Decorator for requiring admin privileges. """
@@ -28,13 +20,18 @@ def command(*args, **kwargs):
     """The command decorator."""
     def decorator(funct):
         """The actual command decorator."""
-        hooks = []
-        for arg in args:
-            hooks.append(arg)
-        funct.hook = hooks
+        funct.hook = args
+
         if "short" in kwargs.keys():
             funct.shorthook = [kwargs["short"]]
+
         if "category" in kwargs.keys():
             funct._category = kwargs["category"]
-        return funct
+
+        @wraps(funct)
+        def new_function(*args, **kwargs):
+            callee_doc = funct.__doc__
+            return funct(*args, **kwargs)
+        return new_function
+
     return decorator

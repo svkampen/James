@@ -3,7 +3,7 @@ Wikipedia "API" (using BeautifulSoup)
 """
 from .util.decorators import command, initializer
 from bs4 import BeautifulSoup as soupify
-from .util.data import www_headers as headers
+from .util.data import www_headers as headers, get_doc
 import re
 import requests
 try:
@@ -21,6 +21,8 @@ def initialize_plugin(bot):
 @command("wiki", category="internet")
 def wikipedia_get(bot, nick, chan, arg):
     """ wiki *args -> Get the first two sentences in *args' wikipedia article. """
+    if not arg:
+        return bot.msg(chan, get_doc())
     term = arg.replace(" ", "_")
     term = urlencode(term)
 

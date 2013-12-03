@@ -3,6 +3,7 @@ Weather plugin
 """
 
 from .util.decorators import command
+from .util.data import get_doc
 from bs4 import BeautifulSoup as soupify
 import requests
 try:
@@ -13,6 +14,8 @@ except:
 @command("weather", category="internet")
 def weather_at(bot, nick, chan, arg):
     """ weather <at> -> Get the weather at <arg> """
+    if not arg:
+        return bot.msg(chan, get_doc())
     wv = list(getweather(arg))
     bot.msg(chan, "%s: %s" %(nick, wv[0]))
 #    for w in wv:

@@ -3,6 +3,7 @@ The Command handler
 """
 from . import command
 from imp import reload
+from importlib import import_module as imp
 import sys
 
 BOT = None
@@ -30,13 +31,16 @@ class CommandHandler():
         print("%d commands initialized." % (len(self.commands)))
 
     def reload_plugin(self, plugin):
+        if plugin not in sys.modules.keys():
+            reloaded_plugin = imp(plugin)
+        else:
+            reloaded_plugin = reload(sys.modules[plugin])
         from . import get_name
         if plugin in self.loaded_plugins:
             self.loaded_plugins.remove(plugin)
         for cmd in self.commands:
             if get_name(cmd.function).startswith(plugin):
                 self.commands.remove(cmd)
-        reloaded_plugin = reload(sys.modules[plugin])
         self.commands += command.plugins_to_commands(reloaded_plugin)
         initializers = command.plugins_to_initializers(reloaded_plugin)
         for i in initializers:
@@ -68,7 +72,7 @@ class CommandHandler():
             if command_.is_triggered_by(trigger):
                 return command_
 
-        return False
+        return None
 
     def trigger_short(self, trigger):
         """ Try to trigger a command with shorthook <trigger> """
@@ -76,4 +80,4 @@ class CommandHandler():
             if command_.is_triggered_by(trigger, short=True):
                 return command_
 
-        return False
+        return None

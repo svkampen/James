@@ -3,8 +3,12 @@ Initialization file for plugin directory.
 """
 import os, sys, types
 __all__ = []
+try:
+	_dir = os.environ["JAMES_DIR"] + "/plugins"
+except:
+	_dir = "./plugins"
 
-for file_ in os.listdir("./plugins"):
+for file_ in os.listdir(_dir):
     if file_.endswith(".py"):
         __all__.append(file_.split(".")[0])
 

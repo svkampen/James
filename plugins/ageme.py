@@ -3,13 +3,14 @@ Age Calculator
 """
 
 from .util.decorators import command
+from .util.data import get_doc
 import datetime
 
 @command("ageme", category="misc")
 def ageme(bot, nick, chan, arg):
     """ ageme day month year -> Find exact age of person """
     if not arg:
-        return bot.msg(chan, ageme.__doc__.strip())
+        return bot.msg(chan, get_doc())
 
     prec = "16"
     args = arg.split()

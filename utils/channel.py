@@ -36,7 +36,7 @@ class ChannelModes(MagicAttribute):
     def func(self, obj):
         bot._send("MODE %s" % (obj.name))
         time.sleep(4/3)
-        return obj._modes
+        return obj.modes_
 
 class UserMessagesArray(MagicAttribute):
     def func(self, obj):
@@ -51,8 +51,10 @@ class UserChannels(MagicAttribute):
 class UserIdleTime(MagicAttribute):
     def func(self, obj):
         current_time = datetime.utcnow()
-        last_m_time = obj.messages[-1].timestamp
+        last_m_time = obj.messages[0].timestamp
         difference = (current_time - last_m_time)
+        return difference
+
 
 class User(object):
     def __init__(self, nick, channels=None):
@@ -62,6 +64,7 @@ class User(object):
         self.messages = UserMessagesArray()
         self.idle_time = UserIdleTime()
         self.channels = UserChannels()
+        self.exactnick = ""
 
     def __repr__(self):
         return "User(nick=%r, channels=%s)" % (self.nick, self.channels.keys())
@@ -99,7 +102,6 @@ class UserDict(dict):
         else:
             raise AttributeError("'%s' object has no attribute '%s', is '%s' in the channel?"
                 % (self, item, item))
-
 
 class Channel(object):
     # TODO: ADD KICK STUFF
@@ -153,3 +155,19 @@ class Channel(object):
         if hasattr(attr, "__get__"):
             return attr.__get__(self, Channel)
         return attr
+
+class UnknownChannel(Channel):
+    def __init__(self, name):
+        self.name = name
+        self.known = False
+
+    def __dir__(self):
+        if self.known:
+            return Channel.__dir__(Channel(""))
+        else:
+            return [i for i in dir(Channel) if i.startswith("_")] + ["name", "known", "join"]
+
+    def join(self):
+        if not self.known:
+            bot._send("JOIN %s" % (self.name))
+            self.known = True

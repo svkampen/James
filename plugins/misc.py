@@ -3,6 +3,7 @@ Miscellaneous stuff.
 """
 
 from .util.decorators import command
+from .util.data import get_doc
 import datetime
 import random
 
@@ -11,7 +12,7 @@ import random
 def get_weekday_at(bot, nick, chan, arg):
     """ misc.day_at <yyyy-mm-dd> -> get the day of the week at <arg>"""
     if not arg:
-        return get_weekday_at.__doc__.strip()
+        return bot.msg(chan, get_doc())
     arg = arg.split("-")
     year, month, day = (int(item) for item in (arg[0], arg[1], arg[2]))
     time = datetime.datetime(year, month, day)

@@ -3,7 +3,7 @@ General Githubbery
 """
 
 from .util.decorators import command
-from .util.data import www_headers as headers, lineify
+from .util.data import www_headers as headers, lineify, get_doc
 import requests
 import time
 
@@ -17,11 +17,13 @@ def get_auth(bot):
 @command("github.what.is", category="git")
 def what(bot, nick, chan, arg):
     """ github.what.is <user/repo> -> Get the description of a github repository """
+    if not arg:
+        return bot.msg(chan, get_doc())
     response = requests.get("https://api.github.com/repos/%s" % (arg),
         headers=headers, auth=get_auth(bot))
     if response.status_code == 200:
         return bot.msg(chan, "\x02%s\x02 -- %s" % (response.json()["full_name"],
-	        response.json()["description"]))
+            response.json()["description"]))
     else:
         return bot.msg(chan, "\x02Unknown repository\x02 %s" % (arg))
 
@@ -29,6 +31,8 @@ def what(bot, nick, chan, arg):
 @command("github.stats_for", category="git")
 def repostats(bot, nick, chan, arg):
     """ github.stats_for <user/repo> -> Get statistics for a github repository """
+    if not arg:
+        return bot.msg(chan, get_doc())
     c_response = requests.get("https://api.github.com/repos/%s/stats/contributors" % (arg),
         headers=headers, auth=get_auth(bot))
     if c_response.status_code in (200, 202):

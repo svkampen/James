@@ -4,7 +4,7 @@ Bit.ly plugin for James.three
 import requests
 import re
 from .util.decorators import command, initializer
-
+from .util.data import get_doc
 
 def _shorten(bot, url):
     """ Shorten an url with bit.ly """
@@ -32,5 +32,7 @@ def plugin_initializer(bot):
 @command("shorten", "bit.ly", "bitly", category="internet")
 def bitly(bot, nick, chan, arg):
     """ bit.ly <url> -> Shorten a url using bit.ly """
+    if not arg:
+        return bot.msg(chan, get_doc())
     url = _shorten(bot, arg)
     bot._msg(chan, url)

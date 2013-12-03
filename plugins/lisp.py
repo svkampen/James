@@ -3,6 +3,7 @@ Common Lisp interpreter
 Carter Hinsley <carterhinsley@gmail.com>
 """
 from .util.decorators import command
+from .util.data import get_doc
 import os
 import subprocess
 
@@ -10,7 +11,7 @@ import subprocess
 def lisp(bot, nick, chan, arg):
     """ lisp *args -> Interpret *args as Common Lisp. """
     if not arg:
-        return bot._msg(chan, "Usage: lisp [code]")
+        return bot._msg(chan, get_doc())
     f = open("./temp.lisp", "w")
     f.write(arg)
     f.close()

@@ -3,7 +3,7 @@ plugin for reddit stuff.
 """
 
 from .util.decorators import command, initializer
-from .util.data import www_headers as headers
+from .util.data import www_headers as headers, get_doc
 from .util.threads import Ticker
 import time
 import requests
@@ -45,7 +45,7 @@ class RedditTicker(Ticker):
 def reddit_get_last_post(bot, nick, chan, arg):
     """ reddit.last <subreddit> -> Get the last post of a subreddit on reddit. """
     if not arg:
-        return bot.msg(chan, "Usage: reddit.last <subreddit>")
+        return bot.msg(chan, get_doc())
     url = "http://reddit.com/r/%s/new.json" % (arg)
     response = requests.get(url, headers=headers)
 
@@ -61,7 +61,7 @@ def reddit_get_last_post(bot, nick, chan, arg):
 def reddit_get_hot_post(bot, nick, chan, arg):
     """ reddit.hot <subreddit> -> Get the hottest post on a subreddit. """
     if not arg:
-        return bot.msg(chan, "Usage: reddit.hot <subreddit>")
+        return bot.msg(chan, get_doc())
     url = "http://reddit.com/r/%s/hot.json" % (arg)
     response = requests.get(url, headers=headers)
 
@@ -82,7 +82,7 @@ def plugin_initializer(bot):
 def reddit_add_hook(bot, nick, chan, arg):
     """ reddit.ticker.add_hook <subreddit> -> Add a ticker for a hook. """
     if not arg:
-        return bot.msg(chan, "Usage: reddit.ticker.add_hook <subreddit>")
+        return bot.msg(chan, get_doc())
 
     bot.state.data["tickers"].append(RedditTicker(bot, arg, chan_to_msg=chan))
     bot.state.data["tickers"][-1].setDaemon(True)

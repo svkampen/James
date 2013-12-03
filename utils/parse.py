@@ -101,6 +101,7 @@ def get_message(bot, sedregex, nick, chan, qual=None):
 def sed(bot, nick, chan, msg):
     """ Perform the sedding """
     s = type("SedObject", tuple(), {})
+    #[print(i) for i in (bot, nick, chan, msg)]
     
     if not SED_REGEX.match(msg):
         return
@@ -114,6 +115,8 @@ def sed(bot, nick, chan, msg):
 
     if s.target:
         nick = s.target
+
+    nick = nick.lower()
 
     if s.qual:
         s.msg = get_message(bot, s.to_replace, nick, chan, qual=s.qual)
@@ -138,6 +141,7 @@ def sed(bot, nick, chan, msg):
 
 def inline_python(bot, nick, chan, msg):
     """ Execute inline python """
+    return
     pieces_of_python = re.findall("`([^`]+)`", msg)
     if not pieces_of_python:
         return msg

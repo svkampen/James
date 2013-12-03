@@ -55,16 +55,14 @@ class James(IRCHandler):
         self.state.nick = CONFIG["nick"]
 
         # Various things
-        self.lastmsgof = {}
         self.cmdhandler = CommandHandler(self, plugins.get_plugins())
-        self.leo = object()  # Last eval output
         self.cmd_thread = HandlerThread()
         self.cmd_thread.daemon = True
 
         self.set_up_partials()
 
     def __repr__(self):
-        return "James(server=%r, channels=%s)" % (CONFIG["server"].split(":")[0],
+        return "James(server=%r, chans=%s)" % (CONFIG["server"].split(":")[0],
                 list(self.state.channels.keys()))
 
     def _meditate(self, exc_info, chan):
@@ -89,7 +87,7 @@ class James(IRCHandler):
         else:
             self._send("PRIVMSG %s :%s" % (chan, msg))
 
-    def check_for_command(self, msg, nick, chan):
+    def _check_for_command(self, msg, nick, chan):
         """ Check for a command """
         cmd_splitmsg = msg.split(" ", 1)
         try:
@@ -98,16 +96,16 @@ class James(IRCHandler):
             else:
                 cmd_args = ""
 
-            triggered_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
-            if not triggered_short or not is_enabled(self, chan, triggered_short):
-                triggered_short = False
-            if triggered_short and CONFIG["short_enabled"]:
-                if hasattr(triggered_short.function, "_require_admin"):
+            trig_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
+            if not trig_short or not is_enabled(self, chan, trig_short):
+                trig_short = None
+            if trig_short and CONFIG["short_enabled"]:
+                if hasattr(trig_short.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
                         self.cmd_thread.handle(Function(
-                            triggered_short, (self, nick, chan, cmd_args)))
+                            trig_short, (self, nick, chan, cmd_args)))
                 else:
-                    self.cmd_thread.handle(Function(triggered_short,
+                    self.cmd_thread.handle(Function(trig_short,
                         (self, nick, chan, cmd_args)))
 
             if msg.startswith(CONFIG["cmdchar"]):
@@ -120,7 +118,7 @@ class James(IRCHandler):
 
                 if hasattr(callback.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
-                        self.cmd_thread.handle(Function(callback, 
+                        self.cmd_thread.handle(Function(callback,
                             (self, nick, chan, cmd_args)))
                 else:
                     self.cmd_thread.handle(Function(callback,
@@ -130,13 +128,19 @@ class James(IRCHandler):
             traceback.print_exc()
 
     def cmodes(self, msg):
+        """ channel mode handler. """
         modes = msg["arg"].split()[2]
         channel = msg["arg"].split()[1]
-        c = self.state.channels.get(channel, False)
-        if c:
-            c._modes = modes
+        chan = self.state.channels.get(channel, False)
+        if chan:
+            chan.modes_ = modes
+
+    @staticmethod
+    def ctcp(msg):
+        return "\x01%s\x01" % (msg)
 
     def mode(self, msg):
+        """ Handle MODE. """
         if not msg["arg"].startswith("#"):
             self.state.nick = msg["arg"].split(" ", 1)[0]
             print("Set self.state.nick to %s" % (self.state.nick))
@@ -145,7 +149,8 @@ class James(IRCHandler):
         self.cmd_thread.start()
         super().connect()
 
-    def getconfig(self):
+    @staticmethod
+    def getconfig():
         """ Get the botconfig from another module """
         return CONFIG
 
@@ -216,7 +221,7 @@ class James(IRCHandler):
             chan.change_user((oldnick, newnick))
 
     def part(self, msg):
-        """ Handles people parting channels """
+        """ Handles people parting channels. """
         channel = msg["arg"].split()[0].strip().lower()
         user = msg["host"].split("!")[0].strip().lower()
         self.state.channels[channel].remove_user(user)
@@ -227,9 +232,10 @@ class James(IRCHandler):
             traceback.print_exc()
 
     def privmsg(self, msg):
-        """ Handles messages """
+        """ Handles messages. """
         # Split msg into parts
         nick = msg["host"].split("!")[0].lower()  # get sender
+        nick_exact = msg["host"].split("!")[0]
         chan = msg["arg"].split()[0]  # get chan
         if not chan.startswith("#"):
             chan = nick  # if chan is a private message, file under them
@@ -242,12 +248,12 @@ class James(IRCHandler):
             return self.state.events["MessageEvent"].fire(self, nick, chan, msg)
 
         # Test for inline code
-        msg = utils.parse.inline_python(nick, chan, msg)
+        #msg = utils.parse.inline_python(nick, chan, msg)
 
         if CONFIG["sed-enabled"]:
             utils.parse.sed(self, nick, chan, msg)
 
-        self.check_for_command(msg, nick, chan)
+        self._check_for_command(msg, nick, chan)
 
         self.state.events["MessageEvent"].fire(self, nick, chan, msg)
 
@@ -256,8 +262,13 @@ class James(IRCHandler):
             self.state.messages[nick].appendleft(msg)
         else:
             self.state.messages[nick] = deque([msg], MAX_MESSAGE_STORAGE)
+        try:
+            self.state.users[nick].exactnick = nick_exact
+        except:
+            pass
 
     def quit(self, msg):
+        """ Handles quits. """
         nick = msg["host"].split("!")[0].lower()
         for channel in self.state.channels.get_channels_for(nick).values():
             channel.remove_user(nick)
@@ -265,6 +276,7 @@ class James(IRCHandler):
             del self.state.users[nick]
 
     def kick(self, msg):
+        """ Handles kicks. """
         nick = msg["arg"].split()[1].lower()
         chan = msg["arg"].split()[0].lower()
         channel = self.state.channels.get(chan, False)
@@ -275,8 +287,8 @@ class James(IRCHandler):
 
     def set_up_partials(self):
         """Set up partial functions"""
-        ip = utils.parse.inline_python
-        utils.parse.inline_python = functools.partial(ip, self)
+        utils.parse.inline_python = functools.partial(utils.parse.inline_python,
+            self)
 
     def welcome(self, *args):
         """ welcome(msg) - handles on-login actions """
@@ -289,13 +301,9 @@ class James(IRCHandler):
 
 
 if __name__ == "__main__":
-    if (sys.getdefaultencoding() == "ascii" or sys.getfilesystemencoding() == "ascii"):
-        #OSError("Your shitty OS uses ASCII as its default (FS) encoding. Fix it.")
-        pass
-    
     ARGS = sys.argv[1:]
     CONFIG = json.loads(open("config.json", "r").read())
-    
+
     VERBOSE = False
     DEBUG = False
 

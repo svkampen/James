@@ -3,7 +3,7 @@ Insult "API" (using BeautifulSoup)
 """
 
 from .util.decorators import command
-from .util.data import www_headers as headers
+from .util.data import www_headers as headers, get_doc
 from bs4 import BeautifulSoup as soupify
 import requests
 
@@ -12,7 +12,7 @@ import requests
 def insult(bot, nick, chan, arg):
     """ insult <user> -> does this need any help? """
     if not arg:
-        return bot.msg(chan, insult.__doc__.strip())
+        return bot.msg(chan, get_doc())
 
     url = "http://www.randominsults.net/"
     response = requests.get(url, headers=headers)

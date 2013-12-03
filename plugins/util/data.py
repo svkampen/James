@@ -1,6 +1,9 @@
 www_headers = {
-    "User-Agent": "Mozilla/5.0 (compatible) (Python 3.3, en_US) James/3.2 IRC bot"
+    "User-Agent": "Mozilla/5.0 (compatible) (Python 3.3, en_US) James/5.0 IRC bot"
 }
+
+import inspect
+import random
 
 def sugar(arg):
     arg = arg.replace("ssalc", "")
@@ -19,14 +22,20 @@ def lineify(data, max_size=400):
             lines.insert(index+1, item[item.rfind(" ", 0, 300)+1:])
     return lines
 
-class Descriptor(object):
-    def __init__(self, value):
-        self.var = value
+def get_caller_local(stack, local):
+    return stack[1][0].f_locals.get(local, None)
 
-    def __get__(self, instance, owner):
-        print("Accessing value in instance %r" % (instance))
-        return self.var
+def get_doc():
+    stack = inspect.getouterframes(inspect.currentframe())[1:]
+    return get_caller_local(stack, "callee_doc").strip()
 
-    def __set__(self, instance, value):
-        print("Updating value in instance %r" % (instance))
-        self.var = value
+def generate_vulgarity():
+    swears = ["FUCK", "SHIT", "DICK", "TWAT", "CUNT", "FISH", "CRAP", "ASS", "TIT", "PUSSY", "COCK", "DOUCHE", "CUM", "PISS", "MAN", "CRUD"]
+    nouns = ["STAIN", "BAG", "FUCKER", "TARD", "WAFFLE", "NIPPLE", "BOOB", "BURGER", "EATER", "HOLE", "PONY", "NUTS", "JUICE", "CHODE", "SLUT", "BREATH", "WHORE", "DONKEY", "GOBBLER", "NUGGET", "BRAIN", "MUNCHER", "SUCKER", "STICK", "FACE", "TOOL", "WAGON", "WAD", "BUTT", "BUCKET", "BOX"]
+    swearnoun = ["DIPSHIT", "FUCKWIT", "DUMBASS", "CORNHOLE", "LIMPDICK", "PIGSHIT"]
+    if random.random() < 0.05:
+        vulgarity = random.choice(swearnoun)
+    else:
+        vulgarity = random.choice(swears) + random.choice(nouns)
+
+    return vulgarity

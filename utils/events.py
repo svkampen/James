@@ -22,14 +22,26 @@ class AdvancedHandlerSet(HandlerSet):
         self.disabled_set = HandlerSet()
 
     def disable(self, s):
-        if hasattr(self, s):
-            self.disabled_set.add(getattr(self, s))
-            self.discard(getattr(self, s))
+        try:
+            if hasattr(self, s):
+                self.disabled_set.add(getattr(self, s))
+                self.discard(getattr(self, s))
+                return True
+            else:
+                return False
+        except BaseException:
+            return False
 
     def enable(self, s):
-        if hasattr(self.disabled_set, s):
-            self.add(getattr(self.disabled_set, s))
-            self.disabled_set.discard(getattr(self.disabled_set, s))
+        try:
+            if hasattr(self.disabled_set, s):
+                self.add(getattr(self.disabled_set, s))
+                self.disabled_set.discard(getattr(self.disabled_set, s))
+                return True
+            else:
+                return False
+        except BaseException:
+            return False
 
 
 class Event():
@@ -64,7 +76,11 @@ class Event():
                     handler(*args, **kwargs)
                     kwargs = _kwargs
         except:
-            traceback.print_exc()
+            if type(e) == RuntimeError:
+                # most likely a Set size changed during iteration thing.
+                self.fire(*args, **kwargs)
+            else:
+                traceback.print_exc()
 
     def unhandle(self, handler):
         """ De-register an event handler from this event. Throws EventError"""

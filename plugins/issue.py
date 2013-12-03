@@ -5,7 +5,7 @@ from .util.decorators import command, initializer
 import requests
 import json
 from .github import get_auth
-from .util.data import www_headers as headers
+from .util.data import www_headers as headers, get_doc
 
 @command("github.get_issues", category="git")
 def get_github_issues(bot, nick, chan, arg):
@@ -22,6 +22,8 @@ def get_github_issues(bot, nick, chan, arg):
 @command("github.get_issue", category="git")
 def get_github_issue(bot, nick, chan, arg):
     """ github.get_issue #<n> -> get github issue #<n> """
+    if not arg:
+        return bot.msg(chan, get_doc())
     args = arg.split()
     if len(args) == 2:
         repo = args[0]
@@ -45,6 +47,8 @@ def get_github_issue(bot, nick, chan, arg):
 @command("github.close_issue", category="git")
 def close_github_issue(bot, nick, chan, arg):
     """ github.close_issue #<num> -> close an issue on github """
+    if not arg:
+        return bot.msg(chan, get_doc())
     try: 
         int(arg[1:])
     except ValueError:
@@ -61,7 +65,7 @@ def close_github_issue(bot, nick, chan, arg):
 def request_feature(bot, nick, chan, arg):
     """ request.feature <title>: <desc> -> Request a feature. """
     if not arg:
-        return bot._msg(chan, "Usage: requestfeat title: description")
+        return bot._msg(chan, get_doc())
 
     if (":" in arg):
         arg = arg.split(": ")
@@ -92,7 +96,7 @@ def request_feature(bot, nick, chan, arg):
 def report_bug(bot, nick, chan, arg):
     """ report.bug <title>: <desc> -> Report a bug. """
     if not arg:
-        return bot._msg(chan, "Usage: report.bug title: description")
+        return bot._msg(chan, get_doc())
 
     if (":" in arg):
         arg = arg.split(": ")

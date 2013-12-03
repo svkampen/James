@@ -3,6 +3,7 @@ Elector
 """
 
 from .util.decorators import command
+from .util.data import get_doc
 import random
 
 
@@ -10,7 +11,7 @@ import random
 def elect(bot, nick, chan, arg):
     """ random *args -> Pick between a comma separated list of options """
     if not arg:
-        return bot.msg(chan, elect.__doc__.strip())
+        return bot.msg(chan, get_doc())
 
     choices = [x.strip() for x in arg.split(",")]
     if choices[-1].startswith("or "):

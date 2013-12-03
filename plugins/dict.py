@@ -2,6 +2,7 @@
 Get definitions from google
 """
 from .util.decorators import command
+from .util.data import get_doc
 from bs4 import BeautifulSoup as soupify
 import requests, json
 
@@ -14,7 +15,7 @@ except:
 def dict_lookup(bot, nick, chan, arg):
     """ dict <word> -> Dictionary lookup. """
     if not arg:
-        return bot.msg(chan, "Usage: dict [query]")
+        return bot.msg(chan, get_doc())
 
     url = "http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%2Cde&client=te&q="
     uri = url+urlencode(arg.replace(" ", "+"))

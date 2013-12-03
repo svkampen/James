@@ -2,6 +2,7 @@
 Get definitions from urbandictionary
 """
 from .util.decorators import command
+from .util.data import get_doc
 import requests
 import traceback
 import random
