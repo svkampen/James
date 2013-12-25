@@ -75,7 +75,7 @@ def reddit_get_hot_post(bot, nick, chan, arg):
 
 @initializer
 def plugin_initializer(bot):
-    bot.state.data["tickers"] = []
+    bot.state.data["threads"] = []
     globals()["bot"] = bot
 
 
@@ -85,18 +85,18 @@ def reddit_add_hook(bot, nick, chan, arg):
     if not arg:
         return bot.msg(chan, get_doc())
 
-    bot.state.data["tickers"].append(RedditTicker(bot, arg, chan_to_msg=chan))
-    bot.state.data["tickers"][-1].setDaemon(True)
-    bot.state.data["tickers"][-1].start()
-    bot.msg(chan, "Added %s" % (bot.state.data["tickers"][-1]))
+    bot.state.data["threads"].append(RedditTicker(bot, arg, chan_to_msg=chan))
+    bot.state.data["threads"][-1].setDaemon(True)
+    bot.state.data["threads"][-1].start()
+    bot.msg(chan, "Added %s" % (bot.state.data["threads"][-1]))
 
 
 @command("reddit.ticker.remove_hook", category="automation")
 def reddit_del_hook(bot, nick, chan, arg):
     """ reddit.ticker.remove_hook <subreddit> -> Delete a reddit ticker. """
-    for ticker in bot.state.data["tickers"]:
+    for ticker in bot.state.data["threads"]:
         if ticker.subreddit == arg:
             ticker.running = False
             ticker.join()
-            bot.state.data["tickers"].pop(ticker)
+            bot.state.data["threads"].pop(ticker)
             bot.msg(chan, "Removed ticker %s" % (ticker))

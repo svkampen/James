@@ -16,6 +16,7 @@ import re
 import sys
 import json
 import functools
+import threading
 
 from collections import deque
 
@@ -24,7 +25,6 @@ from utils.events import Event
 from utils.decorators import startinfo
 from utils import is_enabled
 
-CONFIG = {}
 VERSION = "5.0.0b2"
 MAX_MESSAGE_STORAGE = 256
 
@@ -34,7 +34,6 @@ class James(IRCHandler):
     @startinfo(VERSION)
     def __init__(self, config, verbose=False, debug=False):
         super(James, self).__init__(config, verbose=verbose)
-        globals()["CONFIG"] = config
 
         self.version = VERSION
         self.debug = debug
@@ -42,6 +41,9 @@ class James(IRCHandler):
         # Bot state and logger.
         self.state = ServerState()
         self.botdir = os.getcwd()
+        self.config = config
+        self.manager = None
+        self.id = None
 
         # state.
         self.state.events.update({list(i.keys())[0]: Event(list(i.values())[0])
@@ -49,20 +51,18 @@ class James(IRCHandler):
 
         self.state.apikeys = json.loads(open("apikeys.conf").read())
         self.state.data = {"autojoin_channels": []}
-        self.state.data["autojoin_channels"].extend(CONFIG["autojoin"])
-        for entry in CONFIG["admins"]:
+        self.state.data["autojoin_channels"].extend(self.config["autojoin"])
+        for entry in self.config["admins"]:
             self.state.admins.add(entry.lower())
-        self.state.nick = CONFIG["nick"]
+        self.state.nick = self.config["nick"]
 
         # Various things
         self.cmdhandler = CommandHandler(self, plugins.get_plugins())
         self.cmd_thread = HandlerThread()
         self.cmd_thread.daemon = True
 
-        self.set_up_partials()
-
     def __repr__(self):
-        return "James(server=%r, chans=%s)" % (CONFIG["server"].split(":")[0],
+        return "James(server=%r, chans=%s)" % (self.config["server"].split(":")[0],
                 list(self.state.channels.keys()))
 
     def _meditate(self, exc_info, chan):
@@ -99,7 +99,7 @@ class James(IRCHandler):
             trig_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
             if not trig_short or not is_enabled(self, chan, trig_short):
                 trig_short = None
-            if trig_short and CONFIG["short_enabled"]:
+            if trig_short and self.config["short_enabled"]:
                 if hasattr(trig_short.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
                         self.cmd_thread.handle(Function(
@@ -108,7 +108,7 @@ class James(IRCHandler):
                     self.cmd_thread.handle(Function(trig_short,
                         (self, nick, chan, cmd_args)))
 
-            if msg.startswith(CONFIG["cmdchar"]):
+            if msg.startswith(self.config["cmdchar"]):
                 cmd_name = cmd_splitmsg[0][1:]
                 callback = self.cmdhandler.trigger(cmd_name)
                 if not callback:
@@ -149,10 +149,10 @@ class James(IRCHandler):
         self.cmd_thread.start()
         super().connect()
 
-    @staticmethod
-    def getconfig():
+
+    def getconfig(self):
         """ Get the botconfig from another module """
-        return CONFIG
+        return self.config
 
     def gracefully_terminate(self):
         """ Handles the quit routine, then exits. """
@@ -160,6 +160,7 @@ class James(IRCHandler):
             super(James, self).gracefully_terminate()
         except SystemExit:
             pass
+        self.manager.bots.remove(self)
         self.state.events["CloseLogEvent"].fire()
 
     def join(self, msg):
@@ -248,9 +249,9 @@ class James(IRCHandler):
             return self.state.events["MessageEvent"].fire(self, nick, chan, msg)
 
         # Test for inline code
-        #msg = utils.parse.inline_python(nick, chan, msg)
+        # msg = utils.parse.inline_python(self, nick, chan, msg)
 
-        if CONFIG["sed-enabled"]:
+        if self.config["sed-enabled"]:
             utils.parse.sed(self, nick, chan, msg)
 
         self._check_for_command(msg, nick, chan)
@@ -266,6 +267,12 @@ class James(IRCHandler):
             self.state.users[nick].exactnick = nick_exact
         except:
             pass
+
+        if self != self.manager.main_bot:
+            try:
+                self.manager.main_bot.msg("#base", "[%s:%s] <%s> %s" % (self.config["server"], chan, nick, msg.msg))
+            except BrokenPipeError:
+                self.manager.main_bot = self
 
     def quit(self, msg):
         """ Handles quits. """
@@ -284,25 +291,45 @@ class James(IRCHandler):
             channel.remove_user(nick)
         self.state.events["KickEvent"].fire(self, nick, chan)
 
-
-    def set_up_partials(self):
-        """Set up partial functions"""
-        utils.parse.inline_python = functools.partial(utils.parse.inline_python,
-            self)
-
     def welcome(self, *args):
         """ welcome(msg) - handles on-login actions """
-        if CONFIG["ident_pass"]:
-            self.msg(CONFIG["identify_service"], "identify %s"
-                % (CONFIG["ident_pass"]))
+        if self.config["ident_pass"]:
+            self.msg(self.config["identify_service"], "identify %s"
+                % (self.config["ident_pass"]))
         self._send("MODE %s +B" % (self.state.nick))
         self.state.events["WelcomeEvent"].fire(self)
 
 
 
+class BotManager():
+    def __init__(self):
+        self.bots = deque()
+        self.bot_threads = deque()
+
+    def get_bot_by_server(self, server):
+        for bot in self.bots:
+            if server in repr(bot):
+                return bot
+
+    def shutdown_bot(self, bot):
+        bot.gracefully_terminate()
+        for thread in self.bot_threads:
+            if thread._stopped:
+                self.bot_threads.remove(thread)
+
+    def start_bot(self, bot):
+        self.bots.append(bot)
+        thr = threading.Thread(target=bot.connect)
+        thr.name = repr(bot)
+        thr.daemon = False
+        self.bot_threads.append(thr)
+        thr.start()
+
+
+
 if __name__ == "__main__":
     ARGS = sys.argv[1:]
-    CONFIG = json.loads(open("config.json", "r").read())
+    config = json.loads(open("config.json", "r").read())
 
     VERBOSE = False
     DEBUG = False
@@ -312,5 +339,10 @@ if __name__ == "__main__":
     if "--debug" in ARGS:
         DEBUG = True
 
-    BOT = James(CONFIG, VERBOSE, DEBUG)
-    BOT.connect()
+    manager = BotManager()
+
+    BOT = James(config, VERBOSE, DEBUG)
+    BOT.manager = manager
+    manager.main_bot = BOT
+    manager.start_bot(BOT)
+    

@@ -141,7 +141,6 @@ def sed(bot, nick, chan, msg):
 
 def inline_python(bot, nick, chan, msg):
     """ Execute inline python """
-    return
     pieces_of_python = re.findall("`([^`]+)`", msg)
     if not pieces_of_python:
         return msg

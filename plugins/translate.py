@@ -5,7 +5,7 @@ Translate module.
 from .util.decorators import command
 import requests
 from .util.data import www_headers as headers
-
+from bs4 import BeautifulSoup as bs
 
 @command("translate", category="language")
 def translate(bot, nick, chan, arg):
@@ -22,4 +22,6 @@ def translate(bot, nick, chan, arg):
     if "INVALID SOURCE LANGUAGE" in data["responseData"]["translatedText"]:
         return bot.msg(chan, "%s: Invalid source language. See http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes" % (nick))
     else:
-        bot.msg(chan, "%s: %s" % (nick, data["responseData"]["translatedText"]))
+        text =  data["responseData"]["translatedText"]
+        text = bs(text).get_text()
+        bot.msg(chan, "%s: %s" % (nick, text))

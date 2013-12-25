@@ -75,7 +75,7 @@ class Event():
                     kwargs.update({"type": self.type})
                     handler(*args, **kwargs)
                     kwargs = _kwargs
-        except:
+        except Exception as e:
             if type(e) == RuntimeError:
                 # most likely a Set size changed during iteration thing.
                 self.fire(*args, **kwargs)
