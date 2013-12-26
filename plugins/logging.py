@@ -78,7 +78,10 @@ def logger(*args, **kwargs):
      "close_log": close_log}
     handlers.get(etype, lambda *args: None)(*args)
 
-    logfile.flush()
-    os.fsync()
+    try:
+        logfile.flush()
+        os.fsync(logfile) 
+    except ValueError:
+        pass
 
 logger._want_type = True
