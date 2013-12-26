@@ -5,6 +5,7 @@ Logging module
 from .util.decorators import initializer
 import time
 import sys
+import os
 
 logfile = None
 
@@ -76,5 +77,8 @@ def logger(*args, **kwargs):
      "kick": log_kick,
      "close_log": close_log}
     handlers.get(etype, lambda *args: None)(*args)
+
+    logfile.flush()
+    os.fsync()
 
 logger._want_type = True
