@@ -12,7 +12,7 @@ logfile = None
 @initializer
 def plugin_init(bot):
     global logfile
-    output = "%s/james.log" % bot.botdir
+    output = "%s/james.log" % os.getcwd()
     logfile = open(output, "a", encoding="utf-8")
     for event in bot.state.events.values():
         event.register(logger)

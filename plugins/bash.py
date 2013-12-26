@@ -13,4 +13,4 @@ def bash(bot, nick, chan, arg):
         return bot.msg(chan, get_doc())
     data = os.popen("""%s""" % (arg)).read().rstrip()
     if data:
-        bot.msg(chan, nick + ": " + data)
+        bot.msg(chan, data)

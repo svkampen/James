@@ -11,7 +11,7 @@ bot = None
 
 def create_bot():
     global bot
-    bot = __import__('__main__').BOT
+    bot = __import__('__main__').MANAGER.get_bot_by_server("awfulnet")
 
 class MagicAttribute(object):
     """ A magic attribute """
@@ -112,7 +112,7 @@ class Channel(object):
         self.users = UserDict()
         self.is_empty = IsUserSetEmpty()
         self.users_n = UserNumInChannel()
-        self.state = sys.modules["__main__"].BOT.state
+        self.state = bot.state
 
     def add_user(self, user):
         assert user == user.lower(), "User is passed as lowercase."

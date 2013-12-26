@@ -7,15 +7,14 @@ from utils.irc import IRCHandler
 from utils.sstate import ServerState
 from utils.threads import HandlerThread
 from utils.function import Function
+from utils.style import Styler
 import utils
 import plugins
 
-import os
 import traceback
 import re
 import sys
 import json
-import functools
 import threading
 
 from collections import deque
@@ -27,6 +26,7 @@ from utils import is_enabled
 
 VERSION = "5.1.0"
 MAX_MESSAGE_STORAGE = 256
+MANAGER = None
 
 
 class James(IRCHandler):
@@ -40,12 +40,11 @@ class James(IRCHandler):
 
         # Bot state and logger.
         self.state = ServerState()
-        self.botdir = os.getcwd()
         self.config = config
         self.manager = None
-        self.id = None
+        self.style = Styler
 
-        # state.
+        # event stuff
         self.state.events.update({list(i.keys())[0]: Event(list(i.values())[0])
             for i in utils.events.Standard})
 
@@ -62,8 +61,9 @@ class James(IRCHandler):
         self.cmd_thread.daemon = True
 
     def __repr__(self):
-        return "James(server=%r, chans=%s)" % (self.config["server"].split(":")[0],
-                list(self.state.channels.keys()))
+        return ("James(server=%r, chans=%s)"
+            % (self.config["server"].split(":")[0],
+               list(self.state.channels.keys())))
 
     def _meditate(self, exc_info, chan):
         """ Prints GURU MEDITATION messages. """
@@ -137,6 +137,7 @@ class James(IRCHandler):
 
     @staticmethod
     def ctcp(msg):
+        """ Turn a message into a CTCP """
         return "\x01%s\x01" % (msg)
 
     def mode(self, msg):
@@ -146,6 +147,7 @@ class James(IRCHandler):
             print("Set self.state.nick to %s" % (self.state.nick))
 
     def connect(self):
+        """ Connect the bot to the server """
         self.cmd_thread.start()
         super().connect()
 
@@ -246,7 +248,8 @@ class James(IRCHandler):
         msg = msg["arg"].split(":", 1)[1]  # get msg
 
         if nick.lower() in self.state.muted and chan.startswith("#"):
-            return self.state.events["MessageEvent"].fire(self, nick, chan, msg)
+            self.state.events["MessageEvent"].fire(self, nick, chan, msg)
+            return
 
         # Test for inline code
         # msg = utils.parse.inline_python(self, nick, chan, msg)
@@ -263,14 +266,14 @@ class James(IRCHandler):
             self.state.messages[nick].appendleft(msg)
         else:
             self.state.messages[nick] = deque([msg], MAX_MESSAGE_STORAGE)
-        try:
-            self.state.users[nick].exactnick = nick_exact
-        except:
-            pass
+
+        self.state.users[nick].exactnick = nick_exact
 
         if self != self.manager.main_bot:
             try:
-                self.manager.main_bot.msg("#base", "[%s:%s] <%s> %s" % (self.config["server"], chan, nick, msg.msg))
+                self.manager.main_bot.msg("#base", "[%s:%s] <%s> %s"
+                    % (self.config["server"], chan, nick, msg.msg))
+
             except BrokenPipeError:
                 self.manager.main_bot = self
 
@@ -301,23 +304,28 @@ class James(IRCHandler):
 
 
 
-class BotManager():
+class BotManager(object):
+    """ A manager for IRC bots (pretty bare right now) """
     def __init__(self):
         self.bots = deque()
         self.bot_threads = deque()
+        self.main_bot = None
 
     def get_bot_by_server(self, server):
+        """ Get the IRC bot by the server """
         for bot in self.bots:
             if server in repr(bot):
                 return bot
 
     def shutdown_bot(self, bot):
+        """ Shut down an IRC bot """
         bot.gracefully_terminate()
         for thread in self.bot_threads:
-            if thread._stopped:
+            if not thread.is_alive():
                 self.bot_threads.remove(thread)
 
     def start_bot(self, bot):
+        """ Start an IRC bot and register it with the manager """
         self.bots.append(bot)
         thr = threading.Thread(target=bot.connect)
         thr.name = repr(bot)
@@ -326,23 +334,25 @@ class BotManager():
         thr.start()
 
 
-
-if __name__ == "__main__":
-    ARGS = sys.argv[1:]
+def main():
+    """ The main method """
+    global MANAGER
+    args = sys.argv[1:]
     config = json.loads(open("config.json", "r").read())
 
-    VERBOSE = False
-    DEBUG = False
+    verbose = debug = False
 
-    if "--verbose" in ARGS:
-        VERBOSE = True
-    if "--debug" in ARGS:
-        DEBUG = True
+    if "--verbose" in args:
+        verbose = True
 
-    manager = BotManager()
+    if "--debug" in args:
+        debug = True
 
-    BOT = James(config, VERBOSE, DEBUG)
-    BOT.manager = manager
-    manager.main_bot = BOT
-    manager.start_bot(BOT)
-    
+    MANAGER = BotManager()
+    bot = James(config, verbose, debug)
+    bot.manager = MANAGER
+    MANAGER.main_bot = bot
+    MANAGER.start_bot(bot)
+
+if __name__ == "__main__":
+    main()
