@@ -223,6 +223,10 @@ class James(IRCHandler):
         for chan in self.state.channels.get_channels_for(oldnick).values():
             chan.change_user((oldnick, newnick))
 
+        if oldnick in self.state.users.keys():
+            self.state.users[newnick] = self.state.users[oldnick]
+            del self.state.users[oldnick]
+
     def part(self, msg):
         """ Handles people parting channels. """
         channel = msg["arg"].split()[0].strip().lower()
