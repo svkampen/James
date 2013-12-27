@@ -69,6 +69,9 @@ class User(object):
     def __repr__(self):
         return "User(nick=%r, channels=%s)" % (self.nick, self.channels.keys())
 
+    def kick(self, channel):
+        bot._send("KICK %s %s :Requested" % (channel, self.nick))
+
     def __getattribute__(self, name):
         attr = super().__getattribute__(name)
         if hasattr(attr, "__get__"):

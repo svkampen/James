@@ -22,7 +22,7 @@ def close_log(*args):
 
 def log(data):
     """ log and print data """
-    timestamp = time.strftime("[%H:%M:%S] ")
+    timestamp = time.strftime("[%Y-%d-%m %H:%M:%S] ")
     if sys.stdout != sys.__stdout__:
         sys.__stdout__.write((timestamp+data+"\n").encode("utf-8").decode("utf-8"))
     else:

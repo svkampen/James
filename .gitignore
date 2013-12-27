@@ -9,3 +9,5 @@ james.log
 apikeys.conf
 config.json
 config.json.znc
+fapdb
+mi.py
