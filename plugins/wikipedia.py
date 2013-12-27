@@ -57,14 +57,14 @@ def wikipedia_get(bot, nick, chan, arg, root=None):
             sentences = " ".join([x.groups()[0] for x in senreg[:2]])
         else:
             if (len(first_paragraph.split(". ")[0]) + len(first_paragraph.split(". ")[1])) > 32:
-                return bot._msg(chan, "%s: %s -- read more: %s" % (nick, " ".join(first_paragraph.split(". ")[:1]), bot.state.data["shortener"](bot, root)))
+                return bot.msg(chan, "%s: %s -- read more: %s" % (nick, " ".join(first_paragraph.split(". ")[:1]), bot.state.data["shortener"](bot, root)))
     except:
         if len(senreg) > 0:
             sentences = senreg[0].groups()[0]
         else:
             if len(first_paragraph.split(". ")[0]) > 15:
-                return bot._msg(chan, "%s: %s -- read more: %s" % (nick, first_paragraph.split(". ")[0], bot.state.data["shortener"](bot, root)))
-    bot._msg(chan, "%s: %s -- Read more: %s" % (nick, sentences, bot.state.data["shortener"](bot, root)))
+                return bot.msg(chan, "%s: %s -- read more: %s" % (nick, first_paragraph.split(". ")[0], bot.state.data["shortener"](bot, root)))
+    bot.msg(chan, "%s: %s -- Read more: %s" % (nick, sentences, bot.state.data["shortener"](bot, root)))
 
 @command("ed", category="internet")
 def encyclopedia_dramatica(bot, nick, chan, arg):

@@ -2,7 +2,7 @@
 ServerState, Channel and ChannelHandler objects.
 """
 
-from .channel import Channel
+from .channel import Channel, UserDict
 
 class FancySet(set):
     def replace(self, o, n):
@@ -63,7 +63,7 @@ class ServerState(object):
         self.notices = []
         self.messages = {}
         self.channels = ChannelHandler()
-        self.users = {}
+        self.users = UserDict()
         self.events = DotDict()
 
     def add_admin(self, nick):

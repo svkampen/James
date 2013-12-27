@@ -81,6 +81,7 @@ class User(object):
 class UserDict(dict):
     """ A dictionary with users """
     def get(self, *args, **kwargs):
+        args = list(args)
         try:
             args[0] = args[0].lower()
         except AttributeError:
@@ -95,6 +96,10 @@ class UserDict(dict):
             del self[item]
         except KeyError:
             pass
+
+    def __setitem__(self, item, value):
+        print("[UserDict] SET %r to %r" % (item, value))
+        super().__setitem__(item, value)
 
     def __getattribute__(self, item):
         if item != "keys":

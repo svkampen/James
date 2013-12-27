@@ -16,6 +16,7 @@ import re
 import sys
 import json
 import threading
+from functools import partial as p
 
 from collections import deque
 
@@ -43,6 +44,7 @@ class James(IRCHandler):
         self.config = config
         self.manager = None
         self.style = Styler
+        self.defaultcolor = p(self.style.color, color="grey")
 
         # event stuff
         self.state.events.update({list(i.keys())[0]: Event(list(i.values())[0])
@@ -178,6 +180,8 @@ class James(IRCHandler):
 
     def msg(self, chan, msg):
         """ msg(string chan, string msg) - Sends a PRIVMSG. """
+        if self.defaultcolor:
+            return self._msg(chan, self.defaultcolor(msg))
         self._msg(chan, msg)
 
     def names(self, msg):
@@ -223,9 +227,10 @@ class James(IRCHandler):
         for chan in self.state.channels.get_channels_for(oldnick).values():
             chan.change_user((oldnick, newnick))
 
-        if oldnick in self.state.users.keys():
+        if oldnick in self.state.users.keys() and oldnick != newnick:
             self.state.users[newnick] = self.state.users[oldnick]
             del self.state.users[oldnick]
+
 
     def part(self, msg):
         """ Handles people parting channels. """
@@ -271,7 +276,10 @@ class James(IRCHandler):
         else:
             self.state.messages[nick] = deque([msg], MAX_MESSAGE_STORAGE)
 
-        self.state.users[nick].exactnick = nick_exact
+        try:
+            self.state.users[nick].exactnick = nick_exact
+        except:
+            traceback.print_exc()
 
         if self != self.manager.main_bot:
             try:
@@ -301,7 +309,7 @@ class James(IRCHandler):
     def welcome(self, *args):
         """ welcome(msg) - handles on-login actions """
         if self.config["ident_pass"]:
-            self.msg(self.config["identify_service"], "identify %s"
+            self._msg(self.config["identify_service"], "identify %s"
                 % (self.config["ident_pass"]))
         self._send("MODE %s +B" % (self.state.nick))
         self.state.events["WelcomeEvent"].fire(self)

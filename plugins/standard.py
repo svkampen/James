@@ -8,6 +8,7 @@ import time
 import inspect
 import random
 from types import ModuleType, FunctionType
+from functools import partial
 
 def get_name(f):
     if type(f) == ModuleType:
@@ -39,6 +40,16 @@ def help_me(bot, nick, chan, arg):
         else:
             doc = bot.cmdhandler.trigger(arg).function.__doc__.strip()
             bot.msg(chan, "%s: %s" % (nick, doc))
+
+@command("setcolor", category="standard")
+def set_color(bot, nick, chan, arg):
+    """ setcolor <color> [background_color] -> Set the default text color. """
+    if not arg:
+        return bot.msg(chan, get_doc())
+    args = arg.split()
+    color = args[0]
+    bot.defaultcolor = partial(bot.style.color, color=color)
+
 
 @command("say", category="standard")
 def say(bot, nick, chan, arg):
