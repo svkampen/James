@@ -13,7 +13,7 @@ class Styler(object):
 
 
     def overline(text):
-        return "\u0305".join(text) + "\u0305"
+        return ''.join(["\u0305" + x for x in text])
 
     def strikethrough(text):
-        return "\u0336".join(text) + "\u0336"
+        return ''.join(["\u0336" + x for x in text])
