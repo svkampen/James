@@ -7,6 +7,7 @@ import platform
 import time
 import inspect
 import random
+import os
 from types import ModuleType, FunctionType
 from functools import partial
 
@@ -21,6 +22,13 @@ def command_categories(bot):
     output = "What category do you want? (%s)" % (", ".join(categories))
     return output
 
+@command("restart", category="standard")
+def restart_bot(bot, nick, chan, arg):
+    """ restart -> restart the bot """
+    bot.gracefully_terminate()
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os.execv("./bot.py", [""])
 
 @command("help", category="standard")
 def help_me(bot, nick, chan, arg):

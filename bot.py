@@ -43,7 +43,7 @@ class James(IRCHandler):
         self.state = ServerState()
         self.config = config
         self.manager = None
-        self.style = Styler
+        self.style = Styler()
         self.defaultcolor = p(self.style.color, color="grey")
 
         # event stuff
@@ -180,8 +180,7 @@ class James(IRCHandler):
 
     def msg(self, chan, msg):
         """ msg(string chan, string msg) - Sends a PRIVMSG. """
-        if '\r' in msg:
-            self._msg(chan, "Nice try.")
+        msg = msg.strip()
         if self.defaultcolor:
             return self._msg(chan, self.defaultcolor(msg))
         self._msg(chan, msg)

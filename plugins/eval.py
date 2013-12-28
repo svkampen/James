@@ -5,6 +5,7 @@ from .util.decorators import command, require_admin, initializer
 from .util.data import sugar, lineify, generate_vulgarity
 import code
 import sys
+import re
 
 class IRCterpreter(code.InteractiveConsole):
     def __init__(self, localVars, botinstance):
@@ -12,6 +13,7 @@ class IRCterpreter(code.InteractiveConsole):
         self.curnick = ""
         self.curchan = ""
         self.cache = []
+        self.TRACE_REGEX = re.compile(r"([A-Z][a-z]+Error|Exception):?(?:\s*)?(.+)?")
         code.InteractiveConsole.__init__(self, localVars)
 
     def write(self, data):
@@ -20,13 +22,23 @@ class IRCterpreter(code.InteractiveConsole):
     def is_exception(self, data):
         return True if 'File "<console>", line ' in data else False
 
+    def guru_meditate(self, traceback):
+        match = self.TRACE_REGEX.search(traceback)
+        if not match:
+            return
+        exc_name, exc_args = match.groups()
+        out = "⌜ \x02\x03such \x034%s \x03so \x034%s\x03\x02 ⌟" % (
+            exc_name, exc_args)
+        return out
+
+
     def flushbuf(self):
         out = "".join(self.cache).strip()
 
         if self.is_exception(out):
             # most likely a traceback, only capture exception
             print(out)
-            out = out[out.rfind("\n"):]
+            out = self.guru_meditate(out.rsplit("\n", 1)[1])
 
         if len(out) > 0:
             for line in lineify(out):

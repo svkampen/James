@@ -9,6 +9,7 @@ import socket
 from .num import NUM as numerics
 import time
 import _thread
+import traceback
 
 CONFIG = {}
 
@@ -44,12 +45,13 @@ class IRCHandler(object):
                 time.sleep(0.1)
                 if loops != 0:
                     try:
-                        self.buff.append(self.sock.recv(1024).decode("utf-8"))
+                        self.buff.append(self.sock.recv(4096).decode("utf-8"))
                     except UnicodeDecodeError:
+                        traceback.print_exc()
                         try:
-                            self.buff.append(self.sock.recv(1024).decode("utf-16"))
+                            self.buff.append(self.sock.recv(4096).decode("utf-16"))
                         except:
-                            pass
+                            traceback.print_exc()
                 else:
                     self.sendnick()
                     self.senduser()

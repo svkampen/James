@@ -6,6 +6,8 @@ import inspect
 import random
 import gc
 from types import FunctionType
+import math
+import re
 
 def sugar(arg):
     arg = arg.replace("ssalc", "")
@@ -17,11 +19,13 @@ def lineify(data, max_size=400):
     """ Split text up into IRC-safe lines. """
     
     lines = [item.rstrip() for item in data.split("\n")]
-    for item in lines:
-        if len(item) > max_size:
-            index = lines.index(item)
-            lines[index] = item[:item.rfind(" ", 0, 300)]
-            lines.insert(index+1, item[item.rfind(" ", 0, 300)+1:])
+    amount = math.ceil(len(data)/max_size)
+    size = math.floor(len(data)/amount)
+    if not " " in data:
+        return re.findall("(.{1,%d})" % (size), data)
+    else:
+        pass
+
     return lines
 
 def get_doc():
