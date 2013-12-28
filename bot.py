@@ -82,7 +82,7 @@ class James(IRCHandler):
 
     def _msg(self, chan, msg):
         """ _msg(string chan, string msg) - Sends a PRIVMSG. """
-        msg = str(msg)
+        msg = str(msg).replace("\r", "")
         if "\n" in msg:
             for item in msg.split("\n"):
                 self._send("PRIVMSG %s :%s" % (chan, item))
@@ -180,6 +180,8 @@ class James(IRCHandler):
 
     def msg(self, chan, msg):
         """ msg(string chan, string msg) - Sends a PRIVMSG. """
+        if '\r' in msg:
+            self._msg(chan, "Nice try.")
         if self.defaultcolor:
             return self._msg(chan, self.defaultcolor(msg))
         self._msg(chan, msg)
