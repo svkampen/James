@@ -182,7 +182,7 @@ class James(IRCHandler):
         """ msg(string chan, string msg) - Sends a PRIVMSG. """
         msg = msg.strip()
         if self.defaultcolor:
-            return self._msg(chan, self.defaultcolor(msg))
+            msg = '\n'.join(self.defaultcolor(i) for i in msg.split('\n'))
         self._msg(chan, msg)
 
     def names(self, msg):

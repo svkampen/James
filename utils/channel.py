@@ -11,7 +11,7 @@ bot = None
 
 def create_bot():
     global bot
-    bot = __import__('__main__').MANAGER.get_bot_by_server("awfulnet")
+    bot = __import__('__main__').MANAGER.get_bot_by_server("subluminal")
 
 class MagicAttribute(object):
     """ A magic attribute """

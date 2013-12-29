@@ -8,6 +8,8 @@ import time
 import inspect
 import random
 import os
+import subprocess
+import re
 from types import ModuleType, FunctionType
 from functools import partial
 
@@ -29,6 +31,28 @@ def restart_bot(bot, nick, chan, arg):
     sys.stdout.flush()
     sys.stderr.flush()
     os.execv("./bot.py", [""])
+
+@command("transvestite", category="standard")
+def man(bot, nick, chan, arg):
+    data = subprocess.Popen(["man"] + arg.split(),
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    data = [i.decode('utf-8') for i in data]
+    print(data)
+    if not data[0] and 'No manual entry' in data[1]:
+        bot.msg(chan, "No such manpage.")
+    else:
+        data = str(data[0])
+
+    if 'EXAMPLE' in data:
+        data = data[:data.find('EXAMPLE')]
+    
+    sig_re = re.compile(r"^\s*([_A-Za-z0-9*]+\s\*?[_A-Za-z0-9]+\((?:.+?)?\);)", flags=re.M)
+    inc_re = re.compile(r"(#include (?:\<|\").+?(?:\>|\"))", flags=re.M)
+
+    signatures = sig_re.findall(data)
+    includes   = inc_re.findall(data)
+
+    bot.msg(chan, "%s\n%s" % ('\n'.join(includes), '\n'.join(signatures)))
 
 @command("help", category="standard")
 def help_me(bot, nick, chan, arg):

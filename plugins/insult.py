@@ -19,4 +19,4 @@ def insult(bot, nick, chan, arg):
 
     soup = soupify(response.text)
     insult_ = soup.findAll("i")[0].getText()
-    bot._msg(chan, "%s: %s" % (arg, insult_))
+    bot.msg(chan, "%s: %s" % (arg, insult_))
