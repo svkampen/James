@@ -6,7 +6,6 @@ from .util.decorators import command, cached
 from .util.data import get_doc
 import datetime
 
-@cached(invalid=float('inf'))
 @command("ageme", category="misc")
 def ageme(bot, nick, chan, arg):
     """ ageme day month year -> Find exact age of person """
@@ -44,4 +43,3 @@ def ageme(bot, nick, chan, arg):
     output = "%s: you are %s years old." % (nick, age)
 
     bot._msg(chan, output)
-    return output
