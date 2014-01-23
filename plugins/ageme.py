@@ -2,10 +2,11 @@
 Age Calculator
 """
 
-from .util.decorators import command
+from .util.decorators import command, cached
 from .util.data import get_doc
 import datetime
 
+@cached(invalid=float('inf'))
 @command("ageme", category="misc")
 def ageme(bot, nick, chan, arg):
     """ ageme day month year -> Find exact age of person """
@@ -40,4 +41,7 @@ def ageme(bot, nick, chan, arg):
     except BaseException as e:
         return bot.msg(chan, str(e)+": Error parsing date. Are you american?")
 
-    bot._msg(chan, "*%s is %s years old*" % (nick, age))
+    output = "%s: you are %s years old." % (nick, age)
+
+    bot._msg(chan, output)
+    return output

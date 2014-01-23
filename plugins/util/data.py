@@ -17,16 +17,15 @@ def sugar(arg):
 
 def lineify(data, max_size=400):
     """ Split text up into IRC-safe lines. """
+    if len(data) < max_size:
+        return [data]
     
-    lines = [item.rstrip() for item in data.split("\n")]
+    lines = []
+
     amount = math.ceil(len(data)/max_size)
     size = math.floor(len(data)/amount)
-    if not " " in data:
-        return re.findall("(.{1,%d})" % (size), data)
-    else:
-        pass
 
-    return lines
+    return re.findall("(.{1,%d})" % (size), data)
 
 def get_doc():
     frame = inspect.getouterframes(inspect.currentframe())[1][0]

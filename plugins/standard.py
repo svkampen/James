@@ -24,6 +24,12 @@ def command_categories(bot):
     output = "What category do you want? (%s)" % (", ".join(categories))
     return output
 
+@command("GNU_SOURCE", category="memfrob")
+def gnu_source(bot, nick, chan, arg):
+    define = bot.style.bold("#define _GNU_SOURCE")
+    ms = bot.style.bold("memfrob") + " and " + bot.style.bold("strfry")
+    bot.msg(chan, "“Of course, everyone knows the real reason to %s is to get %s” - user4815162342" % (define, ms))
+
 @command("restart", category="standard")
 def restart_bot(bot, nick, chan, arg):
     """ restart -> restart the bot """
@@ -126,8 +132,6 @@ def is_identified(bot, nick, chan, arg):
 @command("version", category="standard")
 def version(bot, nick, chan, arg):
     """ version -> return bot/python version information. """ 
-    if not arg:
-        bot.msg(chan, get_doc())
     libc_ver = " ".join(platform.libc_ver())
     python_ver = platform.python_version()
     bot_ver = bot.version
@@ -254,6 +258,34 @@ def reload_plugin(bot, nick, chan, arg):
         return bot.msg(chan, get_doc())
     bot.cmdhandler.reload_plugin(arg)
     bot.msg(chan, "Reloaded plugin %s" % (arg))
+
+@require_admin
+@command("plugin.load", category="meta")
+def load_plugin(bot, nick, chan, arg):
+    """ plugin.load <plugin_name> -> load a plugin """
+    if not arg:
+        return bot.msg(chan, get_doc())
+    try:
+        s = bot.cmdhandler.load_plugin(arg)
+        if not s:
+            bot.msg(chan, "%s: plugin already loaded!" % (nick))
+        else:
+            bot.msg(chan, "%s: loaded plugin %s" % (nick, s.__name__))
+    except ImportError:
+        bot.msg(chan, "%s: Nonexistant plugin!" % (nick))
+
+@require_admin
+@command("plugin.unload", category="meta")
+def unload_plugin(bot, nick, chan, arg):
+    """ plugin.unload <plugin_name> -> unload a plugin """
+    if not arg:
+        return bot.msg(chan, get_doc())
+    s = bot.cmdhandler.unload_plugin(arg)
+    if not s:
+        bot.msg(chan, "%s: plugin not loaded!" % (nick))
+    else:
+        bot.msg(chan, "%s: unloaded plugin %s" % (nick, arg))
+
 
 @require_admin
 @command("event.disable_handler", category="meta")

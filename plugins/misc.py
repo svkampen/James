@@ -2,11 +2,39 @@
 Miscellaneous stuff.
 """
 
-from .util.decorators import command
+from .util.decorators import command, initializer
 from .util.data import get_doc
 import datetime
 import random
+import re
+from collections import namedtuple
 
+Quote = namedtuple("Quote", ["quote", "author", "extra"])
+
+class QuoteFile(object):
+    def __init__(self, quotedb):
+        self.internal = quotedb
+        self.quotes = []
+
+        self.parse()
+
+    def parse(self):
+        data = self.internal.read().split("\n\n")
+        for line in data:
+            match = re.search(r'(".+")\s+--\s([^(]+)\s*(\(.+\))?', line, flags=re.S)
+            if not match:
+                raise ValueError("Error while parsing file %s." % (self.internal.name))
+            self.quotes.append(Quote(*[i.strip() for i in match.groups()]))
+
+@initializer
+def initialize_plugin(bot):
+    bot.state.data["quote_db"] = QuoteFile(open("/home/sam/quotes", "r"))
+
+@command("quote", category="misc")
+def get_quote(bot, nick, chan, arg):
+    """ quote -> get a random quote from the quote db. """
+    quote = random.choice(bot.state.data["quote_db"].quotes)
+    bot.msg(chan, "%s\n -- %s" % (quote.quote, quote.author))
 
 @command("misc.day_at", category="misc")
 def get_weekday_at(bot, nick, chan, arg):
@@ -30,3 +58,5 @@ def unicode_please(bot, nick, chan, arg):
     startpos = random.randint(1000, 0xFFFF)
     endpos = startpos + arg
     bot.msg(chan, "%s" % ("".join([chr(i) for i in range(startpos, endpos)])))
+
+

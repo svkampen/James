@@ -1,13 +1,4 @@
 """ Initializer for the package utils. """
-from . import command
-from . import commandhandler
-from . import parse
-from . import num
-from . import events
-from . import message
-from . import channel
-from types import ModuleType, FunctionType
-import inspect
 
 def get_name(f):
     if type(f) == ModuleType:
@@ -27,3 +18,13 @@ def is_enabled(bot, chan, command):
     elif get_name(command.function).rsplit('.', 1)[0] in c.disabled_commands:
         return False
     return True
+
+from . import command
+from . import commandhandler
+from . import parse
+from . import num
+from . import events
+from . import message
+from . import channel
+from types import ModuleType, FunctionType
+import inspect

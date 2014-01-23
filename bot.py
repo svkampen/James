@@ -1,14 +1,15 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.3
+import sys
 """
 James.py - main bot
 """
 
+import utils
 from utils.irc import IRCHandler
 from utils.sstate import ServerState
 from utils.threads import HandlerThread
 from utils.function import Function
 from utils.style import Styler
-import utils
 import plugins
 
 import traceback
@@ -40,7 +41,7 @@ class James(IRCHandler):
         self.debug = debug
 
         # Bot state and logger.
-        self.state = ServerState()
+        self.state = ServerState(self)
         self.config = config
         self.manager = None
         self.style = Styler()

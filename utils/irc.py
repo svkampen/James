@@ -62,7 +62,7 @@ class IRCHandler(object):
                     pmsg = parse.parse(msg)
                     if pmsg["method"] == "PING":
                         self._send("PONG "+pmsg["arg"])
-                    elif pmsg["method"] == "376":
+                    elif pmsg["method"] in ("376", "422"):
                         self.is_welcome = True
                         self.try_to_call("welcome", args=pmsg)
                     else:

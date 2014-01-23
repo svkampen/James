@@ -56,14 +56,15 @@ class ChannelHandler(dict):
 
 class ServerState(object):
     """ A class that holds the active channels and admins and some more things about the bot that are server-specific. """
-    def __init__(self):
+    def __init__(self, bot):
+        self.bot = bot
         self.admins = FancySet()
         self.muted = FancySet()
         self.nick = "James"
         self.notices = []
         self.messages = {}
         self.channels = ChannelHandler()
-        self.users = UserDict()
+        self.users = UserDict(bot)
         self.events = DotDict()
 
     def add_admin(self, nick):

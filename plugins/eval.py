@@ -13,7 +13,7 @@ class IRCterpreter(code.InteractiveConsole):
         self.curnick = ""
         self.curchan = ""
         self.cache = []
-        self.TRACE_REGEX = re.compile(r"([A-Z][a-z]+Error|Exception):?(?:\s*)?(.+)?")
+        self.TRACE_REGEX = re.compile(r"([A-Z][a-z]+Error|[A-Z][a-z]+Exception):?(?:\s*)?(.+)?")
         code.InteractiveConsole.__init__(self, localVars)
 
     def write(self, data):
@@ -25,7 +25,7 @@ class IRCterpreter(code.InteractiveConsole):
     def guru_meditate(self, traceback):
         match = self.TRACE_REGEX.search(traceback)
         if not match:
-            return
+            return traceback
         exc_name, exc_args = match.groups()
         out = "⌜ \x02\x03such \x034%s \x03so \x034%s\x03\x02 ⌟" % (
             exc_name, exc_args)

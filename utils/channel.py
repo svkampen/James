@@ -9,10 +9,6 @@ from datetime import datetime
 
 bot = None
 
-def create_bot():
-    global bot
-    bot = __import__('__main__').MANAGER.get_bot_by_server("subluminal")
-
 class MagicAttribute(object):
     """ A magic attribute """
     def __get__(self, obj, type):
@@ -80,6 +76,11 @@ class User(object):
 
 class UserDict(dict):
     """ A dictionary with users """
+    def __init__(self, bot_server=None):
+        if bot_server:
+            global bot
+            bot = bot_server
+
     def get(self, *args, **kwargs):
         args = list(args)
         try:
@@ -114,7 +115,6 @@ class UserDict(dict):
 class Channel(object):
     # TODO: ADD KICK STUFF
     def __init__(self, name):
-        create_bot()
         self.name = name
         self.disabled_commands = set()
         self.users = UserDict()

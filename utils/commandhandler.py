@@ -2,6 +2,7 @@
 The Command handler
 """
 from . import command
+from . import get_name
 from imp import reload
 from importlib import import_module as imp
 import sys
@@ -35,7 +36,6 @@ class CommandHandler():
             reloaded_plugin = imp(plugin)
         else:
             reloaded_plugin = reload(sys.modules[plugin])
-        from . import get_name
         if plugin in self.loaded_plugins:
             self.loaded_plugins.remove(plugin)
         for cmd in self.commands:
@@ -47,6 +47,29 @@ class CommandHandler():
             i(BOT)
         self.command_help = self.organize_commands(self.commands)
         return reloaded_plugin
+
+    def load_plugin(self, name):
+        if name in sys.modules.keys():
+            return None
+
+        plugin = imp(name)
+        self.commands += command.plugins_to_commands(plugin)
+        initializers = command.plugins_to_initializers(plugin)
+        for i in initializers:
+            i(BOT)
+        self.command_help = self.organize_commands(self.commands)
+        return plugin
+
+    def unload_plugin(self, name):
+        if name not in sys.modules.keys():
+            return None
+        for cmd in self.commands:
+            if get_name(cmd.function).startswith(name):
+                self.commands.remove(cmd)
+        del sys.modules[name]
+        return True
+
+
 
     def organize_commands(self, commands):
         categories = set()
