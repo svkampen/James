@@ -52,7 +52,7 @@ def plugins_to_commands(plugins):
         plugins = [plugins]
     try:
         for plugin in plugins:
-            for function in plugin.__dict__.values():
+            for function in [func for func in plugin.__dict__.values() if callable(func)]:
                 if hasattr(function, "hook"):
                     has_hook = True
                     new_command = Command(function, function.hook)

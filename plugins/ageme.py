@@ -2,18 +2,18 @@
 Age Calculator
 """
 
-from .util.decorators import command
+from .util.decorators import command, cached
+from .util.data import get_doc
 import datetime
-import time
 
-
-@command('ageme', category='misc')
+@cached(invalid=float('inf'))
+@command("ageme", category="misc")
 def ageme(bot, nick, chan, arg):
-    """ Find exact age of person """
+    """ ageme day month year -> Find exact age of person """
     if not arg:
-        return bot.msg(chan, insult.__doc__.strip())
+        return bot.msg(chan, get_doc())
 
-    prec = '16'
+    prec = "16"
     args = arg.split()
     if len(args) == 3:
         (day, month, year) = args
@@ -22,7 +22,7 @@ def ageme(bot, nick, chan, arg):
     elif len(args) == 5:
         (day, month, year, prec, chan) = args
     else:
-        return bot.msg(chan, "USAGE: +ageme day month year [prec] [target]")
+        return bot.msg(chan, ageme.__doc__.strip())
 
     try:
         int(month)
@@ -34,11 +34,14 @@ def ageme(bot, nick, chan, arg):
         if int(prec) > 200 or int(prec) < 0:
             raise ValueError
     except ValueError:
-        return bot.msg(chan, "USAGE: +ageme day month year [prec] [target]")
+        return bot.msg(chan, ageme.__doc__.strip())
 
     try:
-        age = ("%." + prec + "f") % ((time.time() - time.mktime(datetime.date(int(year), int(month), int(day)).timetuple())) / (60 * 60 * 24 * 365.242))
-    except:
-        return bot.msg(chan, "Error parsing date. Are you american?")
+        age = ("%." + prec + "f") % ((datetime.datetime.now() - datetime.datetime(int(year), int(month), int(day))).total_seconds() / (60 * 60 * 24 * 365.242))
+    except BaseException as e:
+        return bot.msg(chan, str(e)+": Error parsing date. Are you american?")
 
-    bot._msg(chan, "*%s is %s years old*" % (nick, age))
+    output = "%s: you are %s years old." % (nick, age)
+
+    bot._msg(chan, output)
+    return output
