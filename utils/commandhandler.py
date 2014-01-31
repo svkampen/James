@@ -53,6 +53,7 @@ class CommandHandler():
             return None
 
         plugin = imp(name)
+        self.loaded_plugins.append(plugin.__name__)
         self.commands += command.plugins_to_commands(plugin)
         initializers = command.plugins_to_initializers(plugin)
         for i in initializers:
@@ -67,6 +68,7 @@ class CommandHandler():
             if get_name(cmd.function).startswith(name):
                 self.commands.remove(cmd)
         del sys.modules[name]
+        self.loaded_plugins.remove(name)
         return True
 
 

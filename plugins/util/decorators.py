@@ -66,14 +66,11 @@ def command(*args, **kwargs):
     """The command decorator."""
     def decorator(funct):
         """The actual command decorator."""
-        funct.hook = list(args)
-
-        if "short" in kwargs.keys():
-            funct.shorthook = [kwargs["short"]]
-
-        if "category" in kwargs.keys():
-            funct._category = kwargs["category"]
-
+        funct.hook = args
+        if 'short' in kwargs.keys():
+            funct.shorthook = [kwargs['short']]
+        if 'category' in kwargs.keys():
+            funct._category = kwargs['category']
         return funct
 
     return decorator
