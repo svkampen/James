@@ -26,9 +26,9 @@ class QuoteFile(object):
                 raise ValueError("Error while parsing file %s." % (self.internal.name))
             self.quotes.append(Quote(*[i.strip() for i in match.groups()]))
 
-@initializer
-def initialize_plugin(bot):
-    bot.state.data["quote_db"] = QuoteFile(open("/home/sam/quotes", "r"))
+#@initializer
+#def initialize_plugin(bot):
+#    bot.state.data["quote_db"] = QuoteFile(open("/home/sam/quotes", "r"))
 
 @command("quote", category="misc")
 def get_quote(bot, nick, chan, arg):
