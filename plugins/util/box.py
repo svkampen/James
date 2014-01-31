@@ -37,8 +37,8 @@ def col(items, columns=2):
     max_len = max(len(i) for i in items) + 2
     rows = math.ceil(len(items) / columns)
     dl = divide(items, rows)
-    out = bot["ltop"] + box["tsplit"].join([max_len * box["horz"]] * columns) + box["rtop"]
+    out = box["ltop"] + box["tsplit"].join([max_len * box["horz"]] * columns) + box["rtop"]
     for i in range(0, rows):
         out += "\n" + box["vert"] + box["vert"].join(getitem(dl[j], i).center(max_len) for j in range(0, columns)) + box["vert"]
-    out += "\n" + box["lbot"] + box["rtsplit"].join([max_len * box["horz"]] * columns) + bot["rbot"]
+    out += "\n" + box["lbot"] + box["rtsplit"].join([max_len * box["horz"]] * columns) + box["rbot"]
     return out
