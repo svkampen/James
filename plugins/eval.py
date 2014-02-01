@@ -13,7 +13,7 @@ class IRCterpreter(code.InteractiveConsole):
         self.curnick = ""
         self.curchan = ""
         self.cache = []
-        self.TRACE_REGEX = re.compile(r"([A-Z][a-z]+Error|[A-Z][a-z]+Exception):?(?:\s*)?(.+)?")
+        self.TRACE_REGEX = re.compile(r"([A-Z][a-z]+Error|[A-Z][a-z]+Exception):?(?:\s+)?(.+)?")
         code.InteractiveConsole.__init__(self, localVars)
 
     def write(self, data):
