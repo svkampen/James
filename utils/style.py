@@ -4,6 +4,7 @@ Style module
 
 import re
 import inspect
+import random
 
 colors = {
     'white'  : '00',
@@ -139,3 +140,15 @@ class Styler(object):
 
         return data
 
+    def random(self, msg):
+        words = msg.split()
+        done_words = []
+        rand = lambda: random.randint(0,14)
+        for word in words:
+            done_words.append("\x03%.2d%s" % (rand(), word))
+
+        msg = ' '.join(done_words)
+        return msg
+
+    def random_slow(self, msg):
+        return self.minify(self.random(msg))

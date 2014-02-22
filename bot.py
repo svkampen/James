@@ -45,7 +45,7 @@ class James(IRCHandler):
         self.config = config
         self.manager = None
         self.style = Styler()
-        self.defaultcolor = p(self.style.color, color="grey")
+        self.defaultcolor = p(self.style.color, color="lblue")
 
         # event stuff
         self.state.events.update({list(i.keys())[0]: Event(list(i.values())[0])
@@ -86,7 +86,7 @@ class James(IRCHandler):
         msg = str(msg).replace("\r", "")
         if "\n" in msg:
             for item in msg.split("\n"):
-                self._send("PRIVMSG %s :%s" % (chan, item))
+                self._msg(chan, item)
         else:
             self._send("PRIVMSG %s :%s" % (chan, msg))
 

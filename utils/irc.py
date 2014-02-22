@@ -41,8 +41,6 @@ class IRCHandler(object):
         loops = 0
         try:
             while self.running:
-
-                time.sleep(0.1)
                 if loops != 0:
                     try:
                         self.buff.append(self.sock.recv(4096).decode("utf-8"))
@@ -84,7 +82,7 @@ class IRCHandler(object):
             if self.verbose:
                 print("<<< "+msg)
             self.sock.send((msg+newline).encode("utf-8"))
-            time.sleep(.5)
+            time.sleep(.01)
 
     def try_to_call(self, function, namespace=None, args=None, unpack=True):
         """ Try to call a function. """
