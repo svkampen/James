@@ -7,7 +7,8 @@ Standard = [
     {"MessageEvent": "message"},
     {"NoticeEvent": "notice"},
     {"CloseLogEvent": "close_log"},
-    {"KickEvent": "kick"}
+    {"KickEvent": "kick"},
+    {"CommandCalledEvent": "cmd"}
 ]
 
 class HandlerSet(set):

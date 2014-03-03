@@ -25,6 +25,7 @@ class CommandHandler():
         self.command_names = [cmd.main_hook for cmd in self.commands]
 
         self.command_help = self.organize_commands(self.commands)
+        self.commands_with_re = [i for i in self.commands if i.regex]
         
 
         if self.commands == []:

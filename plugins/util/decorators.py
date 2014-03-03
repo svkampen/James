@@ -37,7 +37,7 @@ def cached(cache=None, get=None, action=None, insert=None, invalid=None):
         cache = Cache(invalid)
 
     if not get:
-        get = lambda bot, a: a.lower() in cache.keys()
+        get = lambda bot, a: str(a).lower() in cache.keys()
 
     if not action:
         action = lambda bot, nick, chan, a: bot.msg(chan, '\n'.join(lines(cache[a])))
@@ -71,6 +71,9 @@ def command(*args, **kwargs):
             funct.shorthook = [kwargs['short']]
         if 'category' in kwargs.keys():
             funct._category = kwargs['category']
+        if 're' in kwargs.keys():
+            print("has re!")
+            funct._regex = kwargs['re']
         return funct
 
     return decorator

@@ -38,4 +38,3 @@ def dict_lookup(bot, nick, chan, arg):
 
     except BaseException:
         bot.msg(chan, "No definition found")
-

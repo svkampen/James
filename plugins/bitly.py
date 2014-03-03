@@ -23,12 +23,6 @@ def _shorten(bot, url):
     return page.json()["data"]["url"]
 
 
-@initializer
-def plugin_initializer(bot):
-    """ Initialize this plugin. """
-    bot.state.data["shortener"] = _shorten
-
-
 @command("shorten", "bit.ly", "bitly", category="internet")
 def bitly(bot, nick, chan, arg):
     """ bit.ly <url> -> Shorten a url using bit.ly """

@@ -14,6 +14,8 @@ except:
 
 bot = None
 
+def shorten(url):
+    return bot.state.data["shortener"](bot, url)
 
 @initializer
 def initialize_plugin(irc_bot):
@@ -93,6 +95,11 @@ def wikipedia_get(bot, nick, chan, arg):
     paragraph = soup.find('p')
     url = "http://en.wikipedia.org/wiki/%s"
     htmlurl = url % term
+    
+    if soup.find("table", id="disambigbox") is not None:
+        bot.msg(chan, "%s (%s) points to a disambiguation page." % (arg, shorten(htmlurl)))
+        return
+
     if res['parse'].get('redirects', None):
         if res['parse']['redirects'][0].get("tofragment", None):
             anchor = res['parse']['redirects'][0]['tofragment']

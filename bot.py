@@ -26,7 +26,7 @@ from utils.events import Event
 from utils.decorators import startinfo
 from utils import is_enabled
 
-VERSION = "5.1.0"
+VERSION = "5.3.0"
 MAX_MESSAGE_STORAGE = 256
 MANAGER = None
 
@@ -45,7 +45,7 @@ class James(IRCHandler):
         self.config = config
         self.manager = None
         self.style = Styler()
-        self.defaultcolor = p(self.style.color, color="lblue")
+        self.defaultcolor = None
 
         # event stuff
         self.state.events.update({list(i.keys())[0]: Event(list(i.values())[0])
@@ -107,9 +107,13 @@ class James(IRCHandler):
                     if nick.lower() in self.state.admins:
                         self.cmd_thread.handle(Function(
                             trig_short, (self, nick, chan, cmd_args)))
+                        self.state.events["CommandCalledEvent"].fire(self,
+                            trig_short, cmd_args)
                 else:
                     self.cmd_thread.handle(Function(trig_short,
                         (self, nick, chan, cmd_args)))
+                    self.state.events["CommandCalledEvent"].fire(self,
+                        trig_short, cmd_args)
 
             if msg.startswith(self.config["cmdchar"]):
                 cmd_name = cmd_splitmsg[0][1:]
@@ -123,12 +127,24 @@ class James(IRCHandler):
                     if nick.lower() in self.state.admins:
                         self.cmd_thread.handle(Function(callback,
                             (self, nick, chan, cmd_args)))
+                        self.state.events["CommandCalledEvent"].fire(self,
+                            callback, cmd_args)
                 else:
                     self.cmd_thread.handle(Function(callback,
                         (self, nick, chan, cmd_args)))
+                    self.state.events["CommandCalledEvent"].fire(self,
+                        callback, cmd_args)
         except BaseException:
             self._meditate(sys.exc_info(), chan)
             traceback.print_exc()
+
+    def _check_for_re_command(self, msg, nick, chan):
+        for cmd in self.cmdhandler.commands_with_re:
+            match = cmd.is_re_triggered_by(msg)
+            if match:
+                cmd(self, nick, chan, match.groups())
+                self.state.events["CommandCalledEvent"].fire(self,
+                    cmd, match.groups())
 
     def cmodes(self, msg):
         """ channel mode handler. """
@@ -248,6 +264,10 @@ class James(IRCHandler):
     def privmsg(self, msg):
         """ Handles messages. """
         # Split msg into parts
+
+        if re.match("\x01(.+?)\x01", msg["arg"]):
+            # ctcp
+            self.handle_ctcp()
         nick = msg["host"].split("!")[0].lower()  # get sender
         nick_exact = msg["host"].split("!")[0]
         chan = msg["arg"].split()[0]  # get chan
@@ -258,9 +278,7 @@ class James(IRCHandler):
         chan = chan.lower()
         msg = msg["arg"].split(":", 1)[1]  # get msg
 
-        if nick.lower() in self.state.muted and chan.startswith("#"):
-            self.state.events["MessageEvent"].fire(self, nick, chan, msg)
-            return
+        self.state.events["MessageEvent"].fire(self, nick, chan, msg)
 
         # Test for inline code
         # msg = utils.parse.inline_python(self, nick, chan, msg)
@@ -269,8 +287,7 @@ class James(IRCHandler):
             utils.parse.sed(self, nick, chan, msg)
 
         self._check_for_command(msg, nick, chan)
-
-        self.state.events["MessageEvent"].fire(self, nick, chan, msg)
+        self._check_for_re_command(msg, nick, chan)
 
         msg = utils.message.Message(nick, self.state.channels[chan], msg)
         if nick in self.state.messages.keys():
@@ -282,14 +299,6 @@ class James(IRCHandler):
             self.state.users[nick].exactnick = nick_exact
         except:
             traceback.print_exc()
-
-        if self != self.manager.main_bot:
-            try:
-                self.manager.main_bot.msg("#base", "[%s:%s] <%s> %s"
-                    % (self.config["server"], chan, nick, msg.msg))
-
-            except BrokenPipeError:
-                self.manager.main_bot = self
 
     def quit(self, msg):
         """ Handles quits. """
