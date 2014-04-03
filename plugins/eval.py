@@ -62,6 +62,7 @@ def initialize_plugin(bot):
     """ Initialize this plugin. """
     bot.state.data["interp_locals"] = locals()
     bot.state.data["interp_locals"].update(globals())
+    bot.state.data["interp_locals"]['_dir'] = lambda x: [i for i in dir(x) if not i.startswith("__")]
 
 @require_admin
 @command("eval", short=">>>", category="meta")

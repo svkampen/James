@@ -99,7 +99,6 @@ class UserDict(dict):
             pass
 
     def __setitem__(self, item, value):
-        print("[UserDict] SET %r to %r" % (item, value))
         super().__setitem__(item, value)
 
     def __getattribute__(self, item):

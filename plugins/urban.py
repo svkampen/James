@@ -25,49 +25,35 @@ def urban_lookup(bot, nick, chan, arg):
     if len(args) == 1:
         params = {"term": arg}
         index = 0
+    num = index+1
+    if num == 1:
+        sign = "\u00B9"
+    elif num == 2:
+        sign = "\u00B2"
+    elif num == 3:
+        sign = "\u00B3"
+    else:
+        sign = chr(0x2070+num)
     request = requests.get(url, params=params)
 
     data = request.json()
     defs = None
     output = ""
-    try:
-        defs = data["list"]
+    defs = data["list"]
 
-        if data["result_type"] == "no_results":
-            return bot.msg(chan, failmsg() % (nick, params["term"]))
+    if data["result_type"] == "no_results":
+        return bot.msg(chan, "\x0314No results for %s\x0314 found, sorry." % (bot.style.color(params["term"], color='pink')))
 
-        output = defs[index]["word"] + " [" + str(index+1) + "]: " + defs[index]["definition"]
-    except:
-        traceback.print_exc()
-        return bot._msg(chan, failmsg() % (nick, params["term"]))
+    output = ("%s%s %s" % (bot.style.color(defs[index]["word"], color="pink"), sign, bot.style.color(defs[index]["definition"], color="grey"))).strip()
+    output = " ".join(output.split('\n'))
 
-    output = output.strip()
-    output = output.rstrip()
-    output = " ".join(output.split())
 
-    if len(output) > 300:
-        tinyurl = bot.state.data["shortener"](bot, defs[index]["permalink"])
-        output = output[:output.rfind(" ", 0, 180)] + "...\r\nRead more: %s"\
-            % (tinyurl)
-        bot.msg(chan, "%s: %s" % (nick, output))
+    if len(output) > 400:
+        output = output[:output.rfind(" ", 0, 400)]
+        bot.msg(chan, "%s" % (output))
 
     else:
-        bot.msg(chan, "%s: %s" % (nick, output))
-
-def failmsg():
-    return random.choice([
-        "%s: No definition found for %s.",
-        "%s: The heck is '%s'?!",
-        "%s: %s. wut.",
-        "%s: %s? I dunno...",
-        "%s: Stop searching weird things. What even is '%s'?",
-        "%s: Computer says no. '%s' not found.",
-        "*sigh* someone tell %s what '%s' means",
-        "%s: This is a family channel. Don't look up '%s'",
-        "%s: Trust me, you don't want to know what '%s' means.",
-        "No %s, no '%s' for you.",
-        "Shh %s, nobody is meant to know about '%s'...",
-        "Really %s? %s?"])
+        bot.msg(chan, "%s" % (output))
 
 @command("urbanrandom", "urbandictionaryrandom", "udr", category="internet")
 def urban_random(bot, nick, chan, arg):

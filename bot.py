@@ -60,7 +60,7 @@ class James(IRCHandler):
 
         # Various things
         self.cmdhandler = CommandHandler(self, plugins.get_plugins())
-        self.cmd_thread = HandlerThread()
+        self.cmd_thread = HandlerThread(self)
         self.cmd_thread.daemon = True
 
     def __repr__(self):

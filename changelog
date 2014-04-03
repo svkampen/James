@@ -1,3 +1,29 @@
+v5.3.1:
+    * Make google just a little more beautiful
+    * Make translate prettier
+    * Make urbandictionary prettier
+
+v5.1.0 - 5.3.0:
+    + Dictionary class, currently supporting wiktionary
+    + Styler (does bold, underline, color, but is a bit meh to use)
+    + Add admins in config
+    + CommandCalledEvent
+    + Commands called based on regex (this is ugly, just like everything in the commandhandler)
+    + Add a terrible bot handler, which was a bad idea, and should be removed later (does multibot stuff)
+    + get_doc, the best function of all time.
+    + badword, the best plugin - of all time.
+
+    * Fix tracebacks in the interpreter, add cute output [such x so y]
+    * different url shortener, which is v.gd, 2 chars shorter than bit.ly ;;>
+    * Fixed bug where \r in sed could compromise security
+    * Change google command to accept a number of search results, not just one.
+
+    - bin.py - binary conversion
+    - fortune.py - fortune telling (haha)
+    - CONFIG global variable
+    - Google Dictionary (it was shut down anyway)
+
+
 v5.0.0:
     - ASCII OSError
     + cmd.disabled - posts disabled commands

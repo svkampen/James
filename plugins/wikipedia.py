@@ -3,8 +3,10 @@ Wikipedia "API" (using BeautifulSoup)
 """
 from .util.decorators import command, initializer, cached
 from bs4 import BeautifulSoup as soupify
+from lxml import etree
 from .util.data import www_headers as headers, get_doc, lineify as lines
 import re
+import time
 import requests
 import traceback
 try:
@@ -74,12 +76,15 @@ def wikipedia_get(bot, nick, chan, arg):
                 return bot.msg(chan, "%s: %s -- read more: %s" % (nick, first_paragraph.split(". ")[0], bot.state.data["shortener"](bot, root)))
     bot.msg(chan, "%s: %s -- Read more: %s" % (nick, sentences, bot.state.data["shortener"](bot, root)))"""
 
-@cached(invalid=128)
 @command("wiki", category="internet")
 def wikipedia_get(bot, nick, chan, arg):
     """ wiki *args -> Get the first two sentences in *args' wikipedia article. """
+    print(time.time())
     if not arg:
         return bot.msg(chan, get_doc())
+    name = arg
+    if ' (' in arg:
+        name = arg.split()[0]
     term = arg.replace(" ", "_")
     term = urlencode(term)
 
@@ -95,6 +100,9 @@ def wikipedia_get(bot, nick, chan, arg):
     paragraph = soup.find('p')
     url = "http://en.wikipedia.org/wiki/%s"
     htmlurl = url % term
+
+    for i in soup.find_all('b'):
+        i.string = "\x02%s\x02" % (i.string)
     
     if soup.find("table", id="disambigbox") is not None:
         bot.msg(chan, "%s (%s) points to a disambiguation page." % (arg, shorten(htmlurl)))
@@ -109,11 +117,14 @@ def wikipedia_get(bot, nick, chan, arg):
             htmlurl = url % (res['parse']['redirects'][0]['to'].replace(" ", "_"))
     sentences = bot.state.data["sentence_re"].findall(paragraph.text)[:2]
 
-    readmore = "-- read more: %s" % (bot.state.data['shortener'](bot, htmlurl))
-    output = "%s: %s %s" % (nick, ''.join(sentences), readmore)
+    readmore = bot.style.color("⟶ %s" % (bot.state.data['shortener'](bot, htmlurl)), color="blue")
+    text = ''.join(sentences)
+    if re.search("\[\d+\]", text):
+        text = re.sub("\[\d+\]", "", text)
+    output = "%s: %s %s" % (nick, text, readmore)
 
     bot.msg(chan, '\n'.join(lines(output)))
-    return output
+    time.time()
 
 @cached()
 @command("ipa", category="internet")

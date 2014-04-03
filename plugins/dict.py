@@ -1,5 +1,5 @@
 """
-Get definitions from google
+Get definitions from a dictionary source.
 """
 from .util.decorators import command
 from .util.data import get_doc
@@ -11,30 +11,41 @@ try:
 except:
     from urllib import pathname2url as urlencode
 
+dicts = {}
+
+class Dictionary(object):
+    def __init__(self, lang, source="wiktionary"):
+        self.language = lang.title()
+        if source == "wiktionary":
+            self.url = "http://en.wiktionary.org/w/api.php?action=parse&format=json&prop=text&page=%s&redirects="
+        else:
+            raise NotImplementedError("Only one source (wiktionary) has been implemented.")
+    def get(self, word):
+        resp = requests.get(self.url % word)
+        data = resp.json()
+        soup = soupify(data["parse"]["text"]["*"])
+        ol = soup.find("span", {"id": self.language}).findNext("ol")
+        for item in ol.find_all("ul"):
+            item.extract()
+        for item in ol.find_all("div", {"class": "thumbcaption"}):
+            item.extract()
+        definitions = ol.text.strip().split('\n')
+        definitions = filter(None, definitions)
+        return definitions
+
+dicts["default"] = Dictionary("english")
+
 @command("dict", "dictionary", category="language")
 def dict_lookup(bot, nick, chan, arg):
-    """ dict <word> -> Dictionary lookup. """
+    """ dict <word> [lang] -> Dictionary lookup. """
     if not arg:
         return bot.msg(chan, get_doc())
-
-    url = "http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%2Cde&client=te&q="
-    uri = url+urlencode(arg.replace(" ", "+"))
-    request = requests.get(uri)
-
-    try:
-        data = json.loads(request.text.replace("\\x", "\\u00")[25:-10])
-        data = data["webDefinitions"][0]["entries"][0]
-        data = data["terms"][0]["text"]
-        data = soupify(data).getText()
-
-        output = arg + ": " + data
-
-        output = output.strip()
-
-        if len(output) > 300:
-            bot.msg(chan, "%s: %s" % (nick, output[:295]+"[...]"))
-        else:
-            bot.msg(chan, "%s: %s" % (nick, output))
-
-    except BaseException:
-        bot.msg(chan, "No definition found")
+    args = arg.split()
+    if len(args) > 1:
+        dicts[args[1]] = Dictionary(args[1])
+        defs = dicts[args[1]].get(args[0])
+    else:
+        defs = dicts["default"].get(arg)
+    defs = list(defs)[:5]
+    for n, i in enumerate(defs):
+        bot.msg(chan, "%d. \x0314%s" % (n+1, i))

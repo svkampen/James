@@ -5,7 +5,11 @@ Translate module.
 from .util.decorators import command
 import requests
 from .util.data import www_headers as headers
-from bs4 import BeautifulSoup as bs
+from html.parser import HTMLParser
+
+def unescape(data):
+    return HTMLParser.unescape(None, data)
+
 
 @command("translate", category="language", re="what is (.+?) from (\S+) to (\S+)")
 def translate(bot, nick, chan, arg):
@@ -28,9 +32,8 @@ def translate(bot, nick, chan, arg):
         return bot.msg(chan, "%s: Invalid source language. See http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes" % (nick))
     else:
         text =  data["responseData"]["translatedText"]
-        text = bs(text).get_text()
-        bot.msg(chan, "%s: %s" % (nick, text))
-
+        text = unescape(text)
+        bot.msg(chan, "\x0313%s\x0302 ⟶ \x0314%s" % (word, text))
 
 @command("translate.add", category="language", re="(.+?) = (.+?) from (\S+) to (\S+)")
 def translate_add(bot, nick, chan, arg):

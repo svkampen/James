@@ -22,6 +22,7 @@ colors = {
     'lblue'  : '12',
     'pink'   : '13',
     'grey'   : '14',
+    'gray'   : '14',
     'silver' : '15'
 }
 
@@ -46,9 +47,8 @@ class Styler(object):
 
     def color(self, text, color="red", background=None):
         if background:
-            return "\x03%s,%s%s\x03%s,%s" % (colors[color], colors[background],
-             text, colors[color], colors[background])
-        return "\x03%s%s\x03%s" % (colors[color], text, colors[color])
+            return "\x03%s,%s%s\x03" % (colors[color], colors[background], text)
+        return "\x03%s%s\x03" % (colors[color], text)
 
     def control_reduce(self, data):
         """ Reduce a set of control codes to simplest form. """

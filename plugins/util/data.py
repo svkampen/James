@@ -15,17 +15,27 @@ def sugar(arg):
     arg = arg.replace("self", "bot")
     return arg
 
+def split_on(s, n):
+    part = s[:n]
+    part2 = s[n+1:]
+    return part, part2
+
 def lineify(data, max_size=400):
     """ Split text up into IRC-safe lines. """
     if len(data) < max_size:
         return [data]
+    if not ' ' in data:
+        return re.findall(r".{0,%d}", data)
     
     lines = []
+    while len(data) > max_size:
+        spaceplace = data.rfind(" ", 0, max_size)
+        part, data = split_on(data, spaceplace)
+        lines.append(part)
+    lines.append(data)
+    return lines
 
-    amount = math.ceil(len(data)/max_size)
-    size = math.floor(len(data)/amount)
 
-    return re.findall("(.{1,%d})" % (size), data)
 
 def get_doc():
     frame = inspect.getouterframes(inspect.currentframe())[1][0]

@@ -38,4 +38,4 @@ def google(bot, nick, chan, arg):
     for i in range(0, count):
         result_url = results[i]["url"]
         result_title = unescape(results[i]["titleNoFormatting"])
-        bot.msg(chan, "\x02%s\x02 -- %s" % (result_url, result_title))
+        bot.msg(chan, "\x02%s\x02 -- %s" % (bot.style.color(result_title, color="grey"), bot.style.underline(bot.style.color(result_url, color="pink"))))
