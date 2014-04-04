@@ -4,8 +4,11 @@ Integration with the James issue tracker.
 from .util.decorators import command, initializer
 import requests
 import json
-from .github import get_auth
 from .util.data import www_headers as headers, get_doc
+
+def get_auth(bot):
+    ghub = bot.state.apikeys["github"]
+    return (ghub["user"], ghub["pass"])
 
 @command("github.get_issues", category="git")
 def get_github_issues(bot, nick, chan, arg):
@@ -84,7 +87,7 @@ def request_feature(bot, nick, chan, arg):
     page = requests.post(github_url, data=data, auth=auth, headers=headers)
     data = page.json()
     if page.status_code == 201:
-        bot._msg(chan, "Posted request #%s. URL: %s"
+        bot._msg(chan, "\x0314|\x0313 %s \x0314|\x0302 ⟶ \x0314%s"
                  % (data["number"], bot.state.data["shortener"](bot,
                     data["html_url"])))
     else:
@@ -114,7 +117,7 @@ def report_bug(bot, nick, chan, arg):
     print(page.text)
     data = page.json()
     if page.status_code == 201:
-        bot._msg(chan, "Posted bug report #%s URL: %s"
+        bot._msg(chan, "\x0314|\x0313 %s \x0314|\x0302 ⟶ \x0314%s"
                  % (data["number"], bot.state.data["shortener"](bot,
                     data["html_url"])))
 

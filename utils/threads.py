@@ -19,7 +19,7 @@ class HandlerThread(Thread):
         exc_traceback = exc_info[2]
         outp = traceback.format_tb(exc_traceback)
         lineno = outp[-1].split(', ')[1][5:]
-        file = outp[-1].split('"')[1].split("James/")[1]
+        file = ' '.join(outp[-1].split('"')[1].rsplit("/", 2)[-2:])
         out = "⌜ \x02\x03such \x034%s \x03so \x034%s\x03\x02 in \x034%s\x03 \x02line\x0304 %s\x03\x02 ⌟" % (
             exc_name, exc_args, file, lineno)
         self.bot.msg(chan, out)

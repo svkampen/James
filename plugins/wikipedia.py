@@ -102,7 +102,7 @@ def wikipedia_get(bot, nick, chan, arg):
     htmlurl = url % term
 
     for i in soup.find_all('b'):
-        i.string = "\x02%s\x02" % (i.string)
+        i.string = "\x0313%s\x0314" % (i.string)
     
     if soup.find("table", id="disambigbox") is not None:
         bot.msg(chan, "%s (%s) points to a disambiguation page." % (arg, shorten(htmlurl)))
@@ -116,12 +116,11 @@ def wikipedia_get(bot, nick, chan, arg):
         elif res['parse']['redirects'][0].get("to", None):
             htmlurl = url % (res['parse']['redirects'][0]['to'].replace(" ", "_"))
     sentences = bot.state.data["sentence_re"].findall(paragraph.text)[:2]
-
     readmore = bot.style.color("⟶ %s" % (bot.state.data['shortener'](bot, htmlurl)), color="blue")
     text = ''.join(sentences)
     if re.search("\[\d+\]", text):
         text = re.sub("\[\d+\]", "", text)
-    output = "%s: %s %s" % (nick, text, readmore)
+    output = "\x0314%s %s" % (text, readmore)
 
     bot.msg(chan, '\n'.join(lines(output)))
     time.time()

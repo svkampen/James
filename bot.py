@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.3
+#!/usr/bin/env python3
 import sys
 """
 James.py - main bot
@@ -45,7 +45,7 @@ class James(IRCHandler):
         self.config = config
         self.manager = None
         self.style = Styler()
-        self.defaultcolor = None
+        self.defaultcolor = p(self.style.color, color="grey")
 
         # event stuff
         self.state.events.update({list(i.keys())[0]: Event(list(i.values())[0])
