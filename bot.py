@@ -8,7 +8,6 @@ import utils
 from utils.irc import IRCHandler
 from utils.sstate import ServerState
 from utils.threads import HandlerThread
-from utils.function import Function
 from utils.style import Styler
 import plugins
 
@@ -26,7 +25,7 @@ from utils.events import Event
 from utils.decorators import startinfo
 from utils import is_enabled
 
-VERSION = "5.3.0"
+VERSION = "5.3.2"
 MAX_MESSAGE_STORAGE = 256
 MANAGER = None
 
@@ -105,13 +104,13 @@ class James(IRCHandler):
             if trig_short and self.config["short_enabled"]:
                 if hasattr(trig_short.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
-                        self.cmd_thread.handle(Function(
-                            trig_short, (self, nick, chan, cmd_args)))
+                        self.cmd_thread.handle(p(trig_short,
+                            self, nick, chan, cmd_args))
                         self.state.events["CommandCalledEvent"].fire(self,
                             trig_short, cmd_args)
                 else:
-                    self.cmd_thread.handle(Function(trig_short,
-                        (self, nick, chan, cmd_args)))
+                    self.cmd_thread.handle(p(trig_short,
+                            self, nick, chan, cmd_args))
                     self.state.events["CommandCalledEvent"].fire(self,
                         trig_short, cmd_args)
 
@@ -125,13 +124,13 @@ class James(IRCHandler):
 
                 if hasattr(callback.function, "_require_admin"):
                     if nick.lower() in self.state.admins:
-                        self.cmd_thread.handle(Function(callback,
-                            (self, nick, chan, cmd_args)))
+                        self.cmd_thread.handle(p(callback,
+                            self, nick, chan, cmd_args))
                         self.state.events["CommandCalledEvent"].fire(self,
                             callback, cmd_args)
                 else:
-                    self.cmd_thread.handle(Function(callback,
-                        (self, nick, chan, cmd_args)))
+                    self.cmd_thread.handle(p(callback,
+                            self, nick, chan, cmd_args))
                     self.state.events["CommandCalledEvent"].fire(self,
                         callback, cmd_args)
         except BaseException:

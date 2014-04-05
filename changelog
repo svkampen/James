@@ -1,3 +1,17 @@
+v5.3.2:
+    - Ageme
+    - IMDB
+    - Github stuff
+    - Lisp executor
+    - Reddit plugin
+    - Initializer in issue.py that did nothing
+    - Multiserver stuff (because that will be removed bot-wise too)
+    - Weather
+    - Old wikipedia command
+    - Function class
+    * Change Function class to C Partials
+
+
 v5.3.1:
     * Make google just a little more beautiful
     * Make translate prettier

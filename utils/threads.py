@@ -29,7 +29,7 @@ class HandlerThread(Thread):
             try:
                 func = self.queue.get()
                 func_chan = func.args[2]
-                func.call()
+                func()
             except BaseException as e:
                 if not isinstance(e, SystemExit):
                     traceback.print_exc()
