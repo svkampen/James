@@ -11,14 +11,6 @@ def get_name(f):
         except AttributeError:
             return "unknown"
 
-def is_enabled(bot, chan, command):
-    c = bot.state.channels.get(chan, False)
-    if get_name(command.function) in c.disabled_commands:
-        return False
-    elif get_name(command.function).rsplit('.', 1)[0] in c.disabled_commands:
-        return False
-    return True
-
 from . import command
 from . import commandhandler
 from . import parse

@@ -132,23 +132,4 @@ def sed(bot, nick, chan, msg):
         return bot.msg(chan, "<%s> %s" % (nick, new_msg))
     except BaseException:
         traceback.print_exc()
-
-###
-##
-## Inline python
-##
-###
-
-def inline_python(bot, nick, chan, msg):
-    """ Execute inline python """
-    pieces_of_python = re.findall("`([^`]+)`", msg)
-    if not pieces_of_python:
-        return msg
-    for piece in pieces_of_python:
-        try:
-            msg = msg.replace(piece, str(evaluate(bot, nick, chan, piece)))
-        except BaseException:
-            traceback.print_exc()
-            bot._meditate(sys.exc_info(), chan)
-    return msg.replace("`", "")
     

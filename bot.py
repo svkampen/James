@@ -23,7 +23,6 @@ from collections import deque
 from utils.commandhandler import CommandHandler
 from utils.events import Event
 from utils.decorators import startinfo
-from utils import is_enabled
 
 VERSION = "5.3.3"
 MAX_MESSAGE_STORAGE = 256
@@ -66,19 +65,6 @@ class James(IRCHandler):
             % (self.config["server"].split(":")[0],
                list(self.state.channels.keys())))
 
-    def _meditate(self, exc_info, chan):
-        """ Prints GURU MEDITATION messages. """
-        exc_name = str(exc_info[0]).split("'")[1]
-        exc_args = exc_info[1].args
-        if exc_args:
-            self._msg(chan,
-                      "[\x02\x034GURU\x03 MEDITATION\x034\x03 %s\x02] %s"
-                      % (exc_name, exc_args[0]))
-        else:
-            self._msg(chan,
-                      "[\x02\x034GURU\x03 MEDITATION\x034\x03 %s\x02]"
-                      % (exc_name))
-
     def _msg(self, chan, msg):
         """ _msg(string chan, string msg) - Sends a PRIVMSG. """
         msg = str(msg).replace("\r", "")
@@ -91,50 +77,42 @@ class James(IRCHandler):
     def _check_for_command(self, msg, nick, chan):
         """ Check for a command """
         cmd_splitmsg = msg.split(" ", 1)
-        try:
-            if len(cmd_splitmsg) > 1:
-                cmd_args = cmd_splitmsg[1]
-            else:
-                cmd_args = ""
+        if len(cmd_splitmsg) > 1:
+            cmd_args = cmd_splitmsg[1]
+        else:
+            cmd_args = ""
 
-            trig_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
-            if not trig_short or not is_enabled(self, chan, trig_short):
-                trig_short = None
-            if trig_short and self.config["short_enabled"]:
-                if hasattr(trig_short.function, "_require_admin"):
-                    if nick.lower() in self.state.admins:
-                        self.cmd_thread.handle(p(trig_short,
-                            self, nick, chan, cmd_args))
-                        self.state.events["CommandCalledEvent"].fire(self,
-                            trig_short, cmd_args)
-                else:
+        trig_short = self.cmdhandler.trigger_short(cmd_splitmsg[0])
+        if trig_short and self.config["short_enabled"]:
+            if hasattr(trig_short.function, "_require_admin"):
+                if nick.lower() in self.state.admins:
                     self.cmd_thread.handle(p(trig_short,
-                            self, nick, chan, cmd_args))
+                        self, nick, chan, cmd_args))
                     self.state.events["CommandCalledEvent"].fire(self,
                         trig_short, cmd_args)
+            else:
+                self.cmd_thread.handle(p(trig_short,
+                        self, nick, chan, cmd_args))
+                self.state.events["CommandCalledEvent"].fire(self,
+                    trig_short, cmd_args)
 
-            if msg.startswith(self.config["cmdchar"]):
-                cmd_name = cmd_splitmsg[0][1:]
-                callback = self.cmdhandler.trigger(cmd_name)
-                if not callback:
-                    return
-                if not is_enabled(self, chan, callback):
-                    return
+        if msg.startswith(self.config["cmdchar"]):
+            cmd_name = cmd_splitmsg[0][1:]
+            callback = self.cmdhandler.trigger(cmd_name)
+            if not callback:
+                return
 
-                if hasattr(callback.function, "_require_admin"):
-                    if nick.lower() in self.state.admins:
-                        self.cmd_thread.handle(p(callback,
-                            self, nick, chan, cmd_args))
-                        self.state.events["CommandCalledEvent"].fire(self,
-                            callback, cmd_args)
-                else:
+            if hasattr(callback.function, "_require_admin"):
+                if nick.lower() in self.state.admins:
                     self.cmd_thread.handle(p(callback,
-                            self, nick, chan, cmd_args))
+                        self, nick, chan, cmd_args))
                     self.state.events["CommandCalledEvent"].fire(self,
                         callback, cmd_args)
-        except BaseException:
-            self._meditate(sys.exc_info(), chan)
-            traceback.print_exc()
+            else:
+                self.cmd_thread.handle(p(callback,
+                        self, nick, chan, cmd_args))
+                self.state.events["CommandCalledEvent"].fire(self,
+                    callback, cmd_args)
 
     def _check_for_re_command(self, msg, nick, chan):
         for cmd in self.cmdhandler.commands_with_re:
@@ -264,9 +242,6 @@ class James(IRCHandler):
         msg = msg["arg"].split(":", 1)[1]  # get msg
 
         self.state.events["MessageEvent"].fire(self, nick, chan, msg)
-
-        # Test for inline code
-        # msg = utils.parse.inline_python(self, nick, chan, msg)
 
         if self.config["sed-enabled"]:
             utils.parse.sed(self, nick, chan, msg)
