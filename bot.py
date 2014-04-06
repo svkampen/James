@@ -27,7 +27,6 @@ from utils import is_enabled
 
 VERSION = "5.3.2"
 MAX_MESSAGE_STORAGE = 256
-MANAGER = None
 
 
 class James(IRCHandler):
@@ -145,14 +144,6 @@ class James(IRCHandler):
                 self.state.events["CommandCalledEvent"].fire(self,
                     cmd, match.groups())
 
-    def cmodes(self, msg):
-        """ channel mode handler. """
-        modes = msg["arg"].split()[2]
-        channel = msg["arg"].split()[1]
-        chan = self.state.channels.get(channel, False)
-        if chan:
-            chan.modes_ = modes
-
     @staticmethod
     def ctcp(msg):
         """ Turn a message into a CTCP """
@@ -162,7 +153,6 @@ class James(IRCHandler):
         """ Handle MODE. """
         if not msg["arg"].startswith("#"):
             self.state.nick = msg["arg"].split(" ", 1)[0]
-            print("Set self.state.nick to %s" % (self.state.nick))
 
     def connect(self):
         """ Connect the bot to the server """
@@ -176,11 +166,7 @@ class James(IRCHandler):
 
     def gracefully_terminate(self):
         """ Handles the quit routine, then exits. """
-        try:
-            super(James, self).gracefully_terminate()
-        except SystemExit:
-            pass
-        self.manager.bots.remove(self)
+        super(James, self).gracefully_terminate()
         self.state.events["CloseLogEvent"].fire()
 
     def join(self, msg):
@@ -324,57 +310,7 @@ class James(IRCHandler):
         self._send("MODE %s +B" % (self.state.nick))
         self.state.events["WelcomeEvent"].fire(self)
 
-
-
-class BotManager(object):
-    """ A manager for IRC bots (pretty bare right now) """
-    def __init__(self):
-        self.bots = deque()
-        self.bot_threads = deque()
-        self.main_bot = None
-
-    def get_bot_by_server(self, server):
-        """ Get the IRC bot by the server """
-        for bot in self.bots:
-            if server in repr(bot):
-                return bot
-
-    def shutdown_bot(self, bot):
-        """ Shut down an IRC bot """
-        bot.gracefully_terminate()
-        for thread in self.bot_threads:
-            if not thread.is_alive():
-                self.bot_threads.remove(thread)
-
-    def start_bot(self, bot):
-        """ Start an IRC bot and register it with the manager """
-        self.bots.append(bot)
-        thr = threading.Thread(target=bot.connect)
-        thr.name = repr(bot)
-        thr.daemon = False
-        self.bot_threads.append(thr)
-        thr.start()
-
-
-def main():
-    """ The main method """
-    global MANAGER
-    args = sys.argv[1:]
-    config = json.loads(open("config.json", "r").read())
-
-    verbose = debug = False
-
-    if "--verbose" in args:
-        verbose = True
-
-    if "--debug" in args:
-        debug = True
-
-    MANAGER = BotManager()
-    bot = James(config, verbose, debug)
-    bot.manager = MANAGER
-    MANAGER.main_bot = bot
-    MANAGER.start_bot(bot)
-
 if __name__ == "__main__":
-    main()
+    config = json.loads(open("config.json", "r").read())
+    bot = James(config)
+    bot.connect()

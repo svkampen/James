@@ -9,70 +9,24 @@ from datetime import datetime
 
 bot = None
 
-class MagicAttribute(object):
-    """ A magic attribute """
-    def __get__(self, obj, type):
-        return getattr(self, "func")(obj)
-
-class IsUserSetEmpty(MagicAttribute):
-    def func(self, obj):
-        return True if not obj.users else False
-
-class UserNumInChannel(MagicAttribute):
-    def func(self, obj):
-        return len(obj.users) if not obj.is_empty else -1
-
-class IsIdentified(MagicAttribute):
-    def func(self, obj):
-        bot.msg("NickServ", "ACC %s" % (obj.nick))
-        time.sleep(4/3)
-        return "3" in bot.state.notices[-1]["message"]
-
-class ChannelModes(MagicAttribute):
-    def func(self, obj):
-        bot._send("MODE %s" % (obj.name))
-        time.sleep(4/3)
-        return obj.modes_
-
-class UserMessagesArray(MagicAttribute):
-    def func(self, obj):
-        return bot.state.messages[obj.nick]
-
-class UserChannels(MagicAttribute):
-    def __init__(self):
-        self.state = bot.state
-    def func(self, obj):
-        return self.state.channels.get_channels_for(obj.nick)
-
-class UserIdleTime(MagicAttribute):
-    def func(self, obj):
-        current_time = datetime.utcnow()
-        last_m_time = obj.messages[0].timestamp
-        difference = (current_time - last_m_time)
-        return difference
-
-
 class User(object):
     def __init__(self, nick, channels=None):
         self.nick = nick
-        
-        self.is_identified = IsIdentified()
-        self.messages = UserMessagesArray()
-        self.idle_time = UserIdleTime()
-        self.channels = UserChannels()
         self.exactnick = ""
+
+    @property
+    def channels(self):
+        return bot.state.channels.get_channels_for(self.nick)
+
+    @property
+    def messages(self):
+        return bot.state.messages[self.nick]
 
     def __repr__(self):
         return "User(nick=%r, channels=%s)" % (self.nick, self.channels.keys())
 
     def kick(self, channel):
         bot._send("KICK %s %s :Requested" % (channel, self.nick))
-
-    def __getattribute__(self, name):
-        attr = super().__getattribute__(name)
-        if hasattr(attr, "__get__"):
-            return attr.__get__(self, User)
-        return attr
 
 class UserDict(dict):
     """ A dictionary with users """
@@ -117,8 +71,6 @@ class Channel(object):
         self.name = name
         self.disabled_commands = set()
         self.users = UserDict()
-        self.is_empty = IsUserSetEmpty()
-        self.users_n = UserNumInChannel()
         self.state = bot.state
 
     def add_user(self, user):
@@ -156,25 +108,3 @@ class Channel(object):
 
     def __call__(self):
         return self.name
-
-    def __getattribute__(self, name):
-        attr = super().__getattribute__(name)
-        if hasattr(attr, "__get__"):
-            return attr.__get__(self, Channel)
-        return attr
-
-class UnknownChannel(Channel):
-    def __init__(self, name):
-        self.name = name
-        self.known = False
-
-    def __dir__(self):
-        if self.known:
-            return Channel.__dir__(Channel(""))
-        else:
-            return [i for i in dir(Channel) if i.startswith("_")] + ["name", "known", "join"]
-
-    def join(self):
-        if not self.known:
-            bot._send("JOIN %s" % (self.name))
-            self.known = True

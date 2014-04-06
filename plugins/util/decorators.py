@@ -72,7 +72,6 @@ def command(*args, **kwargs):
         if 'category' in kwargs.keys():
             funct._category = kwargs['category']
         if 're' in kwargs.keys():
-            print("has re!")
             funct._regex = kwargs['re']
         return funct
 

@@ -33,7 +33,7 @@ def request_feature(bot, nick, chan, arg):
     page = requests.post(github_url, data=data, auth=auth, headers=headers)
     data = page.json()
     if page.status_code == 201:
-        bot._msg(chan, "\x0314| \x0313%s \x0314#%s \x0314|\x0302 ⟶ \x0314%s"
+        bot._msg(chan, "\x0314\x0313%s \x0314#%s \x0314\x0302 ⟶ \x0314%s"
                  % (arg[0], data["number"], bot.state.data["shortener"](bot,
                     data["html_url"])))
     else:
@@ -63,6 +63,6 @@ def report_bug(bot, nick, chan, arg):
     print(page.text)
     data = page.json()
     if page.status_code == 201:
-        bot._msg(chan, "\x0314| \x0313%s \x0314#%s \x0314|\x0302 ⟶ \x0314%s"
+        bot._msg(chan, "\x0314\x0313%s \x0314#%s \x0314\x0302 ⟶ \x0314%s"
                  % (arg[0], data["number"], bot.state.data["shortener"](bot,
                     data["html_url"])))

@@ -15,7 +15,6 @@ class Command(object):
     """Command(Object function, List<str> hooks=[], List<str> shorthooks=[])"""
     def __init__(self, function, hooks=None, shorthooks=None):
         self.function = function
-        print(function, hooks, shorthooks)
         self.regex = None
         if not hooks:
             hooks = []

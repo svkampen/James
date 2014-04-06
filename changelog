@@ -1,3 +1,13 @@
+v5.3.3:
+    - cmodes, the channel mode handler
+    - debug print calls
+    - an unneccessary try except handler
+    - BotManager! (fixes request #76)
+    - Lots and lots of MagicAttributes (fixes request #79)
+    * Edit logger spacing a bit, remove welcome logger
+    + Some property objects.
+
+
 v5.3.2:
     - Ageme
     - IMDB
