@@ -25,7 +25,7 @@ from utils.events import Event
 from utils.decorators import startinfo
 from utils import is_enabled
 
-VERSION = "5.3.2"
+VERSION = "5.3.3"
 MAX_MESSAGE_STORAGE = 256
 
 
