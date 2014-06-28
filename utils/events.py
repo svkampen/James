@@ -6,7 +6,7 @@ Standard = [
     {"PartEvent": "part"},
     {"MessageEvent": "message"},
     {"NoticeEvent": "notice"},
-    {"CloseLogEvent": "close_log"},
+    {"ShutdownEvent": "shutdown"},
     {"KickEvent": "kick"},
     {"CommandCalledEvent": "cmd"}
 ]

@@ -143,7 +143,7 @@ class James(IRCHandler):
     def gracefully_terminate(self):
         """ Handles the quit routine, then exits. """
         super(James, self).gracefully_terminate()
-        self.state.events["CloseLogEvent"].fire()
+        self.state.events["ShutdownEvent"].fire()
 
     def join(self, msg):
         """ Handles people joining channels """
