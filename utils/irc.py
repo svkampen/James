@@ -44,7 +44,7 @@ class IRCHandler(object):
                 if loops != 0:
                     try:
                         self.buff.append(self.sock.recv(4096).decode("utf-8"))
-                    except UnicodeDecodeError:
+                    except BaseException:
                         traceback.print_exc()
                         try:
                             self.buff.append(self.sock.recv(4096).decode("utf-16"))

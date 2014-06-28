@@ -2,7 +2,7 @@
 Get definitions from urbandictionary
 """
 from .util.decorators import command
-from .util.data import get_doc
+from .util.data import get_doc, lineify
 import requests
 import traceback
 import random
@@ -49,8 +49,8 @@ def urban_lookup(bot, nick, chan, arg):
 
 
     if len(output) > 400:
-        output = output[:output.rfind(" ", 0, 400)]
-        bot.msg(chan, "%s" % (output))
+        for i in lineify(output):
+            bot.msg(chan, i)
 
     else:
         bot.msg(chan, "%s" % (output))

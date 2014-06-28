@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import sys
 """
 James.py - main bot
 """
@@ -13,9 +12,7 @@ import plugins
 
 import traceback
 import re
-import sys
 import json
-import threading
 from functools import partial as p
 
 from collections import deque
@@ -25,7 +22,7 @@ from utils.events import Event
 from utils.decorators import startinfo
 
 VERSION = "5.3.3"
-MAX_MESSAGE_STORAGE = 256
+MAX_MESSAGE_STORAGE = 1024
 
 
 class James(IRCHandler):
@@ -115,6 +112,7 @@ class James(IRCHandler):
                     callback, cmd_args)
 
     def _check_for_re_command(self, msg, nick, chan):
+        """ Check whether this triggers a regex command """
         for cmd in self.cmdhandler.commands_with_re:
             match = cmd.is_re_triggered_by(msg)
             if match:
@@ -227,10 +225,6 @@ class James(IRCHandler):
     def privmsg(self, msg):
         """ Handles messages. """
         # Split msg into parts
-
-        if re.match("\x01(.+?)\x01", msg["arg"]):
-            # ctcp
-            self.handle_ctcp()
         nick = msg["host"].split("!")[0].lower()  # get sender
         nick_exact = msg["host"].split("!")[0]
         chan = msg["arg"].split()[0]  # get chan
@@ -257,7 +251,7 @@ class James(IRCHandler):
 
         try:
             self.state.users[nick].exactnick = nick_exact
-        except:
+        except BaseException:
             traceback.print_exc()
 
     def quit(self, msg):
