@@ -71,7 +71,7 @@ def logger(*args, **kwargs):
      "part": log_part,
      "notice": log_notice,
      "kick": log_kick,
-     "close_log": close_log}
+     "shutdown": close_log}
     handlers.get(etype, lambda *args: None)(*args)
 
     try:
