@@ -8,7 +8,7 @@ import re
 import subprocess
 import sys
 
-SED_REGEX = re.compile(r"^(?:(\S+)[:,] )?(?:(.+?)/)?s/(.+?)/(.*?)(?:/([gixs]{0,4}))?$")
+SED_REGEX = re.compile(r"^(?:(\S+)[:,])?(?:(.+?)/)?s/(.+?)/([^/]+)/?(?:([gixs]{0,4}))?")
 
 def parse(msg):
     """ Parse an IRC protocol message """
