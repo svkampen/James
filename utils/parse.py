@@ -8,7 +8,7 @@ import re
 import subprocess
 import sys
 
-SED_REGEX = re.compile(r"^(?:(\S+)[:,] )?(?:(.+?)/)?s/([^/]*?)/(.*?)(?:/([gixs]{0,4}))?$")
+SED_REGEX = re.compile(r"^(?:(\S+)[:,] )?(?:(.+?)/)?s/(.+?)/(.*?)(?:/([gixs]{0,4}))?$")
 
 def parse(msg):
     """ Parse an IRC protocol message """
@@ -127,9 +127,9 @@ def sed(bot, nick, chan, msg):
 
     try:
 
-        new_msg = re.sub(s.to_replace, bot.style.underline(s.replacement), s.msg, s.count, s.flags)
+        new_msg = re.sub(s.to_replace, s.replacement, s.msg, s.count, s.flags)
 
-        return bot.msg(chan, "<%s> %s" % (bot.state.users[nick].exactnick, new_msg))
+        return bot.msg(chan, "<%s> %s" % (nick, new_msg))
     except BaseException:
         traceback.print_exc()
     

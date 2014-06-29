@@ -10,7 +10,6 @@ from html.parser import HTMLParser
 def unescape(data):
     return HTMLParser.unescape(None, data)
 
-translate_header = "\x0304Translate│ "
 
 @command("translate", category="language", re="what is (.+?) from (\S+) to (\S+)")
 def translate(bot, nick, chan, arg):
@@ -27,12 +26,10 @@ def translate(bot, nick, chan, arg):
     params = {"q": word, "langpair": langpair, "de": "sam@tehsvk.net"}
     response = requests.get(url, headers=headers, params=params)
     data = response.json()
-    if not data.get("responseData", {}).get("translatedText", []):
-        return bot.msg(chan,  "%s\x0314No results." % (translate_header))
     if "INVALID TARGET LANGUAGE" in data["responseData"]["translatedText"]:
-        return bot.msg(chan, "%s\x0314Invalid target language. See http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes" % (translate_header))
-    elif "INVALID SOURCE LANGUAGE" in data["responseData"]["translatedText"]:
-        return bot.msg(chan, "%s\x0314Invalid source language. See http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes" % (translate_header))
+        return bot.msg(chan, "%s: Invalid target language. See http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes" % (nick))
+    if "INVALID SOURCE LANGUAGE" in data["responseData"]["translatedText"]:
+        return bot.msg(chan, "%s: Invalid source language. See http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes" % (nick))
     else:
         text =  data["responseData"]["translatedText"]
         text = unescape(text)
