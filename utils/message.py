@@ -18,3 +18,8 @@ class Message(object):
     def __repr__(self):
         return "Message(user=%r, chan=%r, msg=%r, timestamp=%r)" % (self.nick, self.channel,
                                                                     self.msg, self.timestamp)
+
+    def __str__(self):
+        timestamp = "[%s ago]"
+        timestamp = timestamp % (str(datetime.utcnow() - self.timestamp).rsplit(':', 1)[0])
+        return "%s <%s> %s" % (timestamp, self.nick, self.msg)
