@@ -8,7 +8,6 @@ import time
 import inspect
 import random
 import os
-import subprocess
 import re
 from types import ModuleType, FunctionType
 from functools import partial

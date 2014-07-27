@@ -128,6 +128,10 @@ def sed(bot, nick, chan, msg):
     try:
 
         new_msg = re.sub(s.to_replace, s.replacement, s.msg, s.count, s.flags)
+        if '\x01' in new_msg:
+            # probably a message with a CTCP ACTION in it.
+            new_msg = new_msg.split(" ", 1)[1][:-1]
+            return bot.msg(chan, "* %s %s" % (nick, new_msg))
 
         return bot.msg(chan, "<%s> %s" % (nick, new_msg))
     except BaseException:
