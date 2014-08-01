@@ -1,0 +1,101 @@
+v5.3.3:
+    - cmodes, the channel mode handler
+    - debug print calls
+    - an unneccessary try except handler
+    - BotManager! (fixes request #76)
+    - Lots and lots of MagicAttributes (fixes request #79)
+    * Edit logger spacing a bit, remove welcome logger
+    + Some property objects.
+
+
+v5.3.2:
+    - Ageme
+    - IMDB
+    - Github stuff
+    - Lisp executor
+    - Reddit plugin
+    - Initializer in issue.py that did nothing
+    - Multiserver stuff (because that will be removed bot-wise too)
+    - Weather
+    - Old wikipedia command
+    - Function class
+    * Change Function class to C Partials
+
+
+v5.3.1:
+    * Make google just a little more beautiful
+    * Make translate prettier
+    * Make urbandictionary prettier
+
+v5.1.0 - 5.3.0:
+    + Dictionary class, currently supporting wiktionary
+    + Styler (does bold, underline, color, but is a bit meh to use)
+    + Add admins in config
+    + CommandCalledEvent
+    + Commands called based on regex (this is ugly, just like everything in the commandhandler)
+    + Add a terrible bot handler, which was a bad idea, and should be removed later (does multibot stuff)
+    + get_doc, the best function of all time.
+    + badword, the best plugin - of all time.
+
+    * Fix tracebacks in the interpreter, add cute output [such x so y]
+    * different url shortener, which is v.gd, 2 chars shorter than bit.ly ;;>
+    * Fixed bug where \r in sed could compromise security
+    * Change google command to accept a number of search results, not just one.
+
+    - bin.py - binary conversion
+    - fortune.py - fortune telling (haha)
+    - CONFIG global variable
+    - Google Dictionary (it was shut down anyway)
+
+
+v5.0.0:
+    - ASCII OSError
+    + cmd.disabled - posts disabled commands
+    + plugin reloading - use #plugin.reload (fixes #53)
+
+v5.0.0b2:
+    + github.get_issues
+    + github.close_issue
+    * Turn event dict into a DotDict
+    * Turn event handler set into a HandlerSet (basically a dotdict for function names)
+    + MODE handler - sets self.state.nick.
+    + Add HandlerSet object.
+    * Make it possible to flush the interpreter buffer
+
+v5.0.0b1:
+    * Turn even more ''s into ""s
+    * Add more whitespace :P
+    + Disable or enable commands in a specific channel (cmd.disabled!, cmd.disabled?, cmd.disabled-)
+    + Added possibility to check whether a plugin has been loaded
+    * Remove unneccessary imports
+    + Make eval use lineify (I don't use that function often enough do I?)
+
+v5.0.0a2:
+    * Except exceptions in command thread
+    * Sync users between channels (issue #66)
+    * Cleaned up changenick handler in bot.py
+    * Change __repr__ function of user object
+    + UserChannels Magic Attribute (woo circularly referenced data structures!)
+    + Add __repr__ function of James object
+    + FancySet object
+    + Central user dict (like messages dict) (has to do with #66 too)
+    * Turned sstate.admins and sstate.muted into FancySet objects
+
+v5.0.0a1:
+    + User object
+    + UserDict object
+    * Fix up names handler in bot.py
+    + Thread commands
+    + Add a couple of magic attributes
+
+v4.6.6:
+    * alphabetically ordered bot.py
+    + changelog
+    + Channels are now logged (make sure the nick in config.json is correct!)
+    * When nick is changed, update <ServerState instance at 0x<hex>>.nick
+    * Fix ageme except Exception as e -> except BaseException as e
+    * Make it possible to create an issue without a body
+    * Give events a better __repr__()
+    * turn all 's into "s (in progress)
+    
+    

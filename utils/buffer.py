@@ -15,8 +15,11 @@ class Buffer(object):
 
     def __next__(self):
         if "\n" not in self.buffer:
+            # There is no next line.
             raise StopIteration
         else:
+            # There is a line in the buffer.
+            # Get the data and assign the rest back to the buffer.
             data, self.buffer = tuple(self.buffer.split("\n", 1))
             return data.rstrip()
 
