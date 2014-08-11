@@ -18,6 +18,7 @@ class IRCHandler(object):
     def __init__(self, bconfig, verbose=False):
         globals()["CONFIG"] = bconfig
         self.sock = socket.socket()
+        self.sockfile = None
         self.verbose = verbose
         self.running = True
         self.buff = Buffer()
@@ -42,15 +43,12 @@ class IRCHandler(object):
         try:
             while self.running:
                 if loops != 0:
-                    try:
-                        self.buff.append(self.sock.recv(4096).decode("utf-8"))
-                    except UnicodeDecodeError:
-                        traceback.print_exc()
-                        try:
-                            self.buff.append(self.sock.recv(4096).decode("utf-16"))
-                        except:
-                            traceback.print_exc()
+                    data = self.sockfile.readline().decode('utf-8', errors='ignore')
+                    if not data:
+                        self.running = False
+                    self.buff.append(data)
                 else:
+                    self.sockfile = self.sock.makefile("rb")
                     self.sendnick()
                     self.senduser()
 
@@ -82,7 +80,6 @@ class IRCHandler(object):
             if self.verbose:
                 print("<<< "+msg)
             self.sock.send((msg+newline).encode("utf-8"))
-            time.sleep(.01)
 
     def try_to_call(self, function, namespace=None, args=None, unpack=True):
         """ Try to call a function. """

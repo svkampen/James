@@ -23,6 +23,11 @@ def command_categories(bot):
     output = "What category do you want? (%s)" % (", ".join(categories))
     return output
 
+@command("rfc", category="misc")
+def rfcs(bot, nick, chan, arg):
+    """ rfc -> send the two IRC rfcs """
+    bot.msg(chan, "http://tools.ietf.org/html/rfc1459.html\nhttp://tools.ietf.org/html/rfc2812.html")
+
 @command("restart", category="standard")
 def restart_bot(bot, nick, chan, arg):
     """ restart -> restart the bot """
