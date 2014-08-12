@@ -9,7 +9,7 @@ def plugin_init(bot):
 def show_plugins(bot, nick, chan, arg):
     """ plugins -> print the number of plugins currently loaded. """
     plugins = len(bot.cmdhandler.loaded_plugins)
-    out =  bot.style.color("Module Manager" + box["vert"], color="pink")
+    out =  bot.hicolor("Module Manager" + box["vert"])
     out += bot.style.color(" %d plugins loaded" % (plugins), color="silver")
     bot.msg(chan, out)
 

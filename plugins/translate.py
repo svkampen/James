@@ -33,7 +33,7 @@ def translate(bot, nick, chan, arg):
     else:
         text =  data["responseData"]["translatedText"]
         text = unescape(text)
-        bot.msg(chan, "\x0313%s\x0302 ⟶ \x0314%s" % (word, text))
+        bot.msg(chan, "%s\x0302 ⟶  %s" % (bot.hicolor(word), bot.defaultcolor(text)))
 
 @command("translate.add", category="language", re="(.+?) = (.+?) from (\S+) to (\S+)")
 def translate_add(bot, nick, chan, arg):
