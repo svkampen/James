@@ -126,7 +126,7 @@ def load_plugin(bot, nick, chan, arg):
         if not s:
             bot.msg(chan, "%s: plugin already loaded!" % (nick))
         else:
-            bot.msg(chan, "%s: loaded plugin %s" % (nick, s.__name__))
+            bot.msg(chan, "%s: loaded plugin %s" % (nick, bot.hicolor(s.__name__)))
     except ImportError:
         bot.msg(chan, "%s: Nonexistant plugin!" % (nick))
 

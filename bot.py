@@ -43,6 +43,7 @@ class James(IRCHandler):
         self.manager = None
         self.style = Styler()
         self.defaultcolor = p(self.style.color, color="grey")
+        self.hicolor = p(self.style.color, color="pink")
 
         # event stuff
         self.state.events.update({list(i.keys())[0]: Event(list(i.values())[0])

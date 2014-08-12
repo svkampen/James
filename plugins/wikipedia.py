@@ -53,7 +53,7 @@ def wikipedia_get(bot, nick, chan, arg):
     htmlurl = url % term
 
     for i in soup.find_all('b'):
-        i.string = "\x0313%s\x0314" % (i.string)
+        i.string = "%s\x0314" % (bot.hicolor(i.string))
     
     if soup.find("table", id="disambigbox") is not None:
         bot.msg(chan, "%s (%s) points to a disambiguation page." % (arg, shorten(htmlurl)))

@@ -42,9 +42,9 @@ def urban_lookup(bot, nick, chan, arg):
     defs = data["list"]
 
     if data["result_type"] == "no_results":
-        return bot.msg(chan, "\x0314No results for %s\x0314 found, sorry." % (bot.style.color(params["term"], color='pink')))
+        return bot.msg(chan, "\x0314No results for %s\x0314 found, sorry." % (bot.hicolor(params["term"])))
 
-    output = ("%s%s %s" % (bot.style.color(defs[index]["word"], color="pink"), sign, bot.style.color(defs[index]["definition"], color="grey"))).strip()
+    output = ("%s%s %s" % (bot.hicolor(defs[index]["word"]), sign, bot.style.color(defs[index]["definition"], color="grey"))).strip()
     output = " ".join(output.split('\n'))
 
 
