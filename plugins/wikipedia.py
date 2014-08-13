@@ -29,7 +29,7 @@ def initialize_plugin(irc_bot):
 
 @command("wiki", category="internet")
 def wikipedia_get(bot, nick, chan, arg):
-    """ wiki *args -> Get the first two sentences in *args' wikipedia article. """
+    """ wiki <page> -> Get the first two sentences in a wikipedia article. """
     print(time.time())
     if not arg:
         return bot.msg(chan, get_doc())
