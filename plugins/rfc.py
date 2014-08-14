@@ -50,8 +50,12 @@ def rfcmatch(bot, nick, chan, arg):
         n = 1
     matches = fmatch(arg, nmatches=2)
     mmatches = fmatch(arg+' message', nmatches=2)
-    combined = sorted(matches+mmatches, key=lambda x: -x[1])
-    return [bot.msg(chan, "%s -> %s" % (bot.hicolor(i[0]), rfcdata[i[0]])) for i in combined[:n]]
+    for i in mmatches:
+        matcher.set_seqs(arg, i[0].rsplit(" ", 1)[0])
+        if matcher.ratio() > 0.5:
+            matches.append(i)
+    matches.sort(key=lambda x: -x[1])
+    return [bot.msg(chan, "%s -> %s" % (bot.hicolor(i[0]), rfcdata[i[0]])) for i in matches[:n]]
 
 @command('rfc.num', 'rfc.numeric', category='rfc')
 def rfcnum(bot, nick, chan, arg):
