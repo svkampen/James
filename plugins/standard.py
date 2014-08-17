@@ -136,30 +136,3 @@ def unload_plugin(bot, nick, chan, arg):
         bot.msg(chan, "%s: plugin not loaded!" % (nick))
     else:
         bot.msg(chan, "%s: unloaded plugin %s" % (nick, arg))
-
-
-@require_admin
-@command("event.disable_handler", category="meta")
-def disable_event_handler(bot, nick, chan, arg):
-    """ event.disable_handler <event>.<handler.__name__> -> disable handler for event. """
-    if not arg:
-        bot.msg(chan, get_doc())
-    event, handler = arg.split(".")
-    e = bot.state.events[event]
-    if not e.handlers.disable(handler):
-        bot.msg(chan, "Something went wrong while trying to disable %s" % (arg))
-    else:
-        bot.msg(chan, "Handler %s disabled." % (arg))
-
-@require_admin
-@command("event.enable_handler", category="meta")
-def enable_event_handler(bot, nick, chan, arg):
-    """ event.enable_handler <event>.<handler.__name__> -> enable handler for event. """
-    if not arg:
-        return bot.msg(chan, get_doc())
-    event, handler = arg.split(".")
-    e = bot.state.events[event]
-    if not e.handlers.enable(handler):
-        bot.msg(chan, "Something went wrong while trying to re-enable %s" % (arg))
-    else:
-        bot.msg(chan, "Handler %s re-enabled." % (arg))
