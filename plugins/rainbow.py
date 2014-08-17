@@ -42,11 +42,6 @@ penisbird = r"""
           |/  \|
 """
 
-@initializer
-def init_plugin(bot):
-    global penisbird
-    bot.state.data["penisbird"] = penisbird
-
 def rainbow_char(item):
     global count
     global colors
@@ -75,6 +70,11 @@ def rainbow(arg):
     count = 0
     return output
 
+@initializer
+def init_plugin(bot):
+    global penisbird
+    bot.state.data["penisbird"] = penisbird
+    bot.state.data["rainbow"] = rainbow
 
 @command("rainbow", category="misc")
 def rainbowify(bot, nick, chan, arg):

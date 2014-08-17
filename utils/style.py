@@ -5,6 +5,7 @@ Style module
 import re
 import inspect
 import random
+from plugins import rainbow
 
 colors = {
     'white'  : '00',
@@ -37,6 +38,9 @@ class Styler(object):
 
     def underline(self, string):
         return "\x1F%s\x1F" % (string)
+
+    def rainbow(self, string):
+        return rainbow.rainbow(re.sub("\x03\d{2}", "", string, count=0))
 
 
     def overline(self, text):

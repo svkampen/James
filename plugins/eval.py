@@ -27,7 +27,7 @@ class IRCterpreter(code.InteractiveConsole):
         if not match:
             return traceback
         exc_name, exc_args = match.groups()
-        out = "⌜ \x02\x03such \x034%s \x03so \x034%s\x03\x02 ⌟" % (
+        out = "⌜ \x02\x03such \x0304%s \x03so \x0304%s\x03\x02 ⌟" % (
             exc_name, exc_args)
         return out
 
