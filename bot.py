@@ -245,9 +245,6 @@ class James(IRCHandler):
 
         self.state.events["MessageEvent"].fire(self, nick, chan, msg)
 
-        if self.config["sed-enabled"]:
-            utils.parse.sed(self, nick, chan, msg)
-
         self._check_for_command(msg, nick, chan)
         self._check_for_re_command(msg, nick, chan)
 
