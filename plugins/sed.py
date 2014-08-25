@@ -149,7 +149,7 @@ def get_tr_message(bot, qual, nick, chan):
     return ""
 
 def get_sub_message(bot, sub, nick, chan):
-    target = sub.target or nick
+    target = sub.target.lower() or nick
 
     if not target in bot.state.messages:
         return ""

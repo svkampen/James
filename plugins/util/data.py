@@ -9,6 +9,16 @@ from types import FunctionType
 import math
 import re
 
+def zalgify(string):
+    return ''.join(i+''.join(random.sample(zalgo, 10)) if i != ' ' else i for i in string)
+
+try:
+    zalgo = list(open('data/zalgo.data', 'r').read().strip())
+except:
+    del zalgify
+    
+
+
 def sugar(arg):
     arg = arg.replace("ssalc", "")
     arg = arg.replace("fed", "")
