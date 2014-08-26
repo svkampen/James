@@ -1,5 +1,4 @@
 from .util.decorators import command, initializer, require_admin
-from plugins.tr import tr
 import itertools
 import re
 import codecs
@@ -149,7 +148,7 @@ def get_tr_message(bot, qual, nick, chan):
     return ""
 
 def get_sub_message(bot, sub, nick, chan):
-    target = sub.target.lower() or nick
+    target = nick
 
     if not target in bot.state.messages:
         return ""
