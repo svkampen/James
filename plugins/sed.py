@@ -1,5 +1,4 @@
 from .util.decorators import command, initializer, require_admin
-from plugins.tr import tr
 import itertools
 import re
 import codecs
