@@ -17,6 +17,8 @@ def urban_lookup(bot, nick, chan, arg):
     url = "http://www.urbandictionary.com/iphone/search/define"
     args = arg.split()
     params = {"term": " ".join(args[:-1])}
+    if arg.lower() == 'recursion':
+        raise RuntimeError("maximum recursion depth exceeded")
     index = 0
     try:
         index = int(args[-1]) - 1
