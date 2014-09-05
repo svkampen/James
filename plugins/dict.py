@@ -48,4 +48,4 @@ def dict_lookup(bot, nick, chan, arg):
         defs = dicts["default"].get(arg)
     defs = list(defs)[:5]
     for n, i in enumerate(defs):
-        bot.msg(chan, "%d. \x0314%s" % (n+1, i))
+        bot.msg(chan, "%s \x0314%s" % (bot.hicolor(str(n+1)+"."), i))

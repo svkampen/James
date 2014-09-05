@@ -43,6 +43,7 @@ class James(IRCHandler):
         self.manager = None
         self.style = Styler()
         self.defaultcolor = p(self.style.color, color="grey")
+        self.hicolor = p(self.style.color, color="pink")
 
         # event stuff
         self.state.events.update({list(i.keys())[0]: Event(list(i.values())[0])
@@ -67,7 +68,7 @@ class James(IRCHandler):
 
     def _msg(self, chan, msg):
         """ _msg(string chan, string msg) - Sends a PRIVMSG. """
-        msg = str(msg).replace("\r", "")
+        msg = str(msg).replace("\r", "").replace("\x07", "")
         if "\n" in msg:
             for item in msg.split("\n"):
                 self._msg(chan, item)
@@ -161,6 +162,7 @@ class James(IRCHandler):
     def msg(self, chan, msg):
         """ msg(string chan, string msg) - Sends a PRIVMSG. """
         msg = msg.strip('\r')
+        msg = msg.strip(' ')
         if self.defaultcolor:
             msg = '\n'.join(self.defaultcolor(i) for i in msg.split('\n'))
         self._msg(chan, msg)
@@ -242,9 +244,6 @@ class James(IRCHandler):
         msg = msg["arg"].split(":", 1)[1]  # get msg
 
         self.state.events["MessageEvent"].fire(self, nick, chan, msg)
-
-        if self.config["sed-enabled"]:
-            utils.parse.sed(self, nick, chan, msg)
 
         self._check_for_command(msg, nick, chan)
         self._check_for_re_command(msg, nick, chan)

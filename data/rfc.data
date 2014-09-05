@@ -1,0 +1,83 @@
+http://tools.ietf.org/html/rfc2812.html#section-1 Labels
+http://tools.ietf.org/html/rfc2812.html#section-1.1 Servers
+http://tools.ietf.org/html/rfc2812.html#section-1.2 Clients
+http://tools.ietf.org/html/rfc2812.html#section-1.2.1 Users
+http://tools.ietf.org/html/rfc2812.html#section-1.2.1.1 Operators
+http://tools.ietf.org/html/rfc2812.html#section-1.2.2 Services
+http://tools.ietf.org/html/rfc2812.html#section-1.3 Channels
+http://tools.ietf.org/html/rfc2812.html#section-2 The IRC Client Specification
+http://tools.ietf.org/html/rfc2812.html#section-2.1 Overview
+http://tools.ietf.org/html/rfc2812.html#section-2.2 Character codes
+http://tools.ietf.org/html/rfc2812.html#section-2.3 Messages
+http://tools.ietf.org/html/rfc2812.html#section-2.3.1 Message format in Augmented BNF
+http://tools.ietf.org/html/rfc2812.html#section-2.4 Numeric replies
+http://tools.ietf.org/html/rfc2812.html#section-2.5 Wildcard expressions
+http://tools.ietf.org/html/rfc2812.html#section-3 Message Details
+http://tools.ietf.org/html/rfc2812.html#section-3.1 Connection Registration
+http://tools.ietf.org/html/rfc2812.html#section-3.1.1 Password message
+http://tools.ietf.org/html/rfc2812.html#section-3.1.2 Nick message
+http://tools.ietf.org/html/rfc2812.html#section-3.1.3 User message
+http://tools.ietf.org/html/rfc2812.html#section-3.1.4 Oper message
+http://tools.ietf.org/html/rfc2812.html#section-3.1.5 User mode message
+http://tools.ietf.org/html/rfc2812.html#section-3.1.6 Service message
+http://tools.ietf.org/html/rfc2812.html#section-3.1.7 Quit
+http://tools.ietf.org/html/rfc2812.html#section-3.1.8 Squit
+http://tools.ietf.org/html/rfc2812.html#section-3.2 Channel operations
+http://tools.ietf.org/html/rfc2812.html#section-3.2.1 Join message
+http://tools.ietf.org/html/rfc2812.html#section-3.2.2 Part message
+http://tools.ietf.org/html/rfc2812.html#section-3.2.3 Channel mode message
+http://tools.ietf.org/html/rfc2812.html#section-3.2.4 Topic message
+http://tools.ietf.org/html/rfc2812.html#section-3.2.5 Names message
+http://tools.ietf.org/html/rfc2812.html#section-3.2.6 List message
+http://tools.ietf.org/html/rfc2812.html#section-3.2.7 Invite message
+http://tools.ietf.org/html/rfc2812.html#section-3.2.8 Kick command
+http://tools.ietf.org/html/rfc2812.html#section-3.3 Sending messages
+http://tools.ietf.org/html/rfc2812.html#section-3.3.1 Private messages
+http://tools.ietf.org/html/rfc2812.html#section-3.3.2 Notice
+http://tools.ietf.org/html/rfc2812.html#section-3.4 Server queries and commands
+http://tools.ietf.org/html/rfc2812.html#section-3.4.1 Motd message
+http://tools.ietf.org/html/rfc2812.html#section-3.4.2 Lusers message
+http://tools.ietf.org/html/rfc2812.html#section-3.4.3 Version message
+http://tools.ietf.org/html/rfc2812.html#section-3.4.4 Stats message
+http://tools.ietf.org/html/rfc2812.html#section-3.4.5 Links message
+http://tools.ietf.org/html/rfc2812.html#section-3.4.6 Time message
+http://tools.ietf.org/html/rfc2812.html#section-3.4.7 Connect message
+http://tools.ietf.org/html/rfc2812.html#section-3.4.8 Trace message
+http://tools.ietf.org/html/rfc2812.html#section-3.4.9 Admin command
+http://tools.ietf.org/html/rfc2812.html#section-3.4.10 <a href="#page-31">31</a>
+http://tools.ietf.org/html/rfc2812.html#section-3.5 Service Query and Commands
+http://tools.ietf.org/html/rfc2812.html#section-3.5.1 Servlist message
+http://tools.ietf.org/html/rfc2812.html#section-3.5.2 Squery
+http://tools.ietf.org/html/rfc2812.html#section-3.6 User based queries
+http://tools.ietf.org/html/rfc2812.html#section-3.6.1 Who query
+http://tools.ietf.org/html/rfc2812.html#section-3.6.2 Whois query
+http://tools.ietf.org/html/rfc2812.html#section-3.6.3 Whowas
+http://tools.ietf.org/html/rfc2812.html#section-3.7 Miscellaneous messages
+http://tools.ietf.org/html/rfc2812.html#section-3.7.1 Kill message
+http://tools.ietf.org/html/rfc2812.html#section-3.7.2 Ping message
+http://tools.ietf.org/html/rfc2812.html#section-3.7.3 Pong message
+http://tools.ietf.org/html/rfc2812.html#section-3.7.4 Error
+http://tools.ietf.org/html/rfc2812.html#section-4 Optional features
+http://tools.ietf.org/html/rfc2812.html#section-4.1 Away
+http://tools.ietf.org/html/rfc2812.html#section-4.2 Rehash message
+http://tools.ietf.org/html/rfc2812.html#section-4.3 Die message
+http://tools.ietf.org/html/rfc2812.html#section-4.4 Restart message
+http://tools.ietf.org/html/rfc2812.html#section-4.5 Summon message
+http://tools.ietf.org/html/rfc2812.html#section-4.6 Users
+http://tools.ietf.org/html/rfc2812.html#section-4.7 Operwall message
+http://tools.ietf.org/html/rfc2812.html#section-4.8 Userhost message
+http://tools.ietf.org/html/rfc2812.html#section-4.9 Ison message
+http://tools.ietf.org/html/rfc2812.html#section-5 Replies
+http://tools.ietf.org/html/rfc2812.html#section-5.1 Command responses
+http://tools.ietf.org/html/rfc2812.html#section-5.2 Error Replies
+http://tools.ietf.org/html/rfc2812.html#section-5.3 Reserved numerics
+http://tools.ietf.org/html/rfc2812.html#section-6 Current implementations
+http://tools.ietf.org/html/rfc2812.html#section-7 Current problems
+http://tools.ietf.org/html/rfc2812.html#section-7.1 Nicknames
+http://tools.ietf.org/html/rfc2812.html#section-7.2 Limitation of wildcards
+http://tools.ietf.org/html/rfc2812.html#section-7.3 Security considerations
+http://tools.ietf.org/html/rfc2812.html#section-8 Current support and availability
+http://tools.ietf.org/html/rfc2812.html#section-9 Acknowledgements
+http://tools.ietf.org/html/rfc2812.html#section-10 References
+http://tools.ietf.org/html/rfc2812.html#section-11 Author's Address
+http://tools.ietf.org/html/rfc2812.html#section-12 Full Copyright Statement

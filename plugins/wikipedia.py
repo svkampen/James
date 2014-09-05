@@ -28,8 +28,8 @@ def initialize_plugin(irc_bot):
     bot.state.data["wiki_dict"] = {}
 
 @command("wiki", category="internet")
-def wikipedia_get(bot, nick, chan, arg):
-    """ wiki *args -> Get the first two sentences in *args' wikipedia article. """
+def wikipedia_get(bot, nick, chan, arg, root=None):
+    """ wiki <page> -> Get the first two sentences in a wikipedia article. """
     print(time.time())
     if not arg:
         return bot.msg(chan, get_doc())
@@ -39,8 +39,8 @@ def wikipedia_get(bot, nick, chan, arg):
     term = arg.replace(" ", "_")
     term = urlencode(term)
 
-    url = ("http://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=%s&redirects="
-        % (term))
+    url = root or "http://en.wikipedia.org"
+    url += ("/w/api.php?action=parse&format=json&prop=text&page=%s&redirects=" % (term))
 
     response = requests.get(url, headers=headers)
     res = response.json()
@@ -53,7 +53,7 @@ def wikipedia_get(bot, nick, chan, arg):
     htmlurl = url % term
 
     for i in soup.find_all('b'):
-        i.string = "\x0313%s\x0314" % (i.string)
+        i.string = "%s\x0314" % (bot.hicolor(i.text))
     
     if soup.find("table", id="disambigbox") is not None:
         bot.msg(chan, "%s (%s) points to a disambiguation page." % (arg, shorten(htmlurl)))
@@ -112,9 +112,9 @@ def get_ipa(bot, nick, chan, arg):
     bot.msg(chan, output)
     return output
 
-#@command("ed", category="internet")
-#def encyclopedia_dramatica(bot, nick, chan, arg):
-#    """ ed *args -> Get the first two sentences in *args' encyclopedia dramatica article. """
-#    if not arg:
-#        return bot.msg(chan, get_doc())
-#    wikipedia_get(bot, nick, chan, arg, root="https://encyclopediadramatica.es/%s")
+@command("ed", category="internet")
+def encyclopedia_dramatica(bot, nick, chan, arg):
+    """ ed *args -> Get the first two sentences in *args' encyclopedia dramatica article. """
+    if not arg:
+        return bot.msg(chan, get_doc())
+    wikipedia_get(bot, nick, chan, arg, root="https://encyclopediadramatica.es")
