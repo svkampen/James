@@ -161,6 +161,10 @@ class James(IRCHandler):
         super(James, self).gracefully_terminate()
         self.state.events["ShutdownEvent"].fire()
 
+    def invite(self, msg):
+        chan = msg["arg"].split(":", 1)[1]
+        bot._send("JOIN %s" % (chan))
+
     def join(self, msg):
         """ Handles people joining channels """
         user = msg["host"].split("!")[0].strip().lower()
