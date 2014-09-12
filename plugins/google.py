@@ -6,6 +6,7 @@ from .util.data import get_doc
 import requests
 import re
 from html.parser import HTMLParser
+from urllib.request import unquote
 
 def unescape(x):
     return HTMLParser.unescape(None, x)
@@ -36,6 +37,6 @@ def google(bot, nick, chan, arg):
         bot.msg(chan, "%s: No results found." % (nick))
 
     for i in range(0, count):
-        result_url = results[i]["url"]
+        result_url = unquote(unquote(results[i]["url"]))
         result_title = unescape(results[i]["titleNoFormatting"])
         bot.msg(chan, "\x02%s\x02 ⟶ %s" % (bot.style.color(result_title, color="grey"), bot.style.underline(bot.hicolor(result_url))))
