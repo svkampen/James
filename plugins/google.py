@@ -11,7 +11,7 @@ from urllib.request import unquote
 def unescape(x):
     return HTMLParser.unescape(None, x)
 
-@command("google", category="internet")
+@command("google", "g", category="internet")
 def google(bot, nick, chan, arg):
     """ google <arg> -> Return the google result for <arg> """
     if not arg:
