@@ -24,13 +24,16 @@ class Dictionary(object):
         resp = requests.get(self.url % word)
         data = resp.json()
         soup = soupify(data["parse"]["text"]["*"])
-        ol = soup.find("span", {"id": self.language}).findNext("ol")
-        for item in ol.find_all("ul"):
-            item.extract()
-        for item in ol.find_all("div", {"class": "thumbcaption"}):
-            item.extract()
-        definitions = ol.text.strip().split('\n')
-        definitions = filter(None, definitions)
+        try:
+            ol = soup.find("span", {"id": self.language}).findNext("ol")
+            for item in ol.find_all("ul"):
+                item.extract()
+            for item in ol.find_all("div", {"class": "thumbcaption"}):
+                item.extract()
+            definitions = ol.text.strip().split('\n')
+            definitions = filter(None, definitions)
+        except AttributeError:
+            return "No definition found"
         return definitions
 
 dicts["default"] = Dictionary("english")
