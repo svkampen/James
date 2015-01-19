@@ -2,6 +2,7 @@
 Standard functions like quit, part, join, etc.
 """
 from .util.decorators import command, require_admin
+from .util.data import get_doc
 import sys
 import platform
 import time

@@ -61,6 +61,8 @@ class James(IRCHandler):
         self.cmd_thread = HandlerThread(self)
         self.cmd_thread.daemon = True
 
+        self.state.messages["james"] = deque([], MAX_MESSAGE_STORAGE)
+
     def __repr__(self):
         return ("James(server=%r, chans=%s)"
             % (self.config["server"].split(":")[0],
@@ -72,8 +74,19 @@ class James(IRCHandler):
         if "\n" in msg:
             for item in msg.split("\n"):
                 self._msg(chan, item)
+                try:
+                    mesg = utils.message.Message("james", self.state.channels[chan], item)
+                    self.state.messages["james"].appendleft(mesg)
+                except:
+                    pass
         else:
             self._send("PRIVMSG %s :%s" % (chan, msg))
+            try:
+                mesg = utils.message.Message("james", self.state.channels[chan], msg)
+                self.state.messages["james"].appendleft(mesg)
+            except:
+                pass
+
 
     def _check_for_command(self, msg, nick, chan):
         """ Check for a command """
