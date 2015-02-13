@@ -118,7 +118,7 @@ class Substitution(object):
 
 
 def do_sub(bot, nick, chan, msg):
-    if !(bot.getconfig()["sed-enabled"]):
+    if not (bot.getconfig()["sed-enabled"]):
         return
     sub = Substitution(msg)
 
