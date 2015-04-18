@@ -9,9 +9,6 @@ import codecs
 import subprocess
 import sys
 
-#SED_REGEX = re.compile(r"^(?:(\S+)[:,]\s)?(?:(.+?)/)?s/(.+?)/([^/]*)/?([gixs]{0,4})?(?: (.*))?")
-SED_REGEX = re.compile(r"^(?:(\S+)[:,]\s)?(?:s|(.+?)/s)/((?:\\/|[^/])+)\/((?:\\/|[^/])*?)/([gixs]{0,4})?")
-
 def parse(msg):
     """ Parse an IRC protocol message """
     if msg.startswith("PING"):
