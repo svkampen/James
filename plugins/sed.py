@@ -123,6 +123,8 @@ def do_sub(bot, nick, chan, msg):
     if sub.target:
         nick = sub.target
 
+    nick = bot.state.users[nick.lower()].exactnick
+
     message = get_sub_message(bot, sub, nick.lower(), chan)
 
     if not message:
