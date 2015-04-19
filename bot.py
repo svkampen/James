@@ -13,6 +13,7 @@ import plugins
 
 import traceback
 import re
+import ssl
 import sys
 import json
 import threading
@@ -152,6 +153,8 @@ class James(IRCHandler):
     def connect(self):
         """ Connect the bot to the server """
         self.cmd_thread.start()
+        if self.getconfig()["ssl"] == True:
+            self.sock = ssl.wrap_socket(self.sock)
         super().connect()
 
 
