@@ -118,6 +118,8 @@ class Substitution(object):
 
 
 def do_sub(bot, nick, chan, msg):
+    if not (bot.getconfig()["sed-enabled"]):
+        return
     sub = Substitution(msg)
 
     if sub.target:
@@ -131,8 +133,8 @@ def do_sub(bot, nick, chan, msg):
         print(nick.lower(), str(sub))
         return
 
-    new_msg = sub.do(message)
-    if '\x01' in new_msg:
+    new_msg = sub.do(message.msg)
+    if message.is_action:
         new_msg = new_msg.split(" ", 1)[1][:-1]
         return bot.msg(chan, "* %s %s" % (nick, new_msg))
 
@@ -162,10 +164,10 @@ def get_sub_message(bot, sub, nick, chan):
         try:
             if sub.qual:
                 if re.search(sub.re, msg) and re.search(sub.qual, msg) and not SUB_REGEX.match(msg):
-                    return msg
+                    return message
             else:
                 if re.search(sub.re, msg) and not SUB_REGEX.match(msg):
-                    return msg
+                    return message
         except BaseException:
             traceback.print_exc()
     return ""
