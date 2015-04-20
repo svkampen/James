@@ -134,6 +134,11 @@ def do_sub(bot, nick, chan, msg):
         return
 
     new_msg = sub.do(message.msg)
+
+    if '\n' in new_msg:
+        bot.msg(chan, "you guys are all assholes")
+        return
+    
     if message.is_action:
         new_msg = new_msg.split(" ", 1)[1][:-1]
         return bot.msg(chan, "* %s %s" % (nick, new_msg))
