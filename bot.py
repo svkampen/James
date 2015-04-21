@@ -187,6 +187,7 @@ class James(IRCHandler):
         msg = msg.strip('\r')
         msg = msg.strip(' ')
         if self.defaultcolor:
+            msg = self.style.remove_color(msg)
             msg = '\n'.join(self.defaultcolor(i) for i in msg.split('\n'))
         self._msg(chan, msg)
 

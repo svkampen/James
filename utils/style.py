@@ -54,6 +54,10 @@ class Styler(object):
             return "\x03%s,%s%s\x03" % (colors[color], colors[background], text)
         return "\x03%s%s\x03" % (colors[color], text)
 
+    def remove_color(self, data):
+        without_colors = re.sub(r"\x03\d?\d?(?:,\d\d?)?", "", data)
+        return without_colors
+
     def control_reduce(self, data):
         """ Reduce a set of control codes to simplest form. """
         data = data.group(0)
