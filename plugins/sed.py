@@ -140,7 +140,6 @@ def do_sub(bot, nick, chan, msg):
         return
     
     if message.is_action:
-        new_msg = new_msg.split(" ", 1)[1][:-1]
         return bot.msg(chan, "* %s %s" % (nick, new_msg))
 
     return bot.msg(chan, "<%s> %s" % (nick, new_msg))
