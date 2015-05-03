@@ -138,7 +138,7 @@ def do_sub(bot, nick, chan, msg):
     if '\n' in new_msg:
         bot.msg(chan, "you guys are all assholes")
         return
-    
+
     if message.is_action:
         return bot.msg(chan, "* %s %s" % (nick, new_msg))
 
