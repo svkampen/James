@@ -4,13 +4,25 @@ Message object "n stuff
 
 from .channel import Channel
 from datetime import datetime
+import re
+
+ACTION_RE = re.compile(r'\x01ACTION (.+)\x01')
 
 class Message(object):
     def __init__(self, user, chan, msg, timestamp=None):
         self.nick = user
         self.channel = chan
         self.msg = msg
+        self.is_action = False
+
+        match = ACTION_RE.match(msg)
+
+        if (match):
+            self.msg = match.group(1)
+            self.is_action = True
+
         self.timestamp = timestamp or datetime.utcnow()
+
 
     def __call__(self, *args):
         return self.msg

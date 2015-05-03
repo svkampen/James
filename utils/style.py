@@ -7,6 +7,8 @@ import inspect
 import random
 from plugins import rainbow
 
+COLOR_EXTRACT = re.compile("(^|.*?)(\x03...+?)\x0f([^\x03]+|$)")
+
 colors = {
     'white'  : '00',
     'black'  : '01',
@@ -31,7 +33,8 @@ class Styler(object):
     """ A styler """
 
     def sopa(self, string):
-        return (re.sub(r"\S+", lambda m: "\x16%s\x0F" % (" "*len(m.group(0))), string) + " #fightsopa")
+        return (re.sub(r"\S+", lambda m: "\x16%s\x0F" % (" "*len(m.group(0))),
+            string) + " #fightsopa")
 
     def bold(self, string):
         return "\x02%s\x02" % (string)
@@ -51,8 +54,26 @@ class Styler(object):
 
     def color(self, text, color="red", background=None):
         if background:
-            return "\x03%s,%s%s\x03" % (colors[color], colors[background], text)
-        return "\x03%s%s\x03" % (colors[color], text)
+            return "\x03%s,%s%s\x0f" % (colors[color], colors[background], text)
+        return "\x03%s%s\x0f" % (colors[color], text)
+
+    def merge_colors(self, color, message):
+        if not ('\x03' in message):
+            return color(message)
+        
+        output = []
+        
+        parts = COLOR_EXTRACT.findall(message)        
+
+        for (before, colored, after) in parts:
+            if (before):
+                output.append(color(before))
+            output.append(colored)
+            if (after):
+                output.append(color(after))
+        
+        output = self.minify(''.join(output))
+        return output
 
     def control_reduce(self, data):
         """ Reduce a set of control codes to simplest form. """
@@ -131,10 +152,14 @@ class Styler(object):
                     reduced.append("\x03" + ",".join(codes).rstrip(","))
         data = "".join(reduced)
 
+        # Step 2.5. Get rid of codes which cancel each other out
+        data = re.sub(r"\x0f(\x03..)", r"\1", data)
+
         # Step 3. Shorten colour codes.
         # If it has a background and is 2 digits starting with 0
         # the 0 is omitted.
         data = re.sub(r"\x030(\d),", r"\x03\1,", data)
+        
         # If the character following is not a digit, and the adjacent code starts with 0
         # the 0 is omitted.
         data = re.sub(r"(\x03(?:\d?\d?,)?)0(\d[^\d])", r"\1\2", data)

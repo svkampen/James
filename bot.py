@@ -13,6 +13,7 @@ import plugins
 
 import traceback
 import re
+import ssl
 import sys
 import json
 import threading
@@ -61,7 +62,7 @@ class James(IRCHandler):
         self.cmd_thread = HandlerThread(self)
         self.cmd_thread.daemon = True
 
-        self.state.messages["james"] = deque([], MAX_MESSAGE_STORAGE)
+        self.state.messages[self.state.nick] = deque([], MAX_MESSAGE_STORAGE)
 
     def __repr__(self):
         return ("James(server=%r, chans=%s)"
@@ -75,15 +76,15 @@ class James(IRCHandler):
             for item in msg.split("\n"):
                 self._msg(chan, item)
                 try:
-                    mesg = utils.message.Message("james", self.state.channels[chan], item)
-                    self.state.messages["james"].appendleft(mesg)
+                    mesg = utils.message.Message(self.state.nick, self.state.channels[chan], item)
+                    self.state.messages[self.state.nick].appendleft(mesg)
                 except:
                     pass
         else:
             self._send("PRIVMSG %s :%s" % (chan, msg))
             try:
-                mesg = utils.message.Message("james", self.state.channels[chan], msg)
-                self.state.messages["james"].appendleft(mesg)
+                mesg = utils.message.Message(self.state.nick, self.state.channels[chan], msg)
+                self.state.messages[self.state.nick].appendleft(mesg)
             except:
                 pass
 
@@ -141,6 +142,9 @@ class James(IRCHandler):
         """ Turn a message into a CTCP """
         return "\x01%s\x01" % (msg)
 
+    def set_topic(self, channel, topic):
+        return self._send("TOPIC %s :%s" % (channel, topic))
+
     def mode(self, msg):
         """ Handle MODE. """
         if not msg["arg"].startswith("#"):
@@ -156,6 +160,8 @@ class James(IRCHandler):
     def connect(self):
         """ Connect the bot to the server """
         self.cmd_thread.start()
+        if self.getconfig()["ssl"] == True:
+            self.sock = ssl.wrap_socket(self.sock)
         super().connect()
 
     def getconfig(self):
@@ -186,8 +192,10 @@ class James(IRCHandler):
         """ msg(string chan, string msg) - Sends a PRIVMSG. """
         msg = msg.strip('\r')
         msg = msg.strip(' ')
-        if self.defaultcolor:
-            msg = '\n'.join(self.defaultcolor(i) for i in msg.split('\n'))
+        lines = [self.style.merge_colors(self.defaultcolor, line) for line in msg.split('\n')]
+        for i in lines:
+            print("%r" % (i))
+        msg = '\n'.join(lines)
         self._msg(chan, msg)
 
     def names(self, msg):

@@ -11,3 +11,4 @@ config.json
 config.json.znc
 fapdb
 mi.py
+*.swp
