@@ -151,8 +151,10 @@ class James(IRCHandler):
             self.state.nick = msg["arg"].split(" ", 1)[0]
 
     def newtopic(self, msg):
-        chan, topic = msg["arg"].split(" ")
+        nick, chan, topic = msg["arg"].split(" ", 2)
         topic = topic[1:]
+        print(chan)
+        print(topic)
         self.state.channels.add(chan)
 
         self.state.channels[chan].topic = topic

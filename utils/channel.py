@@ -72,6 +72,7 @@ class Channel(object):
         self.disabled_commands = set()
         self.users = UserDict()
         self.state = bot.state
+        self.topic = ""
 
     def add_user(self, user):
         assert user == user.lower(), "User is passed as lowercase."
