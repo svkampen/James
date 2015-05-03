@@ -146,11 +146,17 @@ class James(IRCHandler):
         if not msg["arg"].startswith("#"):
             self.state.nick = msg["arg"].split(" ", 1)[0]
 
+    def newtopic(self, msg):
+        chan, topic = msg["arg"].split(" ")
+        topic = topic[1:]
+        self.state.channels.add(chan)
+
+        self.state.channels[chan].topic = topic
+
     def connect(self):
         """ Connect the bot to the server """
         self.cmd_thread.start()
         super().connect()
-
 
     def getconfig(self):
         """ Get the botconfig from another module """
@@ -197,11 +203,7 @@ class James(IRCHandler):
             + [u[1:] for u in users if u[:1] in modes])
 
         channel = self.state.channels.get(chan, False)
-        if channel:
-            channel.update_users(users)
-        else:
-            self.state.channels.add(chan)
-            self.state.channels[chan].update_users(users)
+        channel.update_users(users)
 
     def notice(self, msg):
         """ Handle notices """

@@ -117,4 +117,4 @@ def encyclopedia_dramatica(bot, nick, chan, arg):
     """ ed *args -> Get the first two sentences in *args' encyclopedia dramatica article. """
     if not arg:
         return bot.msg(chan, get_doc())
-    wikipedia_get(bot, nick, chan, arg, root="https://encyclopediadramatica.es")
+    wikipedia_get(bot, nick, chan, arg, root="http://uncyclopedia.org")

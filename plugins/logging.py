@@ -76,7 +76,7 @@ def logger(*args, **kwargs):
 
     try:
         logfile.flush()
-        os.fsync(logfile) 
+        os.fsync(logfile)
     except ValueError:
         pass
 
