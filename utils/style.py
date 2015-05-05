@@ -7,7 +7,14 @@ import inspect
 import random
 from plugins import rainbow
 
-COLOR_EXTRACT = re.compile("(^|.*?)(\x03...+?)\x0f([^\x03]+|$)")
+COLOR_EXTRACT = re.compile("""(^|.*?) # start of sentence or some stuff preceding the color code
+                            (\x03   # color code identifier
+                                (?:\d\D|\d{2}) # either a digit and a non-digit (such as 034a) or two digits (0304...)
+                             .+?) # colored text
+                            (?:\x0f|\x03|$) # either \x0f, \x03, or the end of the line
+                            ([^\d\x03]+|$) # either a couple non-digits and non-\x03
+                                           # (because this \x03 should not be a color code), or EOL""", re.X)
+
 
 colors = {
     'white'  : '00',
@@ -58,12 +65,14 @@ class Styler(object):
         return "\x03%s%s\x0f" % (colors[color], text)
 
     def merge_colors(self, color, message):
+        print(repr(message))
         if not ('\x03' in message):
             return color(message)
-        
+
         output = []
-        
-        parts = COLOR_EXTRACT.findall(message)        
+
+        parts = COLOR_EXTRACT.findall(message)
+        print(repr(parts))
 
         for (before, colored, after) in parts:
             if (before):
@@ -71,7 +80,7 @@ class Styler(object):
             output.append(colored)
             if (after):
                 output.append(color(after))
-        
+
         output = self.minify(''.join(output))
         return output
 
@@ -159,7 +168,7 @@ class Styler(object):
         # If it has a background and is 2 digits starting with 0
         # the 0 is omitted.
         data = re.sub(r"\x030(\d),", r"\x03\1,", data)
-        
+
         # If the character following is not a digit, and the adjacent code starts with 0
         # the 0 is omitted.
         data = re.sub(r"(\x03(?:\d?\d?,)?)0(\d[^\d])", r"\1\2", data)
