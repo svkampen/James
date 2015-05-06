@@ -11,6 +11,12 @@ string.ascii = [chr(i) for i in range(128)]
 SUB_REGEX = re.compile(r"^(?:(\S+)[:,]\s)?(?:s|(.+?)/s)/((?:\\/|[^/])+)\/((?:\\/|[^/])*?)/([gixs]{0,4})?")
 TRANS_REGEX = re.compile(r"^(?:(\S+)[:,]\s)?(?:y|(.+?)/y)/((?:\\/|[^/])+)\/((?:\\/|[^/])*?)/([cds]+)?")
 
+@command('topicsed', category="meta")
+def sed_topic(bot, nick, chan, args):
+    s = Substitution(args)
+    sub = s.do(bot.state.channels[chan].topic)
+    bot.set_topic(chan, sub)
+
 def sed(bot, nick, chan, msg):
     if not SUB_REGEX.match(msg) and not TRANS_REGEX.match(msg):
         return # this isn't a sed message
