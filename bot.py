@@ -143,6 +143,7 @@ class James(IRCHandler):
         return "\x01%s\x01" % (msg)
 
     def set_topic(self, channel, topic):
+        self.state.channels[channel].topic = topic
         return self._send("TOPIC %s :%s" % (channel, topic))
 
     def mode(self, msg):
