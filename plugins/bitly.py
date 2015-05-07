@@ -1,5 +1,5 @@
 """
-Bit.ly plugin for James.three
+Bit.ly plugin for James
 """
 import requests
 import re
@@ -10,8 +10,6 @@ def _shorten(bot, url):
     """ Shorten an url with bit.ly """
     login = bot.state.apikeys["bit.ly"]["user"]
     key = bot.state.apikeys["bit.ly"]["key"]
-    if not url or not re.match(r"^((https?)?...)(\S+)\.([A-z]+).?[A-z]*", url):
-        return "Usage: bitly <VALID url>"
     if not re.match(r"^(https?)\://.+", url):
         url = "http://" + url
 
@@ -30,3 +28,8 @@ def bitly(bot, nick, chan, arg):
         return bot.msg(chan, get_doc())
     url = _shorten(bot, arg)
     bot._msg(chan, url)
+
+@initializer
+def plugin_initializer(bot):
+    """ Initialize this plugin. """
+    bot.state.data["shortener"] = _shorten

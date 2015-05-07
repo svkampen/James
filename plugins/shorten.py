@@ -19,4 +19,5 @@ def _shorten(bot, url):
 @initializer
 def plugin_initializer(bot):
     """ Initialize this plugin. """
-    bot.state.data["shortener"] = _shorten
+    # bot.state.data["shortener"] = _shorten
+    pass
