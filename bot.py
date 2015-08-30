@@ -313,7 +313,10 @@ class James(IRCHandler):
         chan = msg["arg"].split()[0].lower()
         channel = self.state.channels.get(chan, False)
         if channel:
-            channel.remove_user(nick)
+            try:
+                channel.remove_user(nick)
+            except:
+                traceback.print_exc()
         self.state.events["KickEvent"].fire(self, nick, chan)
 
     @IRCCallback("376", "422") # ENDOFMOTD or NOMOTD
