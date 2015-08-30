@@ -13,3 +13,9 @@ def startinfo(*args):
             return funct(*args, **kwargs)
         return wrapper
     return decorator
+
+def IRCCallback(*hooks):
+    def decorator(funct):
+        funct._callbackhooks = hooks
+        return funct
+    return decorator

@@ -146,11 +146,13 @@ class James(IRCHandler):
         self.state.channels[channel].topic = topic
         return self._send("TOPIC %s :%s" % (channel, topic))
 
+    @IRCCallback("MODE")
     def mode(self, msg):
         """ Handle MODE. """
         if not msg["arg"].startswith("#"):
             self.state.nick = msg["arg"].split(" ", 1)[0]
 
+    @IRCCallback("332") # RPL_TOPIC
     def newtopic(self, msg):
         nick, chan, topic = msg["arg"].split(" ", 2)
         topic = topic[1:]
@@ -176,10 +178,12 @@ class James(IRCHandler):
         super(James, self).gracefully_terminate()
         self.state.events["ShutdownEvent"].fire()
 
+    @IRCCallback("INVITE")
     def invite(self, msg):
         chan = msg["arg"].split(":", 1)[1]
         bot._send("JOIN %s" % (chan))
 
+    @IRCCallback("JOIN")
     def join(self, msg):
         """ Handles people joining channels """
         user = msg["host"].split("!")[0].strip().lower()
@@ -201,6 +205,7 @@ class James(IRCHandler):
         msg = '\n'.join(lines)
         self._msg(chan, msg)
 
+    @IRCCallback("353") # RPL_NAMREPLY
     def names(self, msg):
         """ Executed on NAMES reply """
         chantype = re.match(r"(=|@|\*).*", msg["arg"].split(" ", 1)[1])
@@ -216,6 +221,7 @@ class James(IRCHandler):
         channel = self.state.channels.get(chan, False)
         channel.update_users(users)
 
+    @IRCCallback("NOTICE")
     def notice(self, msg):
         """ Handle notices """
         actualargs = msg["arg"].split(" ", 1)[1][1:]
@@ -223,6 +229,7 @@ class James(IRCHandler):
         self.state.notices.append({"sender": sender, "message": actualargs})
         self.state.events["NoticeEvent"].fire(self, sender, actualargs)
 
+    @IRCCallback("NICK")
     def nick(self, msg):
         """ Handles nickchanges """
         oldnick = msg["host"].split("!")[0].lower()
@@ -244,7 +251,7 @@ class James(IRCHandler):
             self.state.users[newnick] = self.state.users[oldnick]
             del self.state.users[oldnick]
 
-
+    @IRCCallback("PART")
     def part(self, msg):
         """ Handles people parting channels. """
         channel = msg["arg"].split()[0].strip().lower()
@@ -256,6 +263,7 @@ class James(IRCHandler):
         except BaseException:
             traceback.print_exc()
 
+    @IRCCallback("PRIVMSG")
     def privmsg(self, msg):
         """ Handles messages. """
         # Split msg into parts
@@ -289,6 +297,7 @@ class James(IRCHandler):
         except:
             traceback.print_exc()
 
+    @IRCCallback("QUIT")
     def quit(self, msg):
         """ Handles quits. """
         nick = msg["host"].split("!")[0].lower()
@@ -297,6 +306,7 @@ class James(IRCHandler):
         if self.state.users.get(nick, False):
             del self.state.users[nick]
 
+    @IRCCallback("KICK")
     def kick(self, msg):
         """ Handles kicks. """
         nick = msg["arg"].split()[1].lower()
@@ -306,6 +316,7 @@ class James(IRCHandler):
             channel.remove_user(nick)
         self.state.events["KickEvent"].fire(self, nick, chan)
 
+    @IRCCallback("376", "422") # ENDOFMOTD or NOMOTD
     def welcome(self, *args):
         """ welcome(msg) - handles on-login actions """
         if self.config["ident_pass"]:
