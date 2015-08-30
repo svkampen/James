@@ -42,17 +42,16 @@ class IRCHandler(object):
     def mainloop(self):
         """ The main loop. """
         loops = 0
+        self.sockfile = self.sock.makefile("rb")
+        self.sendnick()
+        self.senduser()
+
         try:
             while self.running:
-                if loops != 0:
-                    data = self.sockfile.readline().decode('utf-8', errors='ignore')
-                    if not data:
-                        self.running = False
-                    self.buff.append(data)
-                else:
-                    self.sockfile = self.sock.makefile("rb")
-                    self.sendnick()
-                    self.senduser()
+                data = self.sockfile.readline().decode('utf-8', errors='ignore')
+                if not data:
+                    self.running = False
+                self.buff.append(data)
 
                 for msg in self.buff:
                     if self.verbose:
@@ -63,7 +62,6 @@ class IRCHandler(object):
                     else:
                         self.run_callback(pmsg["method"], pmsg)
 
-                loops += 1
         except KeyboardInterrupt:
             sys.exit()
 
