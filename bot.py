@@ -62,6 +62,7 @@ class James(IRCHandler):
         self.cmd_thread.daemon = True
 
         self.state.messages[self.state.nick] = deque([], MAX_MESSAGE_STORAGE)
+        self.register_callbacks()
 
     def __repr__(self):
         return ("James(server=%r, chans=%s)"

@@ -3,6 +3,8 @@ IRC API - irc.py
 """
 
 import sys
+import collections
+import inspect
 from .buffer import Buffer
 from . import parse
 import socket
@@ -72,6 +74,21 @@ class IRCHandler(object):
                 loops += 1
         except KeyboardInterrupt:
             sys.exit()
+
+    def register_callbacks(self):
+        self.__irccallbacks__ = collections.defaultdict(list)
+
+        # get a list of all methods in this (sub)class.
+        functions = list(dict(inspect.getmembers(self, predicate=inspect.ismethod)).values())
+
+        for function in functions:
+            if hasattr(function, "_callbackhooks"):
+                for item in function._callbackhooks:
+                    self.__irccallbacks__[item].append(function)
+
+    def register_callback(self, ctype, callback):
+        self.__irccallbacks__[ctype].append(callback)
+
 
     def _send(self, data, newline="\r\n", sock=None):
         """ Send data through the socket and append CRLF. """
