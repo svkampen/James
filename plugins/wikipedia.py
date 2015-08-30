@@ -163,7 +163,7 @@ def wikipedia_get(bot, nick, chan, arg, root=None):
         elif res['parse']['redirects'][0].get("to", None):
             htmlurl = url % (res['parse']['redirects'][0]['to'].replace(" ", "_"))
     sentences = bot.state.data["sentence_re"].findall(paragraph.text)[:2]
-    readmore = bot.style.color("⟶ %s\x0f" % (bot.state.data['shortener'](bot, htmlurl)), color="blue")
+    readmore = bot.style.color("\u2192 %s\x0f" % (bot.state.data['shortener'](bot, htmlurl)), color="blue")
     text = ''.join(sentences)
     if re.search("\[\d+\]", text):
         text = re.sub("\[\d+\]", "", text)
