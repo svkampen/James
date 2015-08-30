@@ -23,7 +23,7 @@ from collections import deque
 
 from utils.commandhandler import CommandHandler
 from utils.events import Event
-from utils.decorators import startinfo
+from utils.decorators import startinfo, IRCCallback
 
 VERSION = "5.3.3"
 MAX_MESSAGE_STORAGE = 256
@@ -41,7 +41,6 @@ class James(IRCHandler):
         # Bot state and logger.
         self.state = ServerState(self)
         self.config = config
-        self.manager = None
         self.style = Styler()
         self.defaultcolor = p(self.style.color, color="grey")
         self.hicolor = p(self.style.color, color="pink")
