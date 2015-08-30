@@ -60,16 +60,8 @@ class IRCHandler(object):
                     pmsg = parse.parse(msg)
                     if pmsg["method"] == "PING":
                         self._send("PONG "+pmsg["arg"])
-                    elif pmsg["method"] in ("376", "422"):
-                        self.is_welcome = True
-                        self.try_to_call("welcome", args=pmsg)
                     else:
-                        if not pmsg["method"].isdigit():
-                            self.try_to_call(pmsg["method"].lower(), args=pmsg)
-                        else:
-                            func = numerics.get(pmsg["method"], False)
-                            if func:
-                                self.try_to_call(func, args=pmsg)
+                        self.run_callback(pmsg["method"], pmsg)
 
                 loops += 1
         except KeyboardInterrupt:
@@ -90,6 +82,13 @@ class IRCHandler(object):
         self.__irccallbacks__[ctype].append(callback)
 
 
+    def run_callback(self, name_callback, *args):
+        funcs = self.__irccallbacks__[name_callback]
+
+        for function in funcs:
+            function(*args)
+
+
     def _send(self, data, newline="\r\n", sock=None):
         """ Send data through the socket and append CRLF. """
         self.outbuff.append(data+newline)
@@ -97,19 +96,6 @@ class IRCHandler(object):
             if self.verbose:
                 print("<<< "+msg)
             self.sock.send((msg+newline).encode("utf-8"))
-
-    def try_to_call(self, function, namespace=None, args=None, unpack=True):
-        """ Try to call a function. """
-        if not namespace:
-            namespace = self
-        if hasattr(namespace, function):
-            if not args:
-                getattr(namespace, function)()
-            else:
-                if type(args) not in (tuple, list) or not unpack:
-                    getattr(namespace, function)(args)
-                else:
-                    getattr(namespace, function)(*args)
 
     def senduser(self):
         """ Send the IRC USER message. """
