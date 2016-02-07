@@ -4,6 +4,7 @@ Style module
 
 import re
 import inspect
+import functools
 import random
 from plugins import rainbow
 
@@ -190,3 +191,8 @@ class Styler(object):
 
     def random_slow(self, msg):
         return self.minify(self.random(msg))
+
+    def __getattribute__(self, item):
+        if item in colors:
+            return functools.partial(self.color, color=item)
+        return super().__getattribute__(item)

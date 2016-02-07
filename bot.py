@@ -9,6 +9,7 @@ from utils.irc import IRCHandler
 from utils.sstate import ServerState
 from utils.threads import HandlerThread
 from utils.style import Styler
+from functools import partial
 import plugins
 
 import traceback
@@ -17,7 +18,6 @@ import ssl
 import sys
 import json
 import threading
-from functools import partial as p
 
 from collections import deque
 
@@ -42,8 +42,8 @@ class James(IRCHandler):
         self.state = ServerState(self)
         self.config = config
         self.style = Styler()
-        self.defaultcolor = p(self.style.color, color="grey")
-        self.hicolor = p(self.style.color, color="pink")
+        self.defaultcolor = self.style.gray
+        self.hicolor = self.style.pink
 
         # event stuff
         self.state.events.update({list(i.keys())[0]: Event(list(i.values())[0])
@@ -101,12 +101,12 @@ class James(IRCHandler):
         if trig_short and self.config["short_enabled"]:
             if hasattr(trig_short.function, "_require_admin"):
                 if nick.lower() in self.state.admins:
-                    self.cmd_thread.handle(p(trig_short,
+                    self.cmd_thread.handle(partial(trig_short,
                         self, nick, chan, cmd_args))
                     self.state.events["CommandCalledEvent"].fire(self,
                         trig_short, cmd_args)
             else:
-                self.cmd_thread.handle(p(trig_short,
+                self.cmd_thread.handle(partial(trig_short,
                         self, nick, chan, cmd_args))
                 self.state.events["CommandCalledEvent"].fire(self,
                     trig_short, cmd_args)
@@ -119,12 +119,12 @@ class James(IRCHandler):
 
             if hasattr(callback.function, "_require_admin"):
                 if nick.lower() in self.state.admins:
-                    self.cmd_thread.handle(p(callback,
+                    self.cmd_thread.handle(partial(callback,
                         self, nick, chan, cmd_args))
                     self.state.events["CommandCalledEvent"].fire(self,
                         callback, cmd_args)
             else:
-                self.cmd_thread.handle(p(callback,
+                self.cmd_thread.handle(partial(callback,
                         self, nick, chan, cmd_args))
                 self.state.events["CommandCalledEvent"].fire(self,
                     callback, cmd_args)
