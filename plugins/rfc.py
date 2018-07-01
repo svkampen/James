@@ -2,7 +2,9 @@ from .util.decorators import command, initializer
 from .util.data import get_doc
 
 import difflib
-
+import re
+import requests
+from bs4 import BeautifulSoup
 
 rfc_url = "http://tools.ietf.org/html/"
 rfcdata = {}
@@ -73,3 +75,24 @@ def rfcfind(bot, nick, chan, arg):
         return bot.msg(chan, get_doc())
     matches = fmatch(arg, rfcnames)
     return [bot.msg(chan, "%s -> %s%s" % (bot.hicolor(i[0]), rfc_url, rfcs[i[0]])) for i in matches]
+
+def rfc_link(bot, nick, chan, msg):
+    match = re.search(r"rfc\s*(\d{2,4})", msg, flags=re.I)
+    if (not match):
+        return
+
+    code = match.group(1)
+
+    rfc_html = requests.get("https://tools.ietf.org/html/rfc%s" % code).text
+
+    soup = BeautifulSoup(rfc_html, "lxml")
+    rfc_name = soup.title.text.split(' - ')[1]
+
+    rfc_link = "https://ietf.org/rfc/rfc%s.txt" % code
+
+    output = "%s %s" % (bot.hicolor(rfc_name + '|'), bot.defaultcolor(rfc_link))
+    bot.msg(chan, output)
+
+@initializer
+def plugin(bot):
+    bot.state.events.MessageEvent.register(rfc_link)
