@@ -58,6 +58,7 @@ if not json_dict["identify_service"]:
 
 json_dict["ident_pass"] = input("Password to identify with: ")
 json_dict["autojoin"] = []
+json_dict["muted"] = []
 
 for item in input("Channels to automatically join, seperated by ',': ").split(","):
     json_dict["autojoin"].append(item)

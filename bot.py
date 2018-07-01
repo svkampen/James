@@ -56,6 +56,9 @@ class James(IRCHandler):
             self.state.admins.add(entry.lower())
         self.state.nick = self.config["nick"]
 
+        for user in self.config["muted"]:
+            self.state.mute(user)
+
         # Various things
         self.cmdhandler = CommandHandler(self, plugins.get_plugins())
         self.cmd_thread = HandlerThread(self)
@@ -282,6 +285,12 @@ class James(IRCHandler):
         msg = msg["arg"].split(":", 1)[1]  # get msg
 
         self.state.events["MessageEvent"].fire(self, nick, chan, msg)
+
+        if nick in self.state.muted and chan.startswith('#'):
+            # In this case, we act like the message never happened
+            # We ignore mute status in private message, as mute is usually
+            # used to make the bot leave people alone.
+            return
 
         self._check_for_command(msg, nick, chan)
         self._check_for_re_command(msg, nick, chan)
