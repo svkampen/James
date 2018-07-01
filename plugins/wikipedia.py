@@ -35,12 +35,12 @@ def wiki_search(term, url=None):
     data = requests.get(url, headers=headers).json()
     pages = sorted([v for k,v in data['query']['pages'].items()], key=lambda x: x['index'])
 
-    pages = [page for page in pages if not 'disambiguation' in page['pageprops']]
+    pages = [page for page in pages if not 'disambiguation' in page.get("pageprops", tuple())]
     pages = [{key: t[key] for key in t if key not in ["ns", "index"]} for t in pages]
 
     return [p['title'] for p in pages]
 
-@command("bwiki", category="internet")
+@command("wiki", category="internet")
 def wiki_get(bot, nick, chan, arg, searchkey=None, api_url=None):
     """ wiki <page> -> Get a summary of a wikipedia article. """
     if not arg:
@@ -101,30 +101,30 @@ def wiki_get(bot, nick, chan, arg, searchkey=None, api_url=None):
     bot.msg(chan, output)
 
     # other possible pages
-    bot.msg(chan, bot.style.color("Did you mean: %s" % (' - '.join(results)), "gray"))
+    bot.msg(chan, bot.style.color("Other possibly relevant pages: %s" % (' - '.join(results)), "gray"))
 
 @command("ttdwiki", category="wiki")
 def ttdwiki(bot, nick, chan, arg):
     url = "https://wiki.openttd.org/w/api.php%s"
     return wiki_get(bot, nick, chan, arg, api_url=url)
 
-
 def get_html_url(response, soup, term):
-    if 'redirects' in response['parse']:
+    if response['parse']['redirects'] != []:
         if 'tofragment' in response['parse']['redirects'][0]:
             redirect = response['parse']['redirects'][0]
             return "https://en.wikipedia.org/wiki/%s#%s" % (redirect['to'], anchor)
-        elif 'to' in res['parse']['redirects'][0]:
+        elif 'to' in response['parse']['redirects'][0]:
+            redirect = response['parse']['redirects'][0]
             return "https://en.wikipedia.org/wiki/%s" % (redirect['to'].replace(" ", "_"))
     return "https://en.wikipedia.org/wiki/%s" % term
 
 def get_paragraph(response, soup):
-    if 'redirects' in response['parse'] and 'tofragment' in response['parse']['redirects'][0]:
+    if response['parse']['redirects'] != [] and 'tofragment' in response['parse']['redirects'][0]:
         anchor = res['parse']['redirects']['tofragment']
         return soup.find("span", {"id": anchor}).findNext("p")
     return soup.find('p')
 
-@command("wiki", category="internet")
+#@command("wiki", category="internet")
 def wikipedia_get(bot, nick, chan, arg, root=None):
     """ wiki <page> -> Get the first two sentences in a wikipedia article. """
     if not arg:
